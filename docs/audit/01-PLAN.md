@@ -133,7 +133,7 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 | A4 | **waiver 账期** —— 豁免须登记到期 phase,过期 → hard 阻断 | 刚性约束产生规避而非遵守;规避无声,故须提供有声通道 | 无 |
 | A5 | **amendment 影响面** —— 改契约 → 列出引用它的后续 phase → 标记重验 | T3 | 无 |
 
-**B 档(只是不同,不得当卖点):** 按架构层次分 phase;phase 状态按模块分片。
+**B 档(只是不同,不得当卖点)** —— **[示例]** BioGuard 形态示例,latch 不内建这两种切法:按架构层次分 phase;phase 状态按模块分片。
 
 ---
 
@@ -143,14 +143,14 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 
 | ID | 缺陷 | 改法 | 副作用 |
 |---|---|---|---|
-| D1 | 独立判定只在 commit 一瞬成立,phase 内部全是模型自评 | stage 级检查点,只跑最便宜的 hard 判据 | 检查点太密 → 人机械点过 → 橡皮图章。建议仅 >2h 的 phase 启用 |
+| D1 | 独立判定只在 commit 一瞬成立,phase 内部全是模型自评 | stage 级检查点,只跑最便宜的 hard 判据 | 检查点太密 → 人机械点过 → 橡皮图章。何时启用由项目决定 |
 | D2 | 闸门密度低于错误被依赖速度(违反 T3) | P2 PreToolUse hook,下沉到工具调用层 | hook 写错阻断合法操作;escape hatch 本身是漏洞 |
 | D3 | **人是瓶颈,与 LE 直接冲突** | 分级放行:`requires_human` 声明,低风险自动放行 | 分级可能定错。兜底:触发 amendment 无条件要人 |
-| D4 | **Phase 0 悖论** —— 理解最浅时做最有约束力的决定 | amendment + `provisional: true` 契约,Phase 2 末强制复审 | provisional 会被滥用。限额 ≤ 30% |
-| D5 | **可判定性天花板** —— "边界划得对不对"永远写不成退出码。**能硬化的恰恰不是最重要的** | 不能根治。① 承认;② Maker/Checker 交 Codex;③ 意见必须给行号 | token 翻倍;假阳性噪音 → 人忽略 advisory → 又回橡皮图章 |
-| D6 | **只跑过 Phase 0,且是最易的**(约束本质是"什么都别改") | 用 latch 建 latch,Phase 1 起真改代码 | 可能发现方法论不好用需大改。**这个代价必须付** |
+| D4 | **Phase 0 悖论** —— 理解最浅时做最有约束力的决定 | amendment + `provisional: true` 契约,到期强制复审(相对到期,默认 +2 phase) | provisional 会被滥用。限额 ≤ 30%(可覆盖默认) |
+| D5 | **可判定性天花板** —— "边界划得对不对"永远写不成退出码。**能硬化的恰恰不是最重要的** | 不能根治。① 承认;② Maker/Checker 交与 maker 不同的独立 checker(后端可配,例:Codex);③ 意见必须给行号 | token 翻倍;假阳性噪音 → 人忽略 advisory → 又回橡皮图章 |
+| D6 | **只跑过 Phase 0,且是最易的**(约束本质是"什么都别改")。**[示例]** latch 自举验证记录,不列入产品能力 | 用 latch 建 latch,Phase 1 起真改代码 | 可能发现方法论不好用需大改。**这个代价必须付** |
 | D7 | 元工作膨胀 | 预算写进方法论当 invariant;**方法论须含"删自己"的机制** | 预算太紧则该有的约束写不下 |
-| D8 | 理解债只解一半 —— 强制**产物**自足,未强制**人**读 | 报告加必须人填字段;Phase N 开始考 N-1 契约 | 会被敷衍。**本质无解,只降低无痛偷懒概率** |
+| D8 | 理解债只解一半 —— 强制**产物**自足,未强制**人**读 | 报告加必须人填字段;Phase N 开始考 `references_contracts` 指向的上游契约 | 会被敷衍。**本质无解,只降低无痛偷懒概率** |
 | D9 | `CLAUDE.md` 是**上下文**非强制配置。「零源码改动」是事后审计,非实时阻断 | P2 | 见 D2 |
 
 ---
@@ -167,7 +167,7 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 
 ### P2 PreToolUse hook ★
 
-让「零源码改动」从**承诺**变成**物理不可能**:模型试图 `Edit` `src/` 下文件 → hook 拒绝 → 该次工具调用根本不发生。
+让「零源码改动」从**承诺**变成**物理不可能**:模型试图 `Edit` 受保护路径下的文件 → hook 拒绝 → 该次工具调用根本不发生。受保护路径是 glob 清单,由项目填(默认示例 `src/**`);拦截器由 latch 提供。
 
 **产品第一个 demo。**不是"闸门拒绝 commit"(事后),而是"**模型越界被当场挡住**"(真约束)。
 
@@ -176,6 +176,8 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 ### P3 phase 表达为 workflow.yml
 
 **不改引擎,只用引擎。**
+
+> **示例:路径与文案按项目替换。**
 
 ```yaml
 steps:
@@ -206,7 +208,7 @@ steps:
 
 ### P6 waiver
 
-`waivers/<date>-<module>-phase<NN>-<gate-id>.md`
+`waivers/<date>-phase<NN>-<gate-id>.md`
 字段:闸门 / 实际值 vs 阈值 / 理由 / 补偿措施 / **到期 phase** / 批准
 过期未清 → hard 阻断
 
@@ -240,12 +242,19 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 ## §7 复杂度预算(硬约束)
 
+### 7a latch 自律上限(用户看不见)
+
 | 项 | 上限 |
 |---|---|
 | 本文档 | **400 行** |
 | `gate-check` 脚本 | 150 行 |
-| 每 phase 判据 | 6 条 |
 | latch 新增文件 | 8 |
+
+### 7b 默认预算(施加给用户,可覆盖)
+
+| 项 | 默认值 |
+|---|---|
+| 每 phase 判据 | 6 条 |
 | 元工作时间占比 | 15% |
 
 **明确不做:** Web UI;改 workflows 引擎;phase 状态机的程序化编排(人在环是特性);CI 集成。
@@ -265,6 +274,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | 7 | **「`workflows/` 不引用 `extensions/`,可安全删除后者」**(原 §2.2) | **错,方向是反的。**`overlays/schema.py:9` 与 `overlays/_commands.py:13` 均 `from ...extensions import normalize_priority`;`engine.py:886` 又 `from .overlays import WorkflowResolver`。**引擎按 ID 解析 workflow 的路径硬依赖 `extensions/`**;反向 0 import。**修正:删 `extensions/` 会打断引擎** |
 | 8 | 「`workflows/` ≈ 6,500 行」(原 §2.2) | **实测 11,691 行**,低报 44%。同口径下 `extensions/` 8,020、`presets/` 6,761 与原值差 <1%,故口径无疑,仅此项错 |
 | 9 | **「删 `extensions/` / `presets/` 以减重」** | 撤回。latch 的价值是新增契约治理层,不是精简上游。KEEP 零举证,删除需举证 —— 我们制造了一个本不需要论证的问题并为它消耗了三轮 |
+| 10 | **§7 混用了两种性质的预算** | latch 对自己的自律与施加给用户的默认值,已拆为 §7a/§7b |
 
 ---
 
