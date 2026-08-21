@@ -3,7 +3,7 @@
 | 项 | 值 |
 |---|---|
 | 项目名 | **latch** |
-| 上游 pin | `github/spec-kit` **v0.16.4** / `d1f50fc` / MIT |
+| 上游 pin | `github/spec-kit` **v1.0.0** / `bca6790` / MIT |
 | 版本 | **v0.1**(已按实测代码修订,未经独立审计) |
 | 收敛状态 | 未开始 |
 
@@ -16,7 +16,7 @@
 
 ### 一句话
 
-> Spec Kit 的引擎能跑机器判定的闸门。它自己的工作流没用过一次。
+> spec-kit 已发布 1.0。它的引擎能跑机器判定的闸门 —— 而它自己的官方 workflow,78 行,依然是 0 个 shell step、2 个纯人工点批准。**这不是尚未完成,是设计选择。**
 > **latch 是把那个引擎真正用起来的方法论** —— 带判据、带证据、带技术债账期、带契约影响面追踪。
 
 ### 可核实的依据(任何人两分钟能验)
@@ -69,7 +69,7 @@ LE 自己承认三个未解问题,latch 对应三个解:
 | 事实 | 位置 | 对 latch 的意义 |
 |---|---|---|
 | `shell` step 真跑 `subprocess.run`,`returncode != 0` → `StepStatus.FAILED` | `workflows/steps/shell/` 169 行 | **`gate-check.sh` 的语义已实现,不用写** |
-| FAILED → `RunStatus.FAILED` → 流水线停止;`continue_on_error` 需显式开启 | `workflows/engine.py` 1737 行 | 默认即阻断 |
+| FAILED → `RunStatus.FAILED` → 流水线停止;`continue_on_error` 需显式开启 | `workflows/engine.py` 1788 行 | 默认即阻断 |
 | `gate` step:交互审批,`on_reject: abort` 默认;非 TTY → `PAUSED`,可 `workflow resume` | `workflows/steps/gate/` 340 行 | 人在环 + 可恢复,已实现 |
 | 控制流:`while_loop` / `do_while` / `fan_out` / `fan_in` / `switch` / `if_then` | `workflows/steps/` | 审计 loop 可直接用它编排 |
 
@@ -92,19 +92,19 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 ```
 
 依赖链(实测,路径+行号):
-`engine.py:886 from .overlays import WorkflowResolver`
+`engine.py:929 from .overlays import WorkflowResolver`
 → `overlays/__init__.py:15 from .schema import ...`
 → `overlays/schema.py:9 from ...extensions import normalize_priority`
 → 定义于 `extensions/__init__.py:185`
 
 | 板块 | 行数 | 处置 |
 |---|---|---|
-| `workflows/` | **11,691**(实测 24 个 .py) | 保留,只读 |
-| `extensions/` | **8,020**(实测) | 保留,只读 |
-| `presets/` | **6,761**(实测) | 保留,只读 |
-| `commands/bundle/` | ~1,100(未复核) | 保留,只读 |
-| `integrations/` | ~7,000(未复核) | 保留,只读 |
-| `events.py` | 2,519(未复核) | 保留,只读 |
+| `workflows/` | **12,072**(实测 24 个 .py) | 保留,只读 |
+| `extensions/` | **8,175**(实测) | 保留,只读 |
+| `presets/` | **6,776**(实测) | 保留,只读 |
+| `commands/bundle/` | **1,103**(实测) | 保留,只读 |
+| `integrations/` | **10,410**(实测) | 保留,只读 |
+| `events.py` | **2,570**(实测) | 保留,只读 |
 
 ### 2.3 改名工作量
 
