@@ -73,15 +73,22 @@ LE 自己承认三个未解问题,latch 对应三个解:
 | `gate` step:交互审批,`on_reject: abort` 默认;非 TTY → `PAUSED`,可 `workflow resume` | `workflows/steps/gate/` 340 行 | 人在环 + 可恢复,已实现 |
 | 控制流:`while_loop` / `do_while` / `fan_out` / `fan_in` / `switch` / `if_then` | `workflows/steps/` | 审计 loop 可直接用它编排 |
 
-### 2.2 耦合方向(决定能删什么)
+### 2.2 上游代码盘点(背景资料,不驱动任何决策)
+
+> **处置已定:保留全部 spec-kit 代码,vendor 化,只读。**
+> latch 全部是新增文件,不修改 `vendor/spec-kit/` 任何内容。
+> 以下依赖关系仅供理解引擎怎么跑,**不驱动删除决策**。
 
 > ⚠️ 名字有二义:`workflows/`/`extensions/`/`presets/` 在仓库里**各有两份** ——
 > 仓库根的资产目录,和 `src/specify_cli/` 下的 Python 包。本节讲代码,一律指后者。
 
 ```
-workflows/  →  extensions/    2 处 import,且在引擎解析路径上   ❌ 不可直接删
+workflows/  →  extensions/    2 处 import,在引擎按 ID 解析 workflow 的路径上
 workflows/  →  presets/       0 import(仅 steps/init 传 --preset 参数)
 extensions/presets  →  workflows     0 import(只有注释与字符串)
+
+specify_cli/__init__.py  →  extensions / integrations / presets / commands.bundle / workflows
+                            模块级 eager import,包根一执行即注册全部子系统
 ```
 
 依赖链(实测,路径+行号):
@@ -92,14 +99,12 @@ extensions/presets  →  workflows     0 import(只有注释与字符串)
 
 | 板块 | 行数 | 处置 |
 |---|---|---|
-| `workflows/` | **11,691**(实测 24 个 .py) | **保留,一行不改** |
-| `extensions/` | **8,020**(实测) | **删除被上述依赖链阻断,待解** |
-| `presets/` | **6,761**(实测) | 删 |
-| `commands/bundle/` | ~1,100(未复核) | 删 |
-| `integrations/` | ~7,000(未复核) | 保留,首发裁剪至 4–5 个 |
-| `events.py` | 2,519(未复核) | **待查**:是否为 workflows 依赖 |
-
-删除量与「不触碰引擎」的结论随 `extensions/` 一并**待重算**。
+| `workflows/` | **11,691**(实测 24 个 .py) | 保留,只读 |
+| `extensions/` | **8,020**(实测) | 保留,只读 |
+| `presets/` | **6,761**(实测) | 保留,只读 |
+| `commands/bundle/` | ~1,100(未复核) | 保留,只读 |
+| `integrations/` | ~7,000(未复核) | 保留,只读 |
+| `events.py` | 2,519(未复核) | 保留,只读 |
 
 ### 2.3 改名工作量
 
@@ -226,11 +231,9 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 | ID | 问题 | 阻塞 |
 |---|---|---|
-| Q1 | `events.py`(2519 行)是否为 workflows 依赖?若是则不能随 extensions 一起删 | §2.2 删除清单 |
 | Q2 | **stage 是否已是 BioGuard 既有概念?**(曾出现「stage self-checks」) | P1 第 2 层设计 |
 | Q3 | 能写出几条**真可机器验证**的 invariant?若零,则回归带是空壳 | P3 |
 | Q4 | PreToolUse escape hatch 如何不成为后门? | P2 |
-| Q5 | integrations 首发保留哪 4–5 个? | §2.2 |
 | Q6 | waiver 现在做还是等第一次真撞上?倾向后者 | P6 优先级 |
 
 ---
@@ -261,6 +264,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | 6 | **「硬闸门装进它的机箱会变软」** | 由 #4 推出,随之失效 |
 | 7 | **「`workflows/` 不引用 `extensions/`,可安全删除后者」**(原 §2.2) | **错,方向是反的。**`overlays/schema.py:9` 与 `overlays/_commands.py:13` 均 `from ...extensions import normalize_priority`;`engine.py:886` 又 `from .overlays import WorkflowResolver`。**引擎按 ID 解析 workflow 的路径硬依赖 `extensions/`**;反向 0 import。**修正:删 `extensions/` 会打断引擎** |
 | 8 | 「`workflows/` ≈ 6,500 行」(原 §2.2) | **实测 11,691 行**,低报 44%。同口径下 `extensions/` 8,020、`presets/` 6,761 与原值差 <1%,故口径无疑,仅此项错 |
+| 9 | **「删 `extensions/` / `presets/` 以减重」** | 撤回。latch 的价值是新增契约治理层,不是精简上游。KEEP 零举证,删除需举证 —— 我们制造了一个本不需要论证的问题并为它消耗了三轮 |
 
 ---
 
