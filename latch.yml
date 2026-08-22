@@ -57,7 +57,7 @@ gates:
     demo_pass_exit: 0
     demo_fail: fixture 配置（某条判据缺 demo_fail_exit，或双向同号）
     demo_fail_exit: 1
-    demo_report: reports/phase3-PENDING.md
+    demo_report: reports/phase3-cad8012.md
 
   - id: report-pin
     level: hard
@@ -67,7 +67,7 @@ gates:
     demo_pass_exit: 0
     demo_fail: 伪 hash（deadbee）
     demo_fail_exit: 1
-    demo_report: reports/phase3-PENDING.md
+    demo_report: reports/phase3-cad8012.md
 
 # 预算(01-PLAN §7a / CLAUDE.md B6)
 budget:
