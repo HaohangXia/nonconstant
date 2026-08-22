@@ -1,77 +1,59 @@
 # STATUS — 现在做什么
 
 > **本文件是唯一记录"现在做什么"的地方。**
-> `01-PLAN.md` 记"方案是什么"。两者职责不同,不要混写。
-> ⛔ 上限 60 行。
+> `01-PLAN.md` 记"方案是什么";⛔ **历史与理由归 `03-LEDGER.md`,不在这里复述。**
+> ⛔ 上限 60 行 —— ⭐ 现由 `.latch/doc-budget.sh` **机器检查**(协议 C8)。
 
 ## 当前状态
 
 | 项 | 值 |
 |---|---|
 | 日期 | 2026-08-22 |
-| 最后 commit | `14346eb`(17 号决策记录);本文件随后一次 docs 提交更新 |
 | 上游 pin | spec-kit **v1.0.0** / `bca6790` |
+| §10 阶段 | ⭐ **Phase 0~3 全部完成** |
 
 ## latch 现在有什么
 
-⛔ **零行代码。**只有 `docs/` + `.claude/agents/` + `vendor/spec-kit`(只读参考)。
+⭐ **5 条判据,全部以退出码作答、非交互:**
 
-## DevLoop 侧进度
-
-| | 项 | 内容 |
+| 判据 | 实现 | 级别 |
 |---|---|---|
-| ✅ | 第 0 条 | 提交 + phase 报告(`a69c7c7`) |
-| ✅ | Q1 | fixture 动态复制,仓库内零静态副本 |
-| ✅ | Q2 | 换函数作用域扫描 ⇒ 0 处真静默(原 10 处含误报) |
-| ✅ | 核验 | 六项任务完成,产出五条推翻(已折进 `01-PLAN.md`) |
-| ✅ | 追加核验 | 编排三层归类 + Task 工具实测(`dca84db`,14 号) |
-| ✅ | 决策记录 | DevLoop 侧独有的技术决定(`14346eb`,17 号) |
-| ⬜ | ① | 验扫描器:在清理修复**之前**的 commit 上跑,必须命中 `worktree.py::remove` |
-| ⬜ | ② | 三处 helper:改成非零即抛,或开一条 waiver |
-| ⬜ | ④ | 第七项(pytest 闸)拿到首个非 FAIL |
-| ⬜ | ③ | 三次取上界 → 定预算 → 落元判据 |
-| ⬜ | ⑤ | 接 spec-kit 内建 shell step,红检 + 绿检都做 |
+| `criteria-guard` | `.latch/gates.sh` | hard |
+| `silent-scan` | `.latch/scan-silent.sh` | hard |
+| `meta-gate` | `.latch/meta-gate.sh` | hard |
+| `report-pin` | `.latch/report.sh` | hard |
+| `doc-budget` | `.latch/doc-budget.sh` | soft |
 
-## ⭐⭐ §10 四个 phase 全部完成 —— 三条未决已解锁
+配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~3-*.md`
+⛔ **未接编排层**,⛔ 无 `workflows/latch/workflow.yml`。
 
-| 项 | 内容 | 触发条件 |
-|---|---|---|
-| **Q13** | 安装形态(① 安装脚本 ② spec-kit extension ③ PyPI 包) | 「Phase 1~3 完成后」⇒ ⭐ **已满足** |
-| **Q17** | 编排层的可自动化边界 | 「Phase 3 后」⇒ ⭐ **已满足** |
-| **T6 候选** | 「凡让修复成本随时间上升的机制,必然固化错误」升格为定理 | 「Phase 3 后,与 Q17 同批」⇒ ⭐ **已满足** |
+## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理)
 
-⛔ 三条本轮均**未处理**,⭐ 只标解锁。下一轮再定先做哪个。
+| 项 | 内容 |
+|---|---|
+| **Q13** | 安装形态:① 安装脚本 ② spec-kit extension ③ PyPI 包 |
+| **Q17** | 编排层的可自动化边界 |
+| **T6 候选** | 「凡让修复成本随时间上升的机制,必然固化错误」升格为定理 |
 
-## latch 侧下一步
+## ⛔ 下一 phase 开工前必做
 
-- ✅ **Q8 答死**(`dca84db`):Task 工具的隔离**不够** —— 作用域不可控 + 不拦跨边界写
-- ✅ **hook 实验已跑**(`5a29b5d`,15 号):`Write`/`Edit` 事前阻断(主会话 **与** sub-agent);⛔ `Bash` 两次均未拦
-- ⬜ **Phase 0 · 边界锁定**(`01-PLAN.md` §10)—— 零代码,可以开工
-- ⛔ **Phase 4(hook)不排期**,等 Q11
+1. ⬜ 决定先做 Q13 / Q17 / T6 哪一个
+2. ⬜ 元判据「只查登记、不查真跑」的边界 —— 已在 `latch.yml` 就地标注,⛔ 判定为**不修**
+3. ⬜ Q11 · hook 排名重估(§8 #17);Q16 已由 **A004** 关闭
+4. ⬜ **隔离工位怎么实现** —— §3 排名第 1,⛔ §8 #15 撤回「= git worktree」后**无实现路径**
 
-## ⛔ 当前阻塞(两条,都不挡 Phase 0)
+## DevLoop 侧待办(⛔ 不属 latch)
 
-1. **Q11 · hook 排名重估** —— 实证已从「只覆盖架构 A」收窄为「覆盖 A + B 的一半」(§8 #17)
-2. **隔离工位怎么实现** —— §3 排名第 1,但 §8 #15 撤回了「= git worktree」⇒ ⛔ 目前无实现路径
+⬜ ① 验扫描器(在清理修复**之前**的 commit 上跑)· ⬜ ② 三处 helper 非零即抛或开 waiver
+⬜ ③ 三次取上界 → 定预算 → 落元判据 · ⬜ ④ 第七项(pytest 闸)拿到首个非 FAIL
+⬜ ⑤ 接 spec-kit 内建 shell step,红检 + 绿检都做
 
-## ⚠️ 2026-08-22 越权事件(已落盘)
+## ⚠️ 已知债务
 
-只读禁令下,一个 sub-agent 写盘并提交(`14346eb`)。⇒ **prompt 禁令对 sub-agent 免疫度为 0。**
-⭐ 与 15 号构成同场景 A/B 对照(prompt 未拦住 / hook 拦住了)。详见 `03-LEDGER.md` `LATCH-subagent-override`。
+⚠️ **全局 hook** `block-no-verify` 误拦含 `grep -n` + `commit` 的命令,连带拦 `--amend`。
+**复发 4 次**;⭐ 2026-08-22 重估维持「⛔ 不修」—— 代价仅为多跑几条命令,⛔ 未改变过做法或产物。
+⭐ 规避:避开 `-n` 与 `commit` 同时出现。⚠️ 复发次数须更新 —— ⛔ 不更新的计数等于没计数(F1)。
+根因见 `03-LEDGER.md` `LATCH-hook-three-legs`。
 
-## ⚠️ 已知债务(⛔ 不属 latch 核验范围)
-
-⭐ **`01-PLAN.md` 行数预算已由 A001 改范围 + 降级**(`amendments/A001-line-budget-scope-and-level.md`):
-现行结论(档案 = §2/§8/§9,**其余一律计入**)**295 / 400**,余量 105;全文 407 行。级别 **soft**。
-⛔ **但 waiver 机制未实现** ⇒ 在它存在之前该上限**实为建议**(A001 `known_gaps` #1)。
-⚠️ ⭐ 该上限本身是**代用品判据**(§6 Q15),⛔ 精简前先看 `03-LEDGER.md` `LATCH-proxy-criterion` —— 搬去 LEDGER 不算精简。
-
-⚠️ 全局 hook(`block-no-verify`,`~/.claude` 侧)**误拦**含 `grep -n` + `commit` 的命令,连带拦 `--amend`。
-根因见 `03-LEDGER.md` `LATCH-hook-three-legs`。⭐ 规避:命令里避开 `-n` 与 `commit` 同时出现。
-⚠️ **复发计数:4 次**(A001 轮 3 次连拦 + C7 轮 1 次)。⭐ **2026-08-22 重估:维持「⛔ 不修」** ——
-代价经查**仅为多跑几条命令**,⛔ **未曾改变任何做法或产物**(逐条核过,见该轮报告)。
-⚠️ 复发次数须持续更新 —— ⛔ 一个不更新的计数等于没计数(F1)。
-
-DevLoop 侧 `%TEMP%` 下残留 **249** 条 worktree 登记(目录仍在,不算 prunable)。
-来源 = 闸自己的一次性 worktree(`devloop/gates.py:619`,`prefix="devloop-wt-"`)。
-⛔ 清理属 **DevLoop 维护**。
+⚠️ **waiver 机制仍未实现** ⇒ 所有 soft 上限在它存在前**实为建议**(`A001` `known_gaps` #1)。
+⚠️ DevLoop 侧 `%TEMP%` 残留 **249** 条 worktree 登记(`devloop/gates.py:619`)⇒ ⛔ 属 DevLoop 维护。
