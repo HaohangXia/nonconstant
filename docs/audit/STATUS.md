@@ -51,7 +51,8 @@
 
 ## ⚠️ 已知债务(⛔ 不属 latch 核验范围)
 
-⚠️ **`01-PLAN.md` 395/400,余量 5 行。⛔ 下次新增前须先精简。**
+⚠️ **`01-PLAN.md` 399/400,余量 1 行。⛔ 下次新增前须先精简。**
+⚠️ ⭐ 该上限本身是**代用品判据**(§6 Q15),⛔ 精简前先看 `03-LEDGER.md` `LATCH-proxy-criterion` —— 搬去 LEDGER 不算精简。
 
 ⚠️ 全局 hook(`block-no-verify`,`~/.claude` 侧)**误拦**含 `grep -n` + `commit` 的命令,连带拦 `--amend`。
 根因见 `03-LEDGER.md` `LATCH-hook-three-legs`。⛔ **不修** —— 它在全局配置,改动影响所有项目,属环境维护。
