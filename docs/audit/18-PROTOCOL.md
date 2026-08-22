@@ -28,11 +28,11 @@
 
 | # | 判据 | 规则 | 来源 |
 |---|---|---|---|
-| K1 | ⛔ 不改 `vendor/spec-kit/` | `CLAUDE.md` B2 |
+| K1 | ⭐ 已机器化(Phase 7) | ⛔ 不改 `vendor/spec-kit/` | `CLAUDE.md` B2 |
 | K2 | ⚠️ 缺口 | `01-PLAN.md` **§8 只增不删** | `01-PLAN.md` §8 |
-| K3 | ⛔ **不 import DevLoop 一行代码** | `CLAUDE.md` B3 |
+| K3 | ⚠️ 缺口 | ⛔ **不 import DevLoop 一行代码** | `CLAUDE.md` B3 |
 | K4 | ⛔ D5 | **白名单式 `git add`**,逐个文件点名 | Phase 0 / Phase 1 收尾惯例 |
-| K5 | ⭐ 跨 session 的结论**先落盘再讨论** | `01-PLAN.md` §7c |
+| K5 | ⛔ D5 | ⭐ 跨 session 的结论**先落盘再讨论** | `01-PLAN.md` §7c |
 | K6 | ⚠️ 缺口 | ⛔ 对已冻结契约的变更**走独立入口**(amendment),列影响面 + 要求重验 | `01-PLAN.md` §7c · `amendments/A001-*.md` |
 
 ## §3 事实核对(⭐ 三条,全部"以磁盘为准")
@@ -52,11 +52,12 @@
 |---|---|---|---|
 | C1 | ⚠️ 缺口(部分) | 判据 = **一条能跑的命令 + 期望退出码**;⛔ 写不成命令的停下报告 | `01-PLAN.md` §10 |
 | C2 | ⭐ 已机器化 | ⭐ 新增或修改判据须**当场演示一过一失败**;⛔ 演示不出 = 常量,不是判据 | `LATCH-constant-criterion` · `LATCH-constant-criterion-inverse` |
-| C3 | ⭐ **红检对 fixture 跑,⛔ 不对真源跑**;fixture 用**真判据**,只有被测内容是假的 | `amendments/A001-*.md` §4.3 |
-| C4 | ⛔ 判据不得引用不存在的路径(恒不命中 = 常量) | `CLAUDE.md` B4 |
+| C3 | ⛔ D5 | ⭐ **红检对 fixture 跑,⛔ 不对真源跑**;fixture 用**真判据**,只有被测内容是假的 | `amendments/A001-*.md` §4.3 |
+| C4 | ⚠️ 缺口 | ⛔ 判据不得引用不存在的路径(恒不命中 = 常量) | `CLAUDE.md` B4 |
 | C5 | ⭐ 已机器化 | ⚠️ 闸的 **base 必须由操作者给**,⛔ 不得由被判定者给 | `LATCH-input-control` |
 | C6 | ⚠️ 缺口(部分) | ⭐⭐ **闸门缺失必须比闸门判红更严重。**编排层 ⛔ 不得把「命令不存在」(**127**)等同于「未配置 ⇒ 跳过」 | `LATCH-missing-gate-is-silent` |
 | C8 | ⭐ 已机器化 | ⭐⭐ **写下的上限必须有机器判据,⛔ 否则它是建议不是约束。**⚠️ 靠「每轮要求报数字」执行的上限是**人肉判据**,换 session 即失效 | `LATCH-uncheckable-limit` |
+| C9 | ⭐ 已机器化(惯例) | ⭐⭐ **fixture 复制得了内容,⛔ 复制不了身份。**当被测性质就是「身份」(是不是 submodule / 是不是真闸)时,⭐ **必须动真源**,C3 让位;⚠️ 但须 ① 当场复原 ② 复原后复跑绿检 ③ 报告中声明 | `LATCH-fixture-cannot-carry-identity` |
 | C7 | ⚠️ 缺口 | ⭐ **ID 命名空间必须带作用域前缀。**本文条款 `R`/`K`/`F`/`C`+数字(全局唯一)· 完成报告内的契约 **`P<N>-`** 前缀(如 `P2-C1`,⛔ 仅报告内有效)· LEDGER 条目 `LATCH-<kebab>` · amendment `A<NNN>`。⇒ ⛔ **跨文件复用同一前缀 = 撞号** | 本轮 `C6` 撞号(协议 C6 vs Phase 2 报告 C6) |
 
 ## §5 ⛔ 已撤回的约束(⛔ 不要重新施加)
