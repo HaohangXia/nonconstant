@@ -69,7 +69,17 @@
 | 7 | `.latch/report.sh` | Phase 3 | ⬜ |
 | 8 | `workflows/latch/workflow.yml` | 接 spec-kit `shell` step | ⬜ |
 
-⚠️ ⛔ **原「#8 预留」已被这次对齐吃掉** —— 8 个名额**全部指名**,不再有预留。见 `amendments/A002-b6-slot-alignment.md`。
+⚠️ ⛔ **原「#8 预留」已被 A002 的对齐吃掉** —— 8 个名额**全部指名**。见 `amendments/A002-b6-slot-alignment.md`。
+
+⭐ **模型 = 8 个指名名额 + 预算外余量**(A003)。⛔ 预留不是「第 8 格」,是**预算之外的口子** —— 放在格子里就会被挤掉(F5)。
+
+| | 余量 |
+|---|---|
+| 用途 | ⭐ ① 修正自身的产物(amendment · 协议 · 勘误);⚠️ ② 计划外发现所必需的最小文件。⛔ 其它一律走名额 |
+| 上限 | ⛔ **不设** —— 设了就又是一个会被吃光的预算(F5) |
+| 约束 | ⭐ **用了必须在该 phase 完成报告的 `known_gaps` 登记**:用了什么 · 属①还是② · 为什么名额装不下。⛔ **用了不登记 = 静默(T5)** |
+
+⚠️ ⛔ `01-PLAN.md` §7a 尚未同步「余量不计入」⇒ 口径暂不一致,见 `amendments/A003-budget-headroom.md` `known_gaps` #1。
 
 ⛔ **第 9 个文件 = amendment。**⛔ 用"拆成多个小文件"绕过计数,同样是 amendment。
 
