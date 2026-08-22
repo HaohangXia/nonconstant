@@ -15,6 +15,11 @@ protected:
 # 依据:§6 Q16 · LATCH-input-control · amendments/A004-base-from-config.md
 base: HEAD
 
+# ⭐⭐ 上游 pin。⛔ 「pin」必须是可核事实,不是一句话(A005)。
+#    vendor/spec-kit 是 submodule ⇒ 它记的**就是 commit 本身**,
+#    ⛔ 不是版本声明、不是内容摘要。判据见 .latch/upstream-pin.sh。
+upstream_pin: bca679051abb80d6cf0cd909f2539a28a10eb7eb
+
 # 判据清单。level: hard = 阻断且不可 waiver(01-PLAN §5 P4)
 #
 # ⭐⭐ 元判据(§3 序 4):每条判据必须登记「一过一失败」的演示,否则不得启用。
