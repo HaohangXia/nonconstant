@@ -404,4 +404,35 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 - 元判据 新判据未演示"一过一失败" → `bash .latch/gates.sh --meta` ⇒ **非 0**
 - 报告绑定 `git merge-base --is-ancestor "$(ls reports/phase$N-*.md | sed 's/.*-//;s/\.md$//')" HEAD` ⇒ **0** —— ⭐ 报告名 = **它所描述的那个 commit**,⛔ 非当下 HEAD ⇒ 求值时机从「当下」变为「任何时候」(实测 绿 0 / 红 128)
 
-⛔ **只写 0~3。**Phase 4(hook)等 **Q11** 重估后再定。
+### Phase 4 · STATUS 事实判据(⭐ 地基:说假话的 STATUS 会误导后面每一个 phase)
+
+**实证:**2026-08-22 实测 `STATUS.md` 同时有三句假话 ——「零行代码」(实为 5 条判据已提交)·「Phase 0 可以开工」(实为 0~3 全完成)·「最后 commit」停在十几个 commit 之前。⛔ `doc-budget` 一句都抓不到。
+
+⭐ **可判定**,因为 STATUS 写的是**状态**,而状态由仓库决定 ⇒ 每条断言都有对应物。
+
+- 绿检 `bash .latch/status-facts.sh` ⇒ **0**
+- 红检 `bash .latch/status-facts.sh <fixture:把判据条数改错>` ⇒ **非 0**
+- ⚠️ 至少覆盖:判据条数 ⇔ `latch.yml` 的 `- id:` 计数 · 已完成 phase ⇔ `reports/phase*.md` · 文中每个文件路径存在
+
+### Phase 5 · waiver 到期判据(⛔ 现有 3 条 waiver,一条都没人查到期)
+
+**实证:**`latch.yml` 已有三处豁免形态(自扫排除 · `doc-budget` 的 `waiver_*` · A001 的 soft 上限),⛔ **到期从未被检查** —— 这与 `LATCH-uncheckable-limit` **完全同族**:写下的到期没有判据 = 没有到期。
+
+- 绿检 `bash .latch/waiver-expiry.sh` ⇒ **0**
+- 红检 `bash .latch/waiver-expiry.sh <fixture:把某 until 设为已完成的 Phase 1>` ⇒ **非 0**
+- ⚠️ 当前 phase 取自 `reports/phase*.md` 的最大编号;⛔ `until` 不是具体 phase ⇒ 判红
+
+### Phase 6 · Q13 安装形态
+
+⭐ 验收**判结果、⛔ 不判机制**(D-12)—— 无论用脚本 / extension / PyPI,后置条件相同:
+
+- 绿检 装进一个**空的临时仓**后,在其中 `bash .latch/meta-gate.sh` ⇒ **0**
+- 红检 装进一个**已有 `latch.yml`** 的仓 ⇒ **非 0**(⛔ 不得静默覆盖)
+
+### Phase 7+ · Q17 编排层
+
+⛔ **本轮不排。**⚠️ 它的形态取决于 Q13 的答案(装成 spec-kit extension ⇒ `workflow.yml`;独立 ⇒ 另一套)。
+⇒ ⛔ 在 Q13 答完之前,验收命令写不出来 —— **按铁律不得列为阶段目标**。
+⚠️ 它须一并吞掉:**127 显式处理**(C6)· 判据路径参数固定(A004 `known_gaps`)· 空目录 vacuous 第四态。
+
+⚠️ **⛔ Q11(hook 排名重估)不单列 phase** —— 它是**判断**,验收写不成命令。⇒ 归入 Phase 7 的准入条件。
