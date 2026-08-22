@@ -164,6 +164,8 @@ doc_budgets:
     max_lines: 80
   - file: docs/audit/STATUS.md
     max_lines: 60
+  - file: docs/audit/19-STATUS-ASSERTIONS.md
+    max_lines: 70
 
 # 预算(01-PLAN §7a / CLAUDE.md B6)
 budget:
