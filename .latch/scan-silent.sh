@@ -56,13 +56,18 @@ done
 FINDINGS=""
 
 # ── 第一类:点位判据(与作用域无关 —— 信号在该处就被丢弃)──────────
+# ⭐⭐ Phase 10:消息文本用**模式的名字**(OR-TRUE / STDERR-DEVNULL),
+#    ⛔ 不嵌模式本身 —— 否则本文件会命中自己,而那需要一条豁免来遮盖。
+#    ⚠️ 实测:这是自扫豁免的**全部**根因(恰好 2 处,都在 printf 里,⛔ 不在正则里);
+#    改两句措辞即消除,**0 净增行**。⛔ 「要真解析器才能消」已被证伪。
+#    ⇒ ⛔ 谁把字面模式写回消息里,自扫立刻判红 —— ⭐ 那是自防,不是故障。
 # `|| true` / `2>/dev/null` / `except ...: pass`
 for f in $FILES; do
   [ -r "$f" ] || die_broken "读不了 $f"
   hits=$(awk '
     /^[ \t]*#/                  { prev = $0; next }   # ⛔ 注释行不是代码,跳过
-    /\|\|[ \t]*true/            { printf "%s:%d\t|| true —— 失败被吞\n", FILENAME, NR }
-    /2>[ \t]*\/dev\/null/       { printf "%s:%d\t2>/dev/null —— 错误输出被丢弃\n", FILENAME, NR }
+    /\|\|[ \t]*true/            { printf "%s:%d\tOR-TRUE 惯用法 —— 失败被吞\n", FILENAME, NR }
+    /2>[ \t]*\/dev\/null/       { printf "%s:%d\tSTDERR-DEVNULL 惯用法 —— 错误输出被丢弃\n", FILENAME, NR }
     /except[^:]*:[ \t]*pass[ \t]*$/ { printf "%s:%d\texcept: pass —— 异常被吞\n", FILENAME, NR }
     /^[ \t]*pass[ \t]*$/ && prev ~ /^[ \t]*except/ { printf "%s:%d\texcept: pass(跨行)—— 异常被吞\n", FILENAME, NR }
     { prev = $0 }
@@ -115,6 +120,8 @@ if [ -n "$(printf '%s' "$FINDINGS" | tr -d '[:space:]')" ]; then
   printf '⛔ silent-failure-scan FAIL —— 发现静默失败:\n' >&2
   printf '%s' "$FINDINGS" | sed '/^$/d; s/^/   · /' >&2
   printf '⇒ T5:失败不改变可观测输出 ⇒ 无人知晓 ⇒ 无人修 ⇒ 必然累积到灾难规模。\n' >&2
+  printf '⚠️ 若命中落在**判据自身的消息文本**里(不是真的静默失败)——\n' >&2
+  printf '   ⭐ 改那句措辞(用模式的名字,别嵌模式本身),⛔ 不要开豁免。见 Phase 10。\n' >&2
   exit 1
 fi
 

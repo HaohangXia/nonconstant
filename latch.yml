@@ -67,15 +67,9 @@ gates:
     demo_report: reports/phase2-5a3420d.md
     # ⚠️ 尚未接入编排层；当前需显式给扫描目录。见 reports/phase2-*.md known_gaps
     #
-    # ⛔ 显式豁免。⭐ 这是 waiver 的最小形态：理由 + 到期，皆为受判据检查的字段，
-    #    ⛔ 不是注释。改动本块 = 改判据 ⇒ criteria-guard 判红。
-    exclude:
-      - path: .latch/scan-silent.sh
-        reason: 自指——本工具用文本匹配查找文本模式，其源码必然包含那些模式串（要打印出来）；任何此类工具必然对自己判红
-        until: Phase 10 —— 自扫豁免被【消除】（⛔ 非被满足）。⚠️ Phase 10 第一条验收就是本 exclude 项已不存在；⛔ 看到 Phase 10 完成就直接删本项之前，先跑那条验收
-        # ⚠️ ⛔ 原措辞「引入真解析器后移除（解析器会让 103 行变上千行）」已实测证伪：
-        #    自扫命中恰好 2 处，都在 printf 的消息文本里，⛔ 不在正则里；改两句措辞即消除，0 净增行。
-        #    ⇒ 那是一个【没量根因就下的成本估算】，高估两个数量级。见 LEDGER/LATCH-cost-estimated-without-root-cause、协议 F6。
+    # ⭐⭐ Phase 10:自扫豁免已【消除】(⛔ 非被满足)。原 exclude 块整块删除 ——
+    #    根因是消息文本嵌了模式串,改用模式的名字即可,0 净增行。
+    #    ⛔ 不要因为自扫判红就把它加回来:先看 FAIL 输出末尾那两行提示。
 
   - id: meta-gate
     scope: project
