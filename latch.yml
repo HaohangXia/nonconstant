@@ -87,6 +87,16 @@ gates:
     demo_fail_exit: 1
     demo_report: reports/phase4-900b8de.md
 
+  - id: waiver-expiry
+    level: hard
+    impl: .latch/waiver-expiry.sh
+    desc: 豁免到期——写下的到期没有判据 = 没有到期
+    demo_pass: 真源（until = Phase 9，未到达且已排期）
+    demo_pass_exit: 0
+    demo_fail: fixture（until 指向已完成的 Phase 1 / 非具体 phase / 未排期的 Phase 99）
+    demo_fail_exit: 1
+    demo_report: reports/phase5-30005dc.md
+
   - id: doc-budget
     level: soft
     impl: .latch/doc-budget.sh

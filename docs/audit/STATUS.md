@@ -10,11 +10,11 @@
 |---|---|
 | 日期 | 2026-08-22 |
 | 上游 pin | spec-kit **v1.0.0** / `bca6790` |
-| §10 阶段 | ⭐ **Phase 0~4 全部完成** |
+| §10 阶段 | ⭐ **Phase 0~5 全部完成** |
 
 ## latch 现在有什么
 
-⭐ **6 条判据,全部以退出码作答、非交互:**
+⭐ **7 条判据,全部以退出码作答、非交互:**
 
 | 判据 | 实现 | 级别 |
 |---|---|---|
@@ -23,9 +23,10 @@
 | `meta-gate` | `.latch/meta-gate.sh` | hard |
 | `report-pin` | `.latch/report.sh` | hard |
 | `status-facts` | `.latch/status-facts.sh` | hard |
+| `waiver-expiry` | `.latch/waiver-expiry.sh` | hard |
 | `doc-budget` | `.latch/doc-budget.sh` | soft |
 
-配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~4-*.md`
+配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~5-*.md`
 ⛔ **未接编排层**,⛔ 无 `workflows/latch/workflow.yml`。⚠️ **B6 指名已满 8/8** ⇒ 后续新文件一律走 **A003 预算外余量**并在报告 `known_gaps` 登记。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理)
@@ -53,8 +54,7 @@
 
 ⚠️ **全局 hook** `block-no-verify` 误拦含 `grep -n` + `commit` 的命令,连带拦 `--amend`。
 **复发 4 次**;⭐ 2026-08-22 重估维持「⛔ 不修」—— 代价仅为多跑几条命令,⛔ 未改变过做法或产物。
-⭐ 规避:避开 `-n` 与 `commit` 同时出现。⚠️ 复发次数须更新 —— ⛔ 不更新的计数等于没计数(F1)。
-根因见 `03-LEDGER.md` `LATCH-hook-three-legs`。
+⭐ 规避:避开 `-n` 与 `commit` 同时出现。⚠️ 计数须更新 —— ⛔ 不更新的计数等于没计数(F1)。根因见 `LATCH-hook-three-legs`。
 
-⚠️ **waiver 机制仍未实现** ⇒ 所有 soft 上限在它存在前**实为建议**(`A001` `known_gaps` #1)。
+⚠️ **waiver 机制只做了一半**:登记与**到期检查**已有(`waiver-expiry`),⛔ 但过期只判红、**无强制清理**(`A001` `known_gaps` #1)。
 ⚠️ DevLoop 侧 `%TEMP%` 残留 **249** 条 worktree 登记(`devloop/gates.py:619`)⇒ ⛔ 属 DevLoop 维护。
