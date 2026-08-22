@@ -280,7 +280,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | Q11 | ⭐ **hook 在 §3 的排名要重估到第几?** 实证已从「只覆盖架构 A」收窄为「覆盖 A + B 的一半」,且它是**唯一被证实拦得住 sub-agent** 的机制。⛔ 本轮不改排名 | §3 序位 · Phase 4 |
 | Q13 | ⛔ **安装形态未定。**候选:① 安装脚本 ② spec-kit extension ③ PyPI 包。⚠️ ② 的陷阱:扩展命令被迫叫 `speckit.latch.xxx`,且要接触 **D-03 决定不碰**的扩展系统(8,000 行) | ⛔ **Phase 1~3 完成后再定** —— 分发的前提是有东西可分发;⛔ 现在定 = 给一个还不存在的东西设计包装 |
 | Q17 | ⛔ **编排层的可自动化边界。**完整论证见 `03-LEDGER.md` `LATCH-orchestration-boundary` | ⛔ 触发:**Phase 3 后** |
-| T6 候选 | ⭐ **凡让「修复成本随时间上升」的机制,必然固化错误。**T5 / 自指死锁 / 预算吃掉修正三者共用母题。见 `03-LEDGER.md` `LATCH-fix-cost-monotonicity` | ⛔ 升格进 §1 定理表须走 amendment |
+| T6 候选 | ⭐ **凡让「修复成本随时间上升」的机制,必然固化错误。**T5 / 自指死锁 / 预算吃掉修正三者共用母题。见 `03-LEDGER.md` `LATCH-fix-cost-monotonicity` | ⛔ 升格进 §1 定理表须走 amendment。**归属:与 Q17 同批,⛔ 触发 = Phase 3 后** —— 编排层上线后 LEDGER 增速数量级上升,复查缺口那时才真正咬人;⛔ 提前处理是预先建设 |
 | Q16 | ⛔ **闸的 base 由谁提供未强制。**被判定者自选 base ⇒ 可先改判据、再把 base 设成改后状态 ⇒ 差集为空 ⇒ 判绿。⭐ **判定的输入被被判定者控制 ⇒ T1 失效**(见 `03-LEDGER.md` `LATCH-input-control`) | ⛔ 触发:**Phase 3 接编排层**时解决 |
 | Q15 | ⛔ **§7a「`01-PLAN.md` ≤ 400 行」是代用品判据。**它测的是**行数**,想测的是「文档膨胀成没人读的东西」。⭐ 本轮实证:两条未决被各**压成一行**塞入 —— 行数达标而信息密度反升 ⇒ **Goodhart**。⚠️ 完整论证待补,归 `16-DECISIONS.md` | ⛔ 改 §7a 走 **amendment**。触发:**Phase 1 完成后** |
 | Q14 | ⛔ **B2 未声明对 spec-kit 的接口面。**实测 latch 只依赖两条语义:`shell` step 退出码非 0 ⇒ 流水线停止(`workflows/steps/shell/__init__.py:70`)· `gate` step `on_reject` 默认 `abort`(`workflows/steps/gate/__init__.py:45`)⇒ ⭐ 上游升级只需验这两条(v0.16.4 → v1.0.0 两处**一字未改**)。⭐ 附:latch 真正依赖的只是"**能跑 shell 并检查退出码的东西**",⛔ 不一定非得是 spec-kit(Makefile / CI / 脚本皆可)—— ⛔ 不写进 v1 宣传,先在 spec-kit 上做扎实 | B2 的缺口,与 **Q12 同族**。⛔ 改 B2 走 amendment |
