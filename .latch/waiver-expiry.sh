@@ -24,15 +24,30 @@ set -u
 
 die_broken() { printf '⛔ WAIVER-EXPIRY BROKEN: %s\n' "$1" >&2; exit 2; }
 
+# ⭐ 被判定对象来自 latch.yml 的 subjects:(A006 探针 4)。⛔ 无硬编码默认值 ——
+#    硬编码会悄悄指向 latch 自己的仓布局。⚠️ argv 仍可覆盖(红检指向 fixture,C3)。
+subject_of() {   # subject_of <配置文件> <键>
+  awk -v key="$2" '
+    /^subjects:/ { inb = 1; next }
+    /^[a-z_]/    { inb = 0 }
+    inb && $0 ~ "^[ 	]+" key ":" { sub("^[ 	]+" key ":[ 	]*", ""); print; exit }
+  ' "$1"
+}
+
 CONFIG="${1:-latch.yml}"
-PLAN="${2:-docs/audit/01-PLAN.md}"
+PLAN="${2:-}"
+[ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 读不到 subjects"
+[ -n "$PLAN" ] || PLAN=$(subject_of "$CONFIG" plan)
+[ -n "$PLAN" ] || die_broken "$CONFIG 的 subjects 里没有 plan —— ⛔ 没配就判不了,不得猜"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置不等于没有过期豁免"
 [ -f "$PLAN" ]   || die_broken "找不到 $PLAN —— ⛔ 算不出已排到第几 phase"
-[ -d reports ]   || die_broken "reports/ 不存在 —— ⛔ 算不出当前 phase,不得当成「没有过期」"
+REPORTS=$(subject_of "$CONFIG" reports)
+[ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
+[ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 算不出当前 phase,不得当成「没有过期」"
 
-CUR=$(ls reports/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n | tail -1) \
+CUR=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n | tail -1) \
   || die_broken "扫 reports/ 失败"
-[ -n "$CUR" ] || die_broken "reports/ 下一份 phase 报告都没有 —— ⛔ 算不出当前 phase"
+[ -n "$CUR" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 算不出当前 phase"
 
 MAXP=$(grep '^### Phase ' "$PLAN" | sed 's/^### Phase \([0-9]\+\).*/\1/;t;d' | sort -n | tail -1) \
   || die_broken "扫 $PLAN 的 phase 标题失败"

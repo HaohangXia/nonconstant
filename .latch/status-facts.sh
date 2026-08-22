@@ -22,8 +22,21 @@ set -u
 
 die_broken() { printf '⛔ STATUS-FACTS BROKEN: %s\n' "$1" >&2; exit 2; }
 
-STATUS="${1:-docs/audit/STATUS.md}"
+# ⭐ 被判定对象来自 latch.yml 的 subjects:(A006 探针 4)。⛔ 无硬编码默认值 ——
+#    硬编码会悄悄指向 latch 自己的仓布局。⚠️ argv 仍可覆盖(红检指向 fixture,C3)。
+subject_of() {   # subject_of <配置文件> <键>
+  awk -v key="$2" '
+    /^subjects:/ { inb = 1; next }
+    /^[a-z_]/    { inb = 0 }
+    inb && $0 ~ "^[ 	]+" key ":" { sub("^[ 	]+" key ":[ 	]*", ""); print; exit }
+  ' "$1"
+}
+
 CONFIG="${2:-latch.yml}"
+STATUS="${1:-}"
+[ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 读不到 subjects"
+[ -n "$STATUS" ] || STATUS=$(subject_of "$CONFIG" status)
+[ -n "$STATUS" ] || die_broken "$CONFIG 的 subjects 里没有 status —— ⛔ 没配就判不了,不得猜"
 [ -f "$STATUS" ] || die_broken "找不到 $STATUS —— ⛔ STATUS 不存在 ≠ 没有失真"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有对照物就判不了真伪"
 git rev-parse --git-dir >/dev/null || die_broken "不在 git 仓库内"
@@ -42,10 +55,12 @@ fi
 
 # ── 断言 2:已完成 phase ⇔ reports/phase*.md 的最大编号 ────────────
 CLAIMP=$(awk 'match($0, /Phase 0~([0-9]+) 全部完成/, m) { print m[1]; exit }' "$STATUS")
-[ -d reports ] || die_broken "reports/ 目录不存在 —— ⛔ 数不出已完成阶段"
-REALP=$(ls reports/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n | tail -1) \
+REPORTS=$(subject_of "$CONFIG" reports)
+[ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
+[ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 数不出已完成阶段"
+REALP=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n | tail -1) \
   || die_broken "扫 reports/ 失败"
-[ -n "$REALP" ] || die_broken "reports/ 下一份 phase 报告都没有 —— ⛔ 数不出已完成阶段"
+[ -n "$REALP" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 数不出已完成阶段"
 if [ -n "$CLAIMP" ]; then
   CHECKED=$((CHECKED + 1))
   [ "$CLAIMP" = "$REALP" ] || note "已完成阶段:STATUS 称 Phase 0~$CLAIMP,⛔ reports/ 实为 0~$REALP"

@@ -21,7 +21,20 @@ set -u
 
 die_broken() { printf '⛔ REPORT-PIN BROKEN: %s\n' "$1" >&2; exit 2; }
 
-DIR="${1:-reports}"
+# ⭐ 被判定对象来自 latch.yml 的 subjects:(A006 探针 4)。⛔ 无硬编码默认值 ——
+#    硬编码会悄悄指向 latch 自己的仓布局。⚠️ argv 仍可覆盖(红检指向 fixture,C3)。
+subject_of() {   # subject_of <配置文件> <键>
+  awk -v key="$2" '
+    /^subjects:/ { inb = 1; next }
+    /^[a-z_]/    { inb = 0 }
+    inb && $0 ~ "^[ 	]+" key ":" { sub("^[ 	]+" key ":[ 	]*", ""); print; exit }
+  ' "$1"
+}
+
+DIR="${1:-}"
+[ -f latch.yml ] || die_broken "找不到 latch.yml —— ⛔ 读不到 subjects,不得回落到默认路径"
+[ -n "$DIR" ] || DIR=$(subject_of latch.yml reports)
+[ -n "$DIR" ] || die_broken "latch.yml 的 subjects 里没有 reports —— ⛔ 没配就判不了,不得猜"
 git rev-parse --git-dir >/dev/null || die_broken "不在 git 仓库内"
 [ -d "$DIR" ] || die_broken "报告目录不存在: $DIR —— ⛔ 没有报告不等于报告都合规"
 

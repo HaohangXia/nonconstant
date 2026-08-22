@@ -20,6 +20,18 @@ base: HEAD
 #    ⛔ 不是版本声明、不是内容摘要。判据见 .latch/upstream-pin.sh。
 upstream_pin: bca679051abb80d6cf0cd909f2539a28a10eb7eb
 
+# ⭐⭐ 被判定对象的路径。⛔ 判据里不得再有硬编码默认值 ——
+#    硬编码 = 悄悄指向 latch 自己的仓布局,装到别的项目里必然判 2(A006 探针 4 实测)。
+#    ⚠️ 与 base 不同:base 是**判定的基线**(A004:⛔ 不接受调用方给);
+#    ⭐ subject 是**被判定的对象本身** —— 换掉它等于换考卷,⛔ 不是换答案
+#    ⇒ 允许 argv 覆盖(红检要指向 fixture,C3)。
+#    ⛔ 键缺失 ⇒ 判据判 2,⛔ 不得回落到某个默认路径。
+subjects:
+  status: docs/audit/STATUS.md
+  plan: docs/audit/01-PLAN.md
+  reports: reports
+  upstream_src: vendor/spec-kit/src
+
 # 判据清单。level: hard = 阻断且不可 waiver(01-PLAN §5 P4)
 #
 # ⭐⭐ scope(A006):每条判据必须声明它属于哪一类,⛔ meta-gate 查「声明了且取值合法」。

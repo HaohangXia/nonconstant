@@ -23,7 +23,20 @@ set -u
 
 die_broken() { printf '⛔ UPSTREAM-SEMANTICS BROKEN: %s\n' "$1" >&2; exit 2; }
 
-SRC="${1:-vendor/spec-kit/src}"
+# ⭐ 被判定对象来自 latch.yml 的 subjects:(A006 探针 4)。⛔ 无硬编码默认值 ——
+#    硬编码会悄悄指向 latch 自己的仓布局。⚠️ argv 仍可覆盖(红检指向 fixture,C3)。
+subject_of() {   # subject_of <配置文件> <键>
+  awk -v key="$2" '
+    /^subjects:/ { inb = 1; next }
+    /^[a-z_]/    { inb = 0 }
+    inb && $0 ~ "^[ 	]+" key ":" { sub("^[ 	]+" key ":[ 	]*", ""); print; exit }
+  ' "$1"
+}
+
+SRC="${1:-}"
+[ -f latch.yml ] || die_broken "找不到 latch.yml —— ⛔ 读不到 subjects"
+[ -n "$SRC" ] || SRC=$(subject_of latch.yml upstream_src)
+[ -n "$SRC" ] || die_broken "latch.yml 的 subjects 里没有 upstream_src —— ⛔ 没配就判不了,不得猜"
 [ -d "$SRC" ] || die_broken "找不到上游源码目录: $SRC —— ⛔ 上游不在 ≠ 语义没变"
 command -v python >/dev/null || die_broken "没有 python,跑不了行为探针"
 

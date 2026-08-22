@@ -46,6 +46,20 @@ field() {   # field <id> <key>  —— 取某条判据块内的某个字段
 FAILS=""
 note() { FAILS="${FAILS}   · ${1}"$'\n'; }
 
+# ── subjects 块:每个键的值必须非空(A006 探针 4)──────────────────
+# ⭐ 查「声明了且非空」;⛔ **不查路径是否存在** —— 那是各判据自己的职责(C6),
+#    且新装环境里对象本来就还没有,抢着查会让本闸先判红。
+SUBJ=$(awk '/^subjects:/ { inb=1; next } /^[a-z_]/ { inb=0 }
+            inb && /^[ \t]+[a-z_]+:/ { print }' "$CONFIG") || die_broken "读 subjects 失败"
+while IFS= read -r line; do
+  [ -n "${line:-}" ] || continue
+  k=$(printf '%s' "$line" | sed 's/^[ \t]*\([a-z_]*\):.*/\1/')
+  v=$(printf '%s' "$line" | sed 's/^[ \t]*[a-z_]*:[ \t]*//')
+  [ -n "$v" ] || note "subjects.$k: ⛔ 值为空 —— ⛔ 空路径会让判据回落到猜(A006)"
+done <<EOF
+$SUBJ
+EOF
+
 for id in $IDS; do
   impl=$(field "$id" impl)
   pexit=$(field "$id" demo_pass_exit)
