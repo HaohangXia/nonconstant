@@ -42,7 +42,9 @@ fi
 
 # ── 断言 2:已完成 phase ⇔ reports/phase*.md 的最大编号 ────────────
 CLAIMP=$(awk 'match($0, /Phase 0~([0-9]+) 全部完成/, m) { print m[1]; exit }' "$STATUS")
-REALP=$(ls reports/ 2>/dev/null | sed -n 's/^phase\([0-9]\+\)-.*\.md$/\1/p' | sort -n | tail -1)
+[ -d reports ] || die_broken "reports/ 目录不存在 —— ⛔ 数不出已完成阶段"
+REALP=$(ls reports/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n | tail -1) \
+  || die_broken "扫 reports/ 失败"
 [ -n "$REALP" ] || die_broken "reports/ 下一份 phase 报告都没有 —— ⛔ 数不出已完成阶段"
 if [ -n "$CLAIMP" ]; then
   CHECKED=$((CHECKED + 1))
@@ -59,7 +61,9 @@ fi
 # ⚠️ 只取反引号里、带已知扩展名、⛔ 不含 * 或 ~ 的 token(通配与区间不是具体路径)
 PATHS=$(grep '^|' "$STATUS" \
         | grep -o '`[A-Za-z0-9_./-]\+\.\(md\|sh\|yml\|log\)`' \
-        | tr -d '`' | sort -u) || true
+        | tr -d '`' | sort -u)
+# ⛔ 上面**不加** `|| true`:管道以 sort 收尾,无匹配时 sort 仍返回 0 ⇒
+#    `|| true` 只会吞掉真实故障(T5),⛔ 且它本身就是 silent-scan 要抓的模式。
 for p in $PATHS; do
   case "$p" in *'*'*|*'~'*) continue ;; esac
   CHECKED=$((CHECKED + 1))
