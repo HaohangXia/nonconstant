@@ -16,6 +16,12 @@ gates:
     impl: .latch/gates.sh
     desc: 判据文件不得被被判定者修改
 
+  - id: silent-scan
+    level: hard
+    impl: .latch/scan-silent.sh
+    desc: 静默失败扫描（⛔ 函数作用域，不用行数窗口）
+    # ⚠️ 尚未接入编排层；当前需显式给扫描目录。见 reports/phase2-*.md known_gaps
+
 # 预算(01-PLAN §7a / CLAUDE.md B6)
 budget:
   plan_max_lines: 400
