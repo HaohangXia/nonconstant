@@ -45,10 +45,29 @@ BAD=""
 CHECKED=0
 note() { BAD="${BAD}   · ${1}"$'\n'; }
 
+# ══ C12 · 覆盖面自检 ══════════════════════════════════════════════
+# ⭐⭐ 本判据用正则「匹配」来**定位被判断言**。⛔ 匹配失败与「没有该断言」不可区分
+#    ⇒ STATUS 措辞一变,某一整类就被静默跳过,⛔ 而判据照样报 PASS。
+#    ⚠️ 实测两次:断言 2 的区间正则、amendments 断言写死目录名。
+#    见 03-LEDGER.md `LATCH-pattern-miss-reports-pass` · 协议 C12。
+#
+# ⭐ 修法:⛔ 不去识别「STATUS 里有没有这句话」(那要先解决同一个问题),
+#    ⭐ 而是让**判据声明自己该查几类**,再对照实际匹配到几类:
+#      N = latch.yml 声明的期望类数(⛔ 不在本脚本里,⇒ 改脚本改不掉它)
+#      I = 本脚本实际实现的类数
+#      M = 本次运行真正匹配到的类数
+#    ⇒ I ≠ N ⇒ **2**(闸自身与契约不符,判不了它该判的)
+#    ⇒ M < I ⇒ **1**(被判对象少了一整类断言)
+CLASS_IDS="gate-count phase-set gate-table upstream-pin amendments table-paths"
+CLASS_SEEN=""
+seen_class() { CLASS_SEEN="${CLASS_SEEN}$1 "; }
+count_words() { printf '%s\n' $1 | sed '/^$/d' | wc -l; }
+
 # ── 断言 1:判据条数 ⇔ latch.yml 的 `- id:` 计数 ───────────────────
 CLAIM=$(awk 'match($0, /([0-9]+) 条判据/, m) { print m[1]; exit }' "$STATUS")
 REAL=$(grep -c '^[ \t]*-[ \t]*id:' "$CONFIG") || die_broken "数 latch.yml 判据失败"
 if [ -n "$CLAIM" ]; then
+  seen_class gate-count
   CHECKED=$((CHECKED + 1))
   [ "$CLAIM" = "$REAL" ] || note "判据条数:STATUS 称 $CLAIM 条,⛔ latch.yml 实为 $REAL 条"
 fi
@@ -65,6 +84,7 @@ REPORTS=$(subject_of "$CONFIG" reports)
 REALSET=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u | tr '\n' ' ')
 [ -n "$REALSET" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 数不出已完成阶段"
 if [ -n "$CLAIMLINE" ]; then
+  seen_class phase-set
   CHECKED=$((CHECKED + 1))
   CLAIMSET=$(printf '%s' "$CLAIMLINE" | awk '
     { gsub(/Phase|全部完成/, "")
@@ -92,6 +112,7 @@ ST_TRI=$(grep '^| *`' "$STATUS" | awk -F'|' 'NF>=4 {
     if ($2 != "" && $3 != "" && $4 != "") printf "%s|%s|%s\n", $2, $3, $4
   }' | sort)
 if [ -n "$ST_TRI" ]; then
+  seen_class gate-table
   while IFS= read -r row; do
     [ -n "$row" ] || continue
     CHECKED=$((CHECKED + 1))
@@ -112,6 +133,7 @@ CFG_PIN=$(sed -n 's/^upstream_pin:[ \t]*//p' "$CONFIG" | head -1)
 ST_PIN=$(grep -o '上游 pin.*`[0-9a-f]\{7,\}`' "$STATUS" \
          | grep -o '[0-9a-f]\{7,\}' | head -1)
 if [ -n "$ST_PIN" ]; then
+  seen_class upstream-pin
   CHECKED=$((CHECKED + 1))
   if [ -z "$CFG_PIN" ]; then
     note "上游 pin:STATUS 称 $ST_PIN,⛔ 但 $CONFIG 里没有 upstream_pin"
@@ -129,6 +151,7 @@ fi
 #    ⇒ 静默跳过 ⇒ 判据报 PASS 而实际没查。⭐ 与断言 2 原实现同一个病(实测抓到)。
 ST_AMD=$(grep -o '[A-Za-z0-9_.-]\+/A[0-9]\+~A[0-9]\+' "$STATUS" | head -1)
 if [ -n "$ST_AMD" ]; then
+  seen_class amendments
   CHECKED=$((CHECKED + 1))
   # ⭐ 目录名取自**断言自身**(`<dir>/A00x~A00y`),⛔ 不硬编码 —— A006:
   #    硬编码的目录名装到别的项目里就是空转。
@@ -157,12 +180,47 @@ PATHS=$(grep '^|' "$STATUS" \
         | tr -d '`' | sort -u)
 # ⛔ 上面**不加** `|| true`:管道以 sort 收尾,无匹配时 sort 仍返回 0 ⇒
 #    `|| true` 只会吞掉真实故障(T5),⛔ 且它本身就是 silent-scan 要抓的模式。
+[ -z "$PATHS" ] || seen_class table-paths
 for p in $PATHS; do
   case "$p" in *'*'*|*'~'*) continue ;; esac
   CHECKED=$((CHECKED + 1))
   [ -e "$p" ] || [ -e "docs/audit/$p" ] \
     || note "路径不存在:STATUS 引用了 \`$p\`,⛔ 磁盘上没有"
 done
+
+# ══ C12 · 覆盖面判定 ══════════════════════════════════════════════
+# ⭐ N 从 latch.yml 读 —— ⛔ 不在本脚本里。改脚本(删掉一整类)改不掉 N ⇒ 判 2。
+#   ⚠️ 且 latch.yml 在 protected 清单内 ⇒ 改 N 会被 criteria-guard 判红。
+EXP_N=$(awk '
+  /^[ \t]*-[ \t]*id:[ \t]*status-facts[ \t]*$/ { g = 1; next }
+  g && /^[ \t]*-[ \t]*id:/                     { g = 0 }
+  g && /^[ \t]*expected_assertion_classes:/ {
+    sub(/^[ \t]*expected_assertion_classes:[ \t]*/, ""); print; exit }
+' "$CONFIG")
+[ -n "$EXP_N" ] || die_broken \
+  "$CONFIG 的 status-facts 条目里没有 expected_assertion_classes —— ⛔ 不声明该查几类,就无法发现「少查了一类」(C12)"
+case "$EXP_N" in ''|*[!0-9]*) die_broken "expected_assertion_classes 不是数字:「$EXP_N」" ;; esac
+
+IMPL_N=$(count_words "$CLASS_IDS")
+SEEN_N=$(count_words "$CLASS_SEEN")
+
+# ⛔ I ≠ N ⇒ 2:判据实现的类数与契约声明的不符 ⇒ **它判不了它该判的**。
+#    ⭐ 这一档专治「有人从脚本里删掉一整类」—— 那时 N 还在,I 少了。
+[ "$IMPL_N" -eq "$EXP_N" ] || die_broken \
+  "覆盖面契约不符:$CONFIG 声明须查 $EXP_N 类,⛔ 本脚本只实现了 $IMPL_N 类($CLASS_IDS)⇒ 删类不得静默"
+
+# ⛔ M < I ⇒ 1:某一整类断言在 STATUS 里匹配不到 ⇒ **被判对象少了一类**。
+if [ "$SEEN_N" -lt "$IMPL_N" ]; then
+  MISSING=""
+  for c in $CLASS_IDS; do
+    printf '%s\n' $CLASS_SEEN | grep -qx "$c" || MISSING="${MISSING}$c "
+  done
+  printf '⛔ status-facts FAIL —— 覆盖面萎缩:应查 %s 类,本次只匹配到 %s 类\n' "$IMPL_N" "$SEEN_N" >&2
+  printf '   · 未匹配到的类:%s\n' "$MISSING" >&2
+  printf '⇒ ⛔ 「匹配不到」与「没有该断言」不可区分 ⇒ 若放行,覆盖面会静默萎缩而判据全绿(C12)。\n' >&2
+  printf '⇒ ⭐ 要么补回 %s 里那类断言,要么改 %s 的 expected_assertion_classes(⚠️ 后者会被 criteria-guard 判红,⭐ 那是有意的)。\n' "$STATUS" "$CONFIG" >&2
+  exit 1
+fi
 
 # ── vacuous 防线 ──────────────────────────────────────────────────
 # ⛔ 一个不含任何可核对断言的 STATUS,与「没有 STATUS」无法区分。

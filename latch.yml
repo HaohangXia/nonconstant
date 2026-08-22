@@ -109,6 +109,14 @@ gates:
     demo_fail_exit: 1
     demo_report: reports/phase4-900b8de.md
     # ⭐ 每条断言归谁守，见 docs/audit/19-STATUS-ASSERTIONS.md（⛔ 不可对照的已在 STATUS 就地标注）
+    #
+    # ⭐⭐ C12 · 覆盖面自检的期望值。本判据用正则「匹配」定位被判断言 ⇒
+    #    ⛔ 匹配失败与「没有该断言」不可区分 ⇒ 措辞一变就静默少查一类，而判据仍报 PASS。
+    #    ⇒ 判据声明须查 N 类；实现 I 类；本次匹到 M 类。I≠N ⇒ 2；M<I ⇒ 1。
+    #    ⚠️ N 放在这里（⛔ 不在脚本里）是有意的：改脚本删掉一整类，改不掉这个数 ⇒ 判 2。
+    #    ⚠️ 且本文件在 protected 内 ⇒ 改 N 会被 criteria-guard 判红（已实测：exit 1）。
+    #    六类：gate-count · phase-set · gate-table · upstream-pin · amendments · table-paths
+    expected_assertion_classes: 6
 
   - id: waiver-expiry
     scope: project
