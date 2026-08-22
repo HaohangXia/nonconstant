@@ -40,15 +40,20 @@ PATTERNS=$(
 [ -n "$PATTERNS" ] || die_broken "$CONFIG 的 protected 清单为空 —— 空清单会让本闸恒过(常量)"
 
 # ── 取被判定的改动集合 ──────────────────────────────────────────
-if [ "$#" -ge 1 ]; then
-  BASE="$1"
-  git rev-parse --verify "$BASE" >/dev/null || die_broken "解析不了 base ref: $BASE"
-  CHANGED=$(git diff --name-only "$BASE"..HEAD --) || die_broken "git diff 失败"
-else
-  TRACKED=$(git diff --name-only HEAD --) || die_broken "git diff 失败"
-  UNTRACKED=$(git ls-files --others --exclude-standard) || die_broken "git ls-files 失败"
-  CHANGED=$(printf '%s\n%s\n' "$TRACKED" "$UNTRACKED")
-fi
+# ⭐⭐ base 只从配置取 —— ⛔ 不接受调用方参数(A004)。
+# 被判定者若能自选 base,它可选一个「改完判据之后」的基线把改动藏进去
+# ⇒ 差集为空 ⇒ 判绿 ⇒ 判定的输入被被判定者控制 ⇒ T1 失效。
+# ⛔ 拒绝而非静默忽略:静默忽略会让调用方以为自己指定的 base 生效了。
+[ "$#" -eq 0 ] || die_broken "⛔ 不接受调用方给 base(收到「$1」)—— base 只从 $CONFIG 取(A004)"
+
+BASE=$(awk '/^base:/ { sub(/^base:[ \t]*/, ""); print; exit }' "$CONFIG") \
+  || die_broken "读 base 失败"
+[ -n "$BASE" ] || die_broken "$CONFIG 里没有顶层 base: —— ⛔ 没有基线不等于没有改动"
+git rev-parse --verify "$BASE" >/dev/null || die_broken "配置里的 base 解析不了: $BASE"
+
+TRACKED=$(git diff --name-only "$BASE" --) || die_broken "git diff 失败"
+UNTRACKED=$(git ls-files --others --exclude-standard) || die_broken "git ls-files 失败"
+CHANGED=$(printf '%s\n%s\n' "$TRACKED" "$UNTRACKED")
 
 # ── 判定 ────────────────────────────────────────────────────────
 HITS=""

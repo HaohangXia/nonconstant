@@ -9,17 +9,37 @@ protected:
   - latch.yml
   - .latch/**
 
+# ⭐⭐ 判定的基线。⛔ 只能由操作者在本文件里给 —— 本文件受 criteria-guard 保护。
+# ⛔ 闸不接受来自调用方的 base:被判定者可选一个「改完判据之后」的基线把改动藏进去
+#    ⇒ 差集为空 ⇒ 判绿 ⇒ 判定的输入被被判定者控制 ⇒ T1 失效。
+# 依据:§6 Q16 · LATCH-input-control · amendments/A004-base-from-config.md
+base: HEAD
+
 # 判据清单。level: hard = 阻断且不可 waiver(01-PLAN §5 P4)
+#
+# ⭐⭐ 元判据(§3 序 4):每条判据必须登记「一过一失败」的演示,否则不得启用。
+#    demo_pass_exit 必须为 0;demo_fail_exit 必须非 0;两者方向相同 = 仍是常量。
+#    ⛔ 未登记 = 拒绝启用,⛔ 不是「先用着」。
 gates:
   - id: criteria-guard
     level: hard
     impl: .latch/gates.sh
     desc: 判据文件不得被被判定者修改
+    demo_pass: 只改 docs/audit/README.md 后跑
+    demo_pass_exit: 0
+    demo_fail: 改 latch.yml 内容后跑
+    demo_fail_exit: 1
+    demo_report: reports/phase1-ae6f82f.md
 
   - id: silent-scan
     level: hard
     impl: .latch/scan-silent.sh
     desc: 静默失败扫描（⛔ 函数作用域，不用行数窗口）
+    demo_pass: 干净 fixture（capture_output 后查了 returncode）
+    demo_pass_exit: 0
+    demo_fail: 脏 fixture（capture_output 未查 / except:pass / '|| true' / 2>/dev/null）
+    demo_fail_exit: 1
+    demo_report: reports/phase2-5a3420d.md
     # ⚠️ 尚未接入编排层；当前需显式给扫描目录。见 reports/phase2-*.md known_gaps
     #
     # ⛔ 显式豁免。⭐ 这是 waiver 的最小形态：理由 + 到期，皆为受判据检查的字段，
@@ -28,6 +48,26 @@ gates:
       - path: .latch/scan-silent.sh
         reason: 自指——本工具用文本匹配查找文本模式，其源码必然包含那些模式串（要打印出来）；任何此类工具必然对自己判红
         until: 引入真解析器后移除（⛔ 解析器会让 103 行变上千行，超 §7a 的 150 行上限，故当前不做）
+
+  - id: meta-gate
+    level: hard
+    impl: .latch/meta-gate.sh
+    desc: 判据可执行性——未演示「一过一失败」的判据不得启用
+    demo_pass: 本文件（每条判据都登记了双向演示）
+    demo_pass_exit: 0
+    demo_fail: fixture 配置（某条判据缺 demo_fail_exit，或双向同号）
+    demo_fail_exit: 1
+    demo_report: reports/phase3-PENDING.md
+
+  - id: report-pin
+    level: hard
+    impl: .latch/report.sh
+    desc: 完成报告文件名须含它所描述的那个 commit 的短 hash
+    demo_pass: reports/phase1-ae6f82f.md（ae6f82f 在历史中且是 HEAD 祖先）
+    demo_pass_exit: 0
+    demo_fail: 伪 hash（deadbee）
+    demo_fail_exit: 1
+    demo_report: reports/phase3-PENDING.md
 
 # 预算(01-PLAN §7a / CLAUDE.md B6)
 budget:
