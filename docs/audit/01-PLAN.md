@@ -171,7 +171,7 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 | ID | 缺陷 | 改法 | 副作用 |
 |---|---|---|---|
 | D1 | 独立判定只在 commit 一瞬成立,phase 内部全是模型自评 | stage 级检查点,只跑最便宜的 hard 判据 | 检查点太密 → 人机械点过 → 橡皮图章。何时启用由项目决定 |
-| D2 | 闸门密度低于错误被依赖速度(违反 T3) | P2 PreToolUse hook,下沉到工具调用层 | hook 写错阻断合法操作;escape hatch 本身是漏洞 |
+| D2 | 闸门密度低于错误被依赖速度(违反 T3) | P2 PreToolUse hook,下沉到工具调用层 | hook 写错阻断合法操作(⭐ **2026-08-22 已有实证** —— 误拦只读命令,见 `03-LEDGER.md` `LATCH-hook-three-legs`);escape hatch 本身是漏洞 |
 | D3 | **人是瓶颈,与 LE 直接冲突** | 分级放行:`requires_human` 声明,低风险自动放行 | 分级可能定错。兜底:触发 amendment 无条件要人 |
 | D4 | **Phase 0 悖论** —— 理解最浅时做最有约束力的决定 | amendment + `provisional: true` 契约,到期强制复审(相对到期,默认 +2 phase) | provisional 会被滥用。限额 ≤ 30%(可覆盖默认) |
 | D5 | **可判定性天花板** —— "边界划得对不对"永远写不成退出码。**能硬化的恰恰不是最重要的** | 不能根治。① 承认;② Maker/Checker 交与 maker 不同的独立 checker(后端可配,例:Codex);③ 意见必须给行号 | token 翻倍;假阳性噪音 → 人忽略 advisory → 又回橡皮图章 |

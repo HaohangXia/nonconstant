@@ -51,6 +51,8 @@
 
 ## ⚠️ 已知债务(⛔ 不属 latch 核验范围)
 
+⚠️ **`01-PLAN.md` 395/400,余量 5 行。⛔ 下次新增前须先精简。**
+
 DevLoop 侧 `%TEMP%` 下残留 **249** 条 worktree 登记(目录仍在,不算 prunable)。
 来源 = 闸自己的一次性 worktree(`devloop/gates.py:619`,`prefix="devloop-wt-"`)。
 ⛔ 清理属 **DevLoop 维护**。
