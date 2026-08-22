@@ -435,7 +435,18 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 - 绿检 当前 `vendor/`(v1.0.0)⇒ **0**
 - 红检 fixture 里把 `shell` step 改成忽略退出码 ⇒ **非 0**
 
-### Phase 7 · Q13 安装形态
+### Phase 7 · 上游 pin 可核(⭐ Q13 的前置:安装形态必须回答「上游那份从哪来」)
+
+⛔ **「pin」目前是一句话,不是可核事实** —— 磁盘那份无法被证明是 `bca6790`。
+⇒ ⭐ 由 **A005** 把 `vendor/spec-kit` 改为 **submodule**:⭐ 它记的**就是 commit 本身**,⛔ 不是版本声明、不是内容摘要 —— **唯一非代用品的解法**。
+
+- 可核 `[ "$(git -C vendor/spec-kit rev-parse HEAD)" = "$(sed 's/^upstream_pin: //;t;d' latch.yml)" ]` ⇒ **0**
+- 红检 把 submodule 切到**任一别的 commit** 后同一条 ⇒ **非 0**
+- ⚠️ 未取回(空目录)⇒ **2**,⛔ 不得当成「pin 没变 ⇒ 放行」
+
+⚠️ ⛔ **本 phase 只解决「是不是那一份」,⛔ 不解决「有没有被改过」** —— 后者 submodule 只显示为 ` M vendor/spec-kit`,而 Phase 0 判据 2 **实测看不见它**(A005 §5 #1)⇒ 须一并给出独立判据。
+
+### Phase 8 · Q13 安装形态
 
 ⭐ 验收**判结果、⛔ 不判机制**(D-12)—— 无论用脚本 / extension / PyPI,后置条件相同:
 
@@ -443,15 +454,15 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
   ⚠️ ⛔ 只验 `meta-gate` 返回 0 不够 —— 那验的是「**装完能跑**」,⛔ 不验「**装对了**」:少装一个文件、装错位置,照样绿
 - 红检 装进一个**已有 `latch.yml`** 的仓 ⇒ **非 0**(⛔ 不得静默覆盖)
 
-### Phase 8+ · Q17 编排层
+### Phase 9+ · Q17 编排层
 
 ⛔ **本轮不排。**⚠️ 它的形态取决于 Q13 的答案(装成 spec-kit extension ⇒ `workflow.yml`;独立 ⇒ 另一套)。
-⇒ ⛔ 在 Q13(Phase 7)答完之前,验收命令写不出来 —— **按铁律不得列为阶段目标**。
+⇒ ⛔ 在 Q13(Phase 8)答完之前,验收命令写不出来 —— **按铁律不得列为阶段目标**。
 ⚠️ 它须一并吞掉:**127 显式处理**(C6)· 判据路径参数固定(A004 `known_gaps`)· 空目录 vacuous 第四态。
 
-⚠️ **⛔ Q11(hook 排名重估)不单列 phase** —— 它是**判断**,验收写不成命令。⇒ 归入 Phase 8 的准入条件。
+⚠️ **⛔ Q11(hook 排名重估)不单列 phase** —— 它是**判断**,验收写不成命令。⇒ 归入 Phase 9 的准入条件。
 
-### Phase 9 · 消除自扫豁免(⛔ 目标不是「引入解析器」)
+### Phase 10 · 消除自扫豁免(⛔ 目标不是「引入解析器」)
 
 ⚠️ ⛔ **phase 名不写方案** —— 「引入解析器」是**一个实现**,把它写进 phase 名会提前锁死解法。
 ⚠️ Phase 2 当时判「⛔ 要真解析器才能消」—— ⭐ **实测证伪**:那是在**没找替代方案**的情况下下的结论。
@@ -473,4 +484,4 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 - 绿检 `bash .latch/scan-silent.sh .latch` ⇒ **0**
 - 红检 `bash .latch/scan-silent.sh <脏 fixture>` ⇒ **非 0**(⭐ 证明判据未被削弱)
 
-⚠️ ⇒ Phase 9 排定后,自扫豁免的 `until` 才**有可指的具体 phase**(即 `Phase 9`)⇒ 解开 Phase 5 的死结。
+⚠️ ⇒ 本 phase 排定后,自扫豁免的 `until` 才**有可指的具体 phase**(即 `Phase 10`)⇒ 解开 Phase 5 的死结。
