@@ -53,17 +53,95 @@ if [ -n "$CLAIM" ]; then
   [ "$CLAIM" = "$REAL" ] || note "判据条数:STATUS 称 $CLAIM 条,⛔ latch.yml 实为 $REAL 条"
 fi
 
-# ── 断言 2:已完成 phase ⇔ reports/phase*.md 的最大编号 ────────────
-CLAIMP=$(awk 'match($0, /Phase 0~([0-9]+) 全部完成/, m) { print m[1]; exit }' "$STATUS")
+# ── 断言 2:已完成 phase ⇔ reports/ 的**编号集合** ─────────────────
+# ⭐⭐ 与 P10-C4 同一修法:比**集合**,⛔ 不比最大编号 —— 编号 = 身份 ≠ 顺序(C11)。
+# ⚠️ ⛔ 原实现的正则是 `Phase 0~<n> 全部完成`,只认连续区间;
+#    STATUS 一改成「Phase 0~7 + 10 全部完成」它就**匹配不上 ⇒ 静默跳过**,
+#    而判据照样报 PASS。⇒ ⭐ 现在:**取出所有数字,展开 a~b 区间,当集合比**。
+CLAIMLINE=$(grep -o 'Phase [0-9~ +,]*全部完成' "$STATUS" | head -1)
 REPORTS=$(subject_of "$CONFIG" reports)
 [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
 [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 数不出已完成阶段"
-REALP=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n | tail -1) \
-  || die_broken "扫 reports/ 失败"
-[ -n "$REALP" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 数不出已完成阶段"
-if [ -n "$CLAIMP" ]; then
+REALSET=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u | tr '\n' ' ')
+[ -n "$REALSET" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 数不出已完成阶段"
+if [ -n "$CLAIMLINE" ]; then
   CHECKED=$((CHECKED + 1))
-  [ "$CLAIMP" = "$REALP" ] || note "已完成阶段:STATUS 称 Phase 0~$CLAIMP,⛔ reports/ 实为 0~$REALP"
+  CLAIMSET=$(printf '%s' "$CLAIMLINE" | awk '
+    { gsub(/Phase|全部完成/, "")
+      n = split($0, parts, /[ ,+]+/)
+      for (i = 1; i <= n; i++) {
+        if (parts[i] ~ /^[0-9]+~[0-9]+$/) {
+          split(parts[i], r, "~"); for (k = r[1]; k <= r[2]; k++) print k
+        } else if (parts[i] ~ /^[0-9]+$/) print parts[i]
+      } }' | sort -n -u | tr '\n' ' ')
+  [ "$CLAIMSET" = "$REALSET" ] \
+    || note "已完成阶段:STATUS 称「$CLAIMSET」,⛔ reports/ 实为「$REALSET」"
+fi
+
+# ── 断言 4:判据表三元组 ⇔ latch.yml 的 id / impl / level ──────────
+# ⭐⭐ 严格强于旧的「数条数 + 查文件在不在」:
+#    ⛔ 条数对不代表 id 对;⛔ 文件在不代表它是**这条 id 的** impl。
+CFG_TRI=$(awk '/^gates:/{g=1;next} /^[a-z_]/{g=0}
+  g && /^[ \t]*-[ \t]*id:/    { sub(/^[ \t]*-[ \t]*id:[ \t]*/,"");   id=$0 }
+  g && /^[ \t]*level:/        { sub(/^[ \t]*level:[ \t]*/,"");       lv=$0 }
+  g && /^[ \t]*impl:/         { sub(/^[ \t]*impl:[ \t]*/,"");        printf "%s|%s|%s\n", id, $0, lv }
+' "$CONFIG" | sort) || die_broken "解析 $CONFIG 的 gates 失败"
+# STATUS 侧:表格行 `| `id` | `impl` | level |`
+ST_TRI=$(grep '^| *`' "$STATUS" | awk -F'|' 'NF>=4 {
+    for (i = 2; i <= 4; i++) { gsub(/[` \t]/, "", $i) }
+    if ($2 != "" && $3 != "" && $4 != "") printf "%s|%s|%s\n", $2, $3, $4
+  }' | sort)
+if [ -n "$ST_TRI" ]; then
+  while IFS= read -r row; do
+    [ -n "$row" ] || continue
+    CHECKED=$((CHECKED + 1))
+    printf '%s\n' "$CFG_TRI" | grep -qxF "$row" \
+      || note "判据表:STATUS 的「$row」(id|impl|level)⛔ 在 $CONFIG 里找不到完全相同的一行"
+  done <<EOF
+$ST_TRI
+EOF
+  ST_N=$(printf '%s\n' "$ST_TRI" | sed '/^$/d' | wc -l)
+  CFG_N=$(printf '%s\n' "$CFG_TRI" | sed '/^$/d' | wc -l)
+  [ "$ST_N" -eq "$CFG_N" ] \
+    || note "判据表:STATUS 列了 $ST_N 条,⛔ $CONFIG 实有 $CFG_N 条(⛔ 少列 = 静默漏报)"
+fi
+
+# ── 断言 5:上游 pin ⇔ latch.yml:upstream_pin ─────────────────────
+# ⚠️ STATUS 写短 hash,配置写全 hash ⇒ ⭐ 判「是不是前缀」,⛔ 不判相等。
+CFG_PIN=$(sed -n 's/^upstream_pin:[ \t]*//p' "$CONFIG" | head -1)
+ST_PIN=$(grep -o '上游 pin.*`[0-9a-f]\{7,\}`' "$STATUS" \
+         | grep -o '[0-9a-f]\{7,\}' | head -1)
+if [ -n "$ST_PIN" ]; then
+  CHECKED=$((CHECKED + 1))
+  if [ -z "$CFG_PIN" ]; then
+    note "上游 pin:STATUS 称 $ST_PIN,⛔ 但 $CONFIG 里没有 upstream_pin"
+  else
+    case "$CFG_PIN" in
+      "$ST_PIN"*) ;;
+      *) note "上游 pin:STATUS 称 $ST_PIN,⛔ $CONFIG 实为 $CFG_PIN" ;;
+    esac
+  fi
+fi
+
+# ── 断言 6:amendments 编号区间 ⇔ amendments/ 目录实况 ─────────────
+# ⭐ 本轮的触发点:`A001~A005` 在 A006/A007 出现后变成假话,连续四次靠人肉发现。
+# ⚠️ ⛔ 目录名**不写进正则** —— 写死 `amendments/` 的话,断言换个目录就匹配不上
+#    ⇒ 静默跳过 ⇒ 判据报 PASS 而实际没查。⭐ 与断言 2 原实现同一个病(实测抓到)。
+ST_AMD=$(grep -o '[A-Za-z0-9_.-]\+/A[0-9]\+~A[0-9]\+' "$STATUS" | head -1)
+if [ -n "$ST_AMD" ]; then
+  CHECKED=$((CHECKED + 1))
+  # ⭐ 目录名取自**断言自身**(`<dir>/A00x~A00y`),⛔ 不硬编码 —— A006:
+  #    硬编码的目录名装到别的项目里就是空转。
+  AMD_DIR=${ST_AMD%%/*}
+  LO=${ST_AMD#*/}; HI=${LO#*~}; LO=${LO%%~*}
+  if [ ! -d "$AMD_DIR" ]; then
+    note "amendments:STATUS 称 $ST_AMD,⛔ 但目录 $AMD_DIR 不存在"
+  else
+    REAL_LO=$(ls "$AMD_DIR"/ | sed 's/^\(A[0-9]\+\).*/\1/;t;d' | sort -u | head -1)
+    REAL_HI=$(ls "$AMD_DIR"/ | sed 's/^\(A[0-9]\+\).*/\1/;t;d' | sort -u | tail -1)
+    [ "$LO" = "$REAL_LO" ] && [ "$HI" = "$REAL_HI" ] \
+      || note "amendments:STATUS 称 $LO~$HI,⛔ $AMD_DIR/ 实为 $REAL_LO~$REAL_HI"
+  fi
 fi
 
 # ── 断言 3:清单里的文件路径都存在 ────────────────────────────────
