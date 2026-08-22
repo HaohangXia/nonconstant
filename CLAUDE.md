@@ -67,13 +67,22 @@
 | 3 | `.latch/gates.sh` | Phase 1 | ⭐ 已用 |
 | 4 | **`amendments/`(整个目录)** | A001 | ⭐ 已用 |
 | 5 | `.latch/scan-silent.sh` | Phase 2 | ⭐ 已用 |
-| 6 | `.latch/meta-gate.sh` | Phase 3 | ⬜ |
-| 7 | `.latch/report.sh` | Phase 3 | ⬜ |
+| 6 | `.latch/meta-gate.sh` | Phase 3 | ⭐ 已用 |
+| 7 | `.latch/report.sh` | Phase 3 | ⭐ 已用 |
 | 8 | `workflows/latch/workflow.yml` | 接 spec-kit `shell` step | ⬜ |
 
 ⚠️ ⛔ **原「#8 预留」已被 A002 的对齐吃掉** —— 8 个名额**全部指名**。见 `amendments/A002-b6-slot-alignment.md`。
 
 ⭐ **模型 = 8 个指名名额 + 预算外余量**(A003)。⛔ 预留不是「第 8 格」,是**预算之外的口子** —— 放在格子里就会被挤掉(F5)。
+
+⭐ **余量已用清单**(A003 要求「用了必须登记」;⚠️ 本轮无 phase 报告 ⇒ 登记在此,⛔ 不静默):
+
+| 文件 | 何时 | 属哪类 | 为什么名额装不下 |
+|---|---|---|---|
+| `.latch/upstream-semantics.sh` | Phase 6 | ② 计划外发现所必需 | 见 `reports/phase6-*.md` `known_gaps` #1 |
+| `.latch/status-facts.sh` · `.latch/waiver-expiry.sh` · `.latch/upstream-pin.sh` · `.latch/doc-budget.sh` | Phase 3~7 | ② 同上 | 八格全部指名 |
+| `install.sh` | Phase 8 试做 | ② 同上 | 同上 |
+| **`.latch/config-read.sh`** | **2026-08-23** | ⭐ **① 修正自身的产物** —— C12 第二形态(`LATCH-self-blinding` · `LATCH-pattern-miss-reports-pass`)的修复 | ⛔ 剥离逻辑若不集中,八个脚本各写一份 ⇒ 下次改规则要改八处 = 修复成本随判据数上升(**F5** 同族)。⭐ 而 A003 的余量正是为「修正自身」开的口子 |
 
 | | 余量 |
 |---|---|
