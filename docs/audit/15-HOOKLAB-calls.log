@@ -1,0 +1,42 @@
+2026-08-22T13:41:41	session=06c817e4	tool=Bash	path=	cmd=ls -la "C:/Users/user1/AppData/Local/Temp/latch-hooklab"	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:41:42	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\RUN-ME.md	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:41:48	session=06c817e4	tool=Bash	path=	cmd=ls -la "C:/Users/user1/AppData/Local/Temp/latch-hooklab/.claude" "C:/Users/user1/AppData/Local/Temp/latch-hooklab/.claude/hooks" 2>&1	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:41:48	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\.claude\settings.json	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:41:59	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\.claude\hooks\forbid.py	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:41:59	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\.claude\hooks\calls.log	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:08	session=06c817e4	tool=mcp__ccd_session__mark_chapter	path=	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:10	session=06c817e4	tool=Write	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\FORBIDDEN.txt	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:10	session=06c817e4	DENIED	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\FORBIDDEN.txt
+2026-08-22T13:42:14	session=06c817e4	tool=Bash	path=	cmd=cd "C:/Users/user1/AppData/Local/Temp/latch-hooklab" && echo "--- ls FORBIDDEN.txt ---" && ls -la FORBIDDEN.txt 2>&1; echo "--- tail calls.log ---" && tail -4 .claude/hooks/calls.log	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:30	session=06c817e4	tool=mcp__ccd_session__mark_chapter	path=	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:34	session=06c817e4	tool=Agent	path=	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:40	session=06c817e4	tool=Bash	path=	cmd=ls -la "C:/Users/user1/AppData/Local/Temp/latch-hooklab"	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:41	session=06c817e4	tool=Bash	path=	cmd=cd "C:/Users/user1/AppData/Local/Temp/latch-hooklab" && git log --stat -1	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:47	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\RUN-ME.md	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:48	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\.claude\hooks\forbid.py	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:42:48	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\.claude\settings.json	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:43:00	session=06c817e4	tool=Bash	path=	cmd=f="C:/Users/user1/AppData/Local/Temp/latch-hooklab/.claude/hooks/calls.log"; if [ -f "$f" ]; then echo "EXISTS, lines:"; wc -l < "$f"; echo "--- content ---"; cat "$f"; else echo "calls.log DOES NOT E	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:43:08	session=06c817e4	tool=Write	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\FORBIDDEN.txt	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:43:08	session=06c817e4	DENIED	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\FORBIDDEN.txt
+2026-08-22T13:43:16	session=06c817e4	tool=Bash	path=	cmd=cd "C:/Users/user1/AppData/Local/Temp/latch-hooklab" && echo "=== does FORBIDDEN.txt exist? ===" && ls -la FORBIDDEN.txt 2>&1; echo; echo "=== calls.log tail -12 ===" && tail -12 .claude/hooks/calls.l	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:43:50	session=06c817e4	tool=Bash	path=	cmd=cd "C:/Users/user1/AppData/Local/Temp/latch-hooklab" && echo "=== ls FORBIDDEN.txt ===" && ls -la FORBIDDEN.txt 2>&1; echo "=== cat FORBIDDEN.txt ===" && cat FORBIDDEN.txt 2>&1; echo "=== ls dir ===" 	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:43:54	session=06c817e4	tool=Read	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\.claude\hooks\calls.log	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:44:36	session=06c817e4	tool=Bash	path=	cmd=ls -la "C:/pg/latch/docs/audit/" 2>&1 | head -30	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:45:46	session=06c817e4	tool=Write	path=C:\pg\latch\docs\audit\15-HOOKLAB-OBSERVATIONS.md	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:45:55	session=06c817e4	tool=Bash	path=	cmd=cp "C:/Users/user1/AppData/Local/Temp/latch-hooklab/.claude/hooks/calls.log" "C:/pg/latch/docs/audit/15-HOOKLAB-calls.log" && echo "copied, lines:" && wc -l < "C:/pg/latch/docs/audit/15-HOOKLAB-calls.	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:46:04	session=06c817e4	tool=Bash	path=	cmd=tail -4 "C:/pg/latch/docs/audit/15-HOOKLAB-calls.log"	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T13:46:25	session=06c817e4	tool=Edit	path=C:\pg\latch\docs\audit\15-HOOKLAB-OBSERVATIONS.md	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:34:52	session=06c817e4	tool=mcp__ccd_session__mark_chapter	path=	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:34:58	session=06c817e4	tool=Bash	path=	cmd=echo test > FORBIDDEN.txt	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:35:04	session=06c817e4	tool=Bash	path=	cmd=cd "C:/Users/user1/AppData/Local/Temp/latch-hooklab" && echo "=== pwd ===" && pwd && echo "=== ls ===" && ls -la FORBIDDEN.txt 2>&1 && echo "=== cat ===" && cat FORBIDDEN.txt 2>&1 && echo "=== calls.l	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:35:21	session=06c817e4	tool=Bash	path=	cmd=python -c "open('FORBIDDEN.txt','w').write('x')"	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:35:32	session=06c817e4	tool=Bash	path=	cmd=cd "C:/Users/user1/AppData/Local/Temp/latch-hooklab" && echo "=== ls ===" && ls -la FORBIDDEN.txt 2>&1 && echo "=== cat ===" && cat FORBIDDEN.txt 2>&1 && echo "" && echo "=== calls.log tail -4 ===" &&	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:36:02	session=06c817e4	tool=Agent	path=	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:36:07	session=06c817e4	tool=Write	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\FORBIDDEN.txt	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:36:07	session=06c817e4	DENIED	path=C:\Users\user1\AppData\Local\Temp\latch-hooklab\FORBIDDEN.txt
+2026-08-22T14:37:04	session=06c817e4	tool=Bash	path=	cmd=cd "C:/Users/user1/AppData/Local/Temp/latch-hooklab" && echo "=== ls (mtime matters) ===" && ls -la --time-style=full-iso FORBIDDEN.txt 2>&1 && echo "=== cat ===" && cat FORBIDDEN.txt 2>&1 && echo "" 	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:37:25	session=06c817e4	tool=Read	path=C:\pg\latch\docs\audit\15-HOOKLAB-OBSERVATIONS.md	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:37:26	session=06c817e4	tool=Bash	path=	cmd=cd "C:/pg/latch" && echo "=== branch ===" && git branch --show-current && echo "=== status ===" && git status --short && echo "=== last commit ===" && git log --oneline -1	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:37:36	session=06c817e4	tool=Edit	path=C:\pg\latch\docs\audit\15-HOOKLAB-OBSERVATIONS.md	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:38:33	session=06c817e4	tool=Edit	path=C:\pg\latch\docs\audit\15-HOOKLAB-OBSERVATIONS.md	cmd=	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
+2026-08-22T14:38:40	session=06c817e4	tool=Bash	path=	cmd=cp "C:/Users/user1/AppData/Local/Temp/latch-hooklab/.claude/hooks/calls.log" "C:/pg/latch/docs/audit/15-HOOKLAB-calls.log" && echo "=== lines ===" && wc -l < "C:/pg/latch/docs/audit/15-HOOKLAB-calls.l	cwd=C:\Users\user1\AppData\Local\Temp\latch-hooklab
