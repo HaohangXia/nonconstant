@@ -24,24 +24,20 @@ set -u
 
 die_broken() { printf '⛔ WAIVER-EXPIRY BROKEN: %s\n' "$1" >&2; exit 2; }
 
-# ⭐ 被判定对象来自 latch.yml 的 subjects:(A006 探针 4)。⛔ 无硬编码默认值 ——
-#    硬编码会悄悄指向 latch 自己的仓布局。⚠️ argv 仍可覆盖(红检指向 fixture,C3)。
-subject_of() {   # subject_of <配置文件> <键>
-  awk -v key="$2" '
-    /^subjects:/ { inb = 1; next }
-    /^[a-z_]/    { inb = 0 }
-    inb && $0 ~ "^[ 	]+" key ":" { sub("^[ 	]+" key ":[ 	]*", ""); print; exit }
-  ' "$1"
-}
+# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+#    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
+LATCH_DIR=$(dirname "$0")
+# shellcheck source=/dev/null
+. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
 CONFIG="${1:-latch.yml}"
 PLAN="${2:-}"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 读不到 subjects"
-[ -n "$PLAN" ] || PLAN=$(subject_of "$CONFIG" plan)
+[ -n "$PLAN" ] || PLAN=$(latch_subject "$CONFIG" plan)
 [ -n "$PLAN" ] || die_broken "$CONFIG 的 subjects 里没有 plan —— ⛔ 没配就判不了,不得猜"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置不等于没有过期豁免"
 [ -f "$PLAN" ]   || die_broken "找不到 $PLAN —— ⛔ 算不出已排到第几 phase"
-REPORTS=$(subject_of "$CONFIG" reports)
+REPORTS=$(latch_subject "$CONFIG" reports)
 [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
 [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 算不出当前 phase,不得当成「没有过期」"
 

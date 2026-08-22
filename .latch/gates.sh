@@ -27,16 +27,19 @@ die_broken() {
   exit 2
 }
 
+# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+#    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
+LATCH_DIR=$(dirname "$0")
+# shellcheck source=/dev/null
+. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+
 # ── 闸自身体检(⛔ 缺任何一样都不许返回 0)────────────────────────
 git rev-parse --git-dir >/dev/null || die_broken "不在 git 仓库内"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG"
 
 # ── 读受保护路径清单 ────────────────────────────────────────────
 # 取 `protected:` 与下一个顶层键之间的 `- ` 行。⛔ 不引入 YAML 依赖。
-PATTERNS=$(
-  sed -n '/^protected:/,/^[a-z_]*:/p' "$CONFIG" \
-    | sed -n 's/^[[:space:]]*-[[:space:]]*//p'
-)
+PATTERNS=$(latch_list "$CONFIG" protected)
 [ -n "$PATTERNS" ] || die_broken "$CONFIG 的 protected 清单为空 —— 空清单会让本闸恒过(常量)"
 
 # ── 取被判定的改动集合 ──────────────────────────────────────────
@@ -46,7 +49,7 @@ PATTERNS=$(
 # ⛔ 拒绝而非静默忽略:静默忽略会让调用方以为自己指定的 base 生效了。
 [ "$#" -eq 0 ] || die_broken "⛔ 不接受调用方给 base(收到「$1」)—— base 只从 $CONFIG 取(A004)"
 
-BASE=$(awk '/^base:/ { sub(/^base:[ \t]*/, ""); print; exit }' "$CONFIG") \
+BASE=$(latch_top "$CONFIG" base) \
   || die_broken "读 base 失败"
 [ -n "$BASE" ] || die_broken "$CONFIG 里没有顶层 base: —— ⛔ 没有基线不等于没有改动"
 git rev-parse --verify "$BASE" >/dev/null || die_broken "配置里的 base 解析不了: $BASE"

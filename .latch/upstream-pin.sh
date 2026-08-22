@@ -30,8 +30,13 @@ CONFIG="${1:-latch.yml}"
 SUB="${2:-vendor/spec-kit}"
 
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置就没有 pin 可比"
+# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+#    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
+LATCH_DIR=$(dirname "$0")
+# shellcheck source=/dev/null
+. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-WANT=$(sed 's/^upstream_pin:[ \t]*//;t;d' "$CONFIG") || die_broken "读 upstream_pin 失败"
+WANT=$(latch_top "$CONFIG" upstream_pin) || die_broken "读 upstream_pin 失败"
 [ -n "$WANT" ] || die_broken "$CONFIG 里没有 upstream_pin —— ⛔ 没写 pin ≠ pin 没变"
 
 [ -d "$SUB" ] || die_broken "$SUB 不存在 —— ⛔ 上游不在 ≠ pin 没变"

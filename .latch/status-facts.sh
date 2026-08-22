@@ -22,20 +22,16 @@ set -u
 
 die_broken() { printf '⛔ STATUS-FACTS BROKEN: %s\n' "$1" >&2; exit 2; }
 
-# ⭐ 被判定对象来自 latch.yml 的 subjects:(A006 探针 4)。⛔ 无硬编码默认值 ——
-#    硬编码会悄悄指向 latch 自己的仓布局。⚠️ argv 仍可覆盖(红检指向 fixture,C3)。
-subject_of() {   # subject_of <配置文件> <键>
-  awk -v key="$2" '
-    /^subjects:/ { inb = 1; next }
-    /^[a-z_]/    { inb = 0 }
-    inb && $0 ~ "^[ 	]+" key ":" { sub("^[ 	]+" key ":[ 	]*", ""); print; exit }
-  ' "$1"
-}
+# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+#    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
+LATCH_DIR=$(dirname "$0")
+# shellcheck source=/dev/null
+. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
 CONFIG="${2:-latch.yml}"
 STATUS="${1:-}"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 读不到 subjects"
-[ -n "$STATUS" ] || STATUS=$(subject_of "$CONFIG" status)
+[ -n "$STATUS" ] || STATUS=$(latch_subject "$CONFIG" status)
 [ -n "$STATUS" ] || die_broken "$CONFIG 的 subjects 里没有 status —— ⛔ 没配就判不了,不得猜"
 [ -f "$STATUS" ] || die_broken "找不到 $STATUS —— ⛔ STATUS 不存在 ≠ 没有失真"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有对照物就判不了真伪"
@@ -78,7 +74,7 @@ fi
 #    STATUS 一改成「Phase 0~7 + 10 全部完成」它就**匹配不上 ⇒ 静默跳过**,
 #    而判据照样报 PASS。⇒ ⭐ 现在:**取出所有数字,展开 a~b 区间,当集合比**。
 CLAIMLINE=$(grep -o 'Phase [0-9~ +,]*全部完成' "$STATUS" | head -1)
-REPORTS=$(subject_of "$CONFIG" reports)
+REPORTS=$(latch_subject "$CONFIG" reports)
 [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
 [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 数不出已完成阶段"
 REALSET=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u | tr '\n' ' ')

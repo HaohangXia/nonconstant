@@ -23,19 +23,15 @@ set -u
 
 die_broken() { printf '⛔ UPSTREAM-SEMANTICS BROKEN: %s\n' "$1" >&2; exit 2; }
 
-# ⭐ 被判定对象来自 latch.yml 的 subjects:(A006 探针 4)。⛔ 无硬编码默认值 ——
-#    硬编码会悄悄指向 latch 自己的仓布局。⚠️ argv 仍可覆盖(红检指向 fixture,C3)。
-subject_of() {   # subject_of <配置文件> <键>
-  awk -v key="$2" '
-    /^subjects:/ { inb = 1; next }
-    /^[a-z_]/    { inb = 0 }
-    inb && $0 ~ "^[ 	]+" key ":" { sub("^[ 	]+" key ":[ 	]*", ""); print; exit }
-  ' "$1"
-}
+# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+#    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
+LATCH_DIR=$(dirname "$0")
+# shellcheck source=/dev/null
+. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
 SRC="${1:-}"
 [ -f latch.yml ] || die_broken "找不到 latch.yml —— ⛔ 读不到 subjects"
-[ -n "$SRC" ] || SRC=$(subject_of latch.yml upstream_src)
+[ -n "$SRC" ] || SRC=$(latch_subject latch.yml upstream_src)
 [ -n "$SRC" ] || die_broken "latch.yml 的 subjects 里没有 upstream_src —— ⛔ 没配就判不了,不得猜"
 [ -d "$SRC" ] || die_broken "找不到上游源码目录: $SRC —— ⛔ 上游不在 ≠ 语义没变"
 command -v python >/dev/null || die_broken "没有 python,跑不了行为探针"

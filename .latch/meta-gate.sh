@@ -27,20 +27,25 @@ die_broken() { printf '⛔ META-GATE BROKEN: %s\n' "$1" >&2; exit 2; }
 
 CONFIG="${1:-latch.yml}"
 [ -f "$CONFIG" ] || die_broken "找不到配置 $CONFIG —— ⛔ 没有配置不等于判据都合格"
+# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+#    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
+LATCH_DIR=$(dirname "$0")
+# shellcheck source=/dev/null
+. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-IDS=$(awk '/^[ \t]*-[ \t]*id:/ { sub(/^[ \t]*-[ \t]*id:[ \t]*/, ""); print }' "$CONFIG") \
+IDS=$(awk '/^[ \t]*-[ \t]*id:/ { sub(/^[ \t]*-[ \t]*id:[ \t]*/, ""); print }' "$CONFIG" | while IFS= read -r ln; do latch_scrub "$ln"; printf "\n"; done | sed '/^$/d') \
   || die_broken "读判据清单失败"
 [ -n "$IDS" ] || die_broken "$CONFIG 里一条判据都没有 —— ⛔ 空清单会让本闸恒过(常量)"
 
 field() {   # field <id> <key>  —— 取某条判据块内的某个字段
-  awk -v want="$1" -v key="$2" '
+  latch_scrub "$(awk -v want="$1" -v key="$2" '
     /^[ \t]*-[ \t]*id:/ {
       cur = $0; sub(/^[ \t]*-[ \t]*id:[ \t]*/, "", cur); inb = (cur == want); next
     }
     inb && $0 ~ "^[ \t]*" key ":" {
       sub("^[ \t]*" key ":[ \t]*", ""); print; exit
     }
-  ' "$CONFIG"
+  ' "$CONFIG")"
 }
 
 FAILS=""
