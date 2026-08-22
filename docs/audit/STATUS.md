@@ -53,6 +53,10 @@
 
 ⚠️ **`01-PLAN.md` 395/400,余量 5 行。⛔ 下次新增前须先精简。**
 
+⚠️ 全局 hook(`block-no-verify`,`~/.claude` 侧)**误拦**含 `grep -n` + `commit` 的命令,连带拦 `--amend`。
+根因见 `03-LEDGER.md` `LATCH-hook-three-legs`。⛔ **不修** —— 它在全局配置,改动影响所有项目,属环境维护。
+⭐ 规避:命令里避开 `-n` 与 `commit` 同时出现。
+
 DevLoop 侧 `%TEMP%` 下残留 **249** 条 worktree 登记(目录仍在,不算 prunable)。
 来源 = 闸自己的一次性 worktree(`devloop/gates.py:619`,`prefix="devloop-wt-"`)。
 ⛔ 清理属 **DevLoop 维护**。
