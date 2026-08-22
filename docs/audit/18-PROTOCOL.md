@@ -22,6 +22,7 @@
 | R5 | ⭐ **发现指令的清单不完整、引用不存在、或不可执行 ⇒ 必须报告** | `LATCH-incomplete-set` · `LATCH-cite-from-memory` · `LATCH-unexecutable-constraint` |
 | R6 | ⭐ 提案**可以提**,须**标为提案**,⛔ 不得自行实施 | `LATCH-ban-by-feature-not-cause` |
 | R7 | ⛔ **判据不通过就停下报告,不许改判据让它通过** | `LATCH-criterion-measures-wrong-thing` |
+| R8 | ⭐⭐ **下达方的回复必须含一节「自审」**:跑了几轮 · 找到几处 · 分别是什么。⛔ 该节不存在,或写「无问题」却未说明**检查了什么** ⇒ **视为未跑**,接收方应打回。<br>⭐ 要点:⛔ 不是「要自审」(不可验证的**意图**),⭐ 是「**自审必须留下产物**」(可验证的**输出**)—— 这是 **T1** 的应用。<br>⚠️ **能力边界**:只挡得住「完全没跑」,⛔ 挡不住「跑了但敷衍」(D5,不可根治)⇒ 与 hook 拦得住 `Write`/`Edit`、拦不住 `Bash` **同形** | `LATCH-directive-self-audit-3` · `LATCH-orchestration-boundary` |
 
 ## §2 保留的约束(⛔ 未变)
 
@@ -41,6 +42,8 @@
 | F1 | 凡「**有多少个 X**」的断言,以磁盘 / 命令输出为准 | `LATCH-count-from-memory` |
 | F2 | ⭐ 凡**引用任何条目 ID**,同样以磁盘为准 | `LATCH-cite-from-memory` |
 | F3 | 凡「**X 不存在 / A 不依赖 B**」的否定命题,须 ① 搜索模式覆盖所有已知形式 ② 给对照组 ③ 说明可能漏掉什么 | `LATCH-incomplete-set` |
+| F4 | ⭐ 凡「**某个数超了**」,先问**这个数在测什么**。⚠️ 本项目实例:`03-LEDGER.md` 行数未变而实际改动 **13 处指针** ⇒ ⛔ **行数亦不适合作为「改动量」的代用品** | `LATCH-proxy-criterion` |
+| F5 | ⭐ 任何**自律型预算**,须把「**修正自身**」排除在计数之外 | `LATCH-budget-eats-the-fix` · `LATCH-self-referential-deadlock` |
 
 ## §4 判据纪律
 
