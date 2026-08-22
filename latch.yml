@@ -22,11 +22,18 @@ upstream_pin: bca679051abb80d6cf0cd909f2539a28a10eb7eb
 
 # 判据清单。level: hard = 阻断且不可 waiver(01-PLAN §5 P4)
 #
+# ⭐⭐ scope(A006):每条判据必须声明它属于哪一类,⛔ meta-gate 查「声明了且取值合法」。
+#   project   判被装项目自己的产物,路径可配 ⇒ ⭐ 可分发
+#   upstream  判上游(⭐ 指向用户实际会跑的那份 spec-kit)⇒ ⭐ 可分发,⚠️ 需已装 spec-kit
+#   bootstrap ⛔ 仅 latch 自举(结构上需要 submodule)⇒ ⛔ 不分发
+#   ⇒ 可分发 ≡ scope != bootstrap。⛔ 安装脚本据此决定装哪些,不靠人挑。
+#
 # ⭐⭐ 元判据(§3 序 4):每条判据必须登记「一过一失败」的演示,否则不得启用。
 #    demo_pass_exit 必须为 0;demo_fail_exit 必须非 0;两者方向相同 = 仍是常量。
 #    ⛔ 未登记 = 拒绝启用,⛔ 不是「先用着」。
 gates:
   - id: criteria-guard
+    scope: project
     level: hard
     impl: .latch/gates.sh
     desc: 判据文件不得被被判定者修改
@@ -37,6 +44,7 @@ gates:
     demo_report: reports/phase1-ae6f82f.md
 
   - id: silent-scan
+    scope: project
     level: hard
     impl: .latch/scan-silent.sh
     desc: 静默失败扫描（⛔ 函数作用域，不用行数窗口）
@@ -58,6 +66,7 @@ gates:
         #    ⇒ 那是一个【没量根因就下的成本估算】，高估两个数量级。见 LEDGER/LATCH-cost-estimated-without-root-cause、协议 F6。
 
   - id: meta-gate
+    scope: project
     level: hard
     impl: .latch/meta-gate.sh
     desc: 判据可执行性——未演示「一过一失败」的判据不得启用
@@ -73,6 +82,7 @@ gates:
     #       那些命令由谁提供？被判定者提供就又是 T1 失效。⇒ 与 hook 拦不住 Bash 同类。
 
   - id: report-pin
+    scope: project
     level: hard
     impl: .latch/report.sh
     desc: 完成报告文件名须含它所描述的那个 commit 的短 hash
@@ -83,6 +93,7 @@ gates:
     demo_report: reports/phase3-cad8012.md
 
   - id: status-facts
+    scope: project
     level: hard
     impl: .latch/status-facts.sh
     desc: STATUS 断言须与仓库一致——它的失真可判定（⛔ 不是 D5）
@@ -93,6 +104,7 @@ gates:
     demo_report: reports/phase4-900b8de.md
 
   - id: waiver-expiry
+    scope: project
     level: hard
     impl: .latch/waiver-expiry.sh
     desc: 豁免到期——写下的到期没有判据 = 没有到期
@@ -103,6 +115,7 @@ gates:
     demo_report: reports/phase5-30005dc.md
 
   - id: upstream-semantics
+    scope: upstream
     level: hard
     impl: .latch/upstream-semantics.sh
     desc: 上游语义——真跑两个 step 观察行为（⛔ 不判文件内容，否则合法升级即误报）
@@ -113,6 +126,7 @@ gates:
     demo_report: reports/phase6-33a1b16.md
 
   - id: upstream-pin
+    scope: bootstrap
     level: hard
     impl: .latch/upstream-pin.sh
     desc: 上游 pin 可核 + 未被本地改过（⭐ submodule 记的就是 commit 本身）
@@ -123,6 +137,7 @@ gates:
     demo_report: reports/phase7-4dddca8.md
 
   - id: doc-budget
+    scope: project
     level: soft
     impl: .latch/doc-budget.sh
     desc: 文档预算——写下的上限必须有机器判据（协议 C8）

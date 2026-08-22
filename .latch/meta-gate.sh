@@ -60,6 +60,18 @@ for id in $IDS; do
     die_broken "判据 $id 的实现不存在: $impl —— ⛔ 闸门缺失 ≠ 未配置 ⇒ 绝不跳过(C6)"
   fi
 
+  # ── A' · scope 必须声明且合法(A006)────────────────────────────
+  # ⛔ 「哪些判据可分发」若靠人记,又是一条无判据的规则
+  #    (= LATCH-protocol-has-no-teeth)⇒ 写进配置,由本闸查。
+  # ⚠️ 能力边界:本闸只查「声明了且取值合法」,⛔ 查不了「归类对不对」
+  #    (把 bootstrap 写成 project 照样过)⇒ D5,同 LATCH-criteria-cannot-test-reasoning。
+  sc=$(field "$id" scope)
+  case "${sc:-}" in
+    project|upstream|bootstrap) : ;;
+    '') note "$id: ⛔ 未声明 scope —— ⛔ 「可不可分发」不得靠人记(A006)" ; continue ;;
+    *)  note "$id: ⛔ scope 取值非法「$sc」—— 只许 project / upstream / bootstrap" ; continue ;;
+  esac
+
   # ── B · 双向演示 ────────────────────────────────────────────────
   if [ -z "$pexit" ] || [ -z "$fexit" ]; then
     note "$id: ⛔ 缺演示登记(demo_pass_exit=「${pexit:-空}」 demo_fail_exit=「${fexit:-空}」)⇒ 拒绝启用"
