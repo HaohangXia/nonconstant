@@ -276,6 +276,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | Q4 | PreToolUse escape hatch 如何不成为后门? | P2 |
 | Q6 | waiver 现在做还是等第一次真撞上?倾向后者 | P6 优先级 |
 | Q8 | ~~Task 工具 + spec-kit `fan_out` 够不够替代 DevLoop 编排层?~~ ⭐ **已答:不够**(`dca84db`)—— 作用域不可控 + 不拦跨边界写 | — |
+| Q12 | ⛔ **B4 未区分「判据」与「判据比对的数据」** —— 若把 vendor 指纹这类**基准数据**放进受保护的 `.latch/`,上游每次合法升级都会触发误报(= `LATCH-hook-three-legs` 第三条腿的形状)。⛔ 改 B4 须走 amendment | Phase 1 受保护集合的定义 |
 | Q11 | ⭐ **hook 在 §3 的排名要重估到第几?** 实证已从「只覆盖架构 A」收窄为「覆盖 A + B 的一半」,且它是**唯一被证实拦得住 sub-agent** 的机制。⛔ 本轮不改排名 | §3 序位 · Phase 4 |
 
 ---
@@ -390,6 +391,6 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 ### Phase 3 · 判据可执行性 + 报告绑 commit
 
 - 元判据 新判据未演示"一过一失败" → `bash .latch/gates.sh --meta` ⇒ **非 0**
-- 报告绑定 `ls "reports/phase$N-$(git rev-parse --short HEAD).md"` ⇒ **0**
+- 报告绑定 `git merge-base --is-ancestor "$(ls reports/phase$N-*.md | sed 's/.*-//;s/\.md$//')" HEAD` ⇒ **0** —— ⭐ 报告名 = **它所描述的那个 commit**,⛔ 非当下 HEAD ⇒ 求值时机从「当下」变为「任何时候」(实测 绿 0 / 红 128)
 
 ⛔ **只写 0~3。**Phase 4(hook)等 **Q11** 重估后再定。
