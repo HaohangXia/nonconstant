@@ -26,7 +26,7 @@
 | `doc-budget` | `.latch/doc-budget.sh` | soft |
 
 配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~4-*.md`
-⛔ **未接编排层**,⛔ 无 `workflows/latch/workflow.yml`。
+⛔ **未接编排层**,⛔ 无 `workflows/latch/workflow.yml`。⚠️ **B6 指名已满 8/8** ⇒ 后续新文件一律走 **A003 预算外余量**并在报告 `known_gaps` 登记。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理)
 
