@@ -56,16 +56,20 @@
 
 `01-PLAN.md` §7a:latch 新增文件 **≤ 8**。⭐ 计数口径:**可执行文件与配置文件**;⛔ `docs/**` 与 `reports/**` 不计入。
 
-| # | 文件 | 何时 |
-|---|---|---|
-| 1 | `CLAUDE.md` | ⭐ Phase 0(**已用**) |
-| 2 | `latch.yml` | Phase 1 |
-| 3 | `.latch/gates.sh` | Phase 1 |
-| 4 | `.latch/scan-silent.sh` | Phase 2 |
-| 5 | `.latch/meta-gate.sh` | Phase 3 |
-| 6 | `.latch/report.sh` | Phase 3 |
-| 7 | `workflows/latch/workflow.yml` | 接 spec-kit `shell` step |
-| 8 | **预留** | ⛔ 不预先指定;动用前须说明为何前 7 个装不下 |
+⭐ **名额按实际消耗顺序编号**(A002 对齐;⛔ 原表把「排期顺序」当成了「名额编号」)。
+
+| # | 文件 / 目录 | 何时 | 状态 |
+|---|---|---|---|
+| 1 | `CLAUDE.md` | Phase 0 | ⭐ 已用 |
+| 2 | `latch.yml` | Phase 1 | ⭐ 已用 |
+| 3 | `.latch/gates.sh` | Phase 1 | ⭐ 已用 |
+| 4 | **`amendments/`(整个目录)** | A001 | ⭐ 已用 |
+| 5 | `.latch/scan-silent.sh` | Phase 2 | ⭐ 已用 |
+| 6 | `.latch/meta-gate.sh` | Phase 3 | ⬜ |
+| 7 | `.latch/report.sh` | Phase 3 | ⬜ |
+| 8 | `workflows/latch/workflow.yml` | 接 spec-kit `shell` step | ⬜ |
+
+⚠️ ⛔ **原「#8 预留」已被这次对齐吃掉** —— 8 个名额**全部指名**,不再有预留。见 `amendments/A002-b6-slot-alignment.md`。
 
 ⛔ **第 9 个文件 = amendment。**⛔ 用"拆成多个小文件"绕过计数,同样是 amendment。
 
