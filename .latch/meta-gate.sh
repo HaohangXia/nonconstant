@@ -77,10 +77,11 @@ for id in $IDS; do
     note "$id: ⛔ 缺 demo_report —— ⛔ 不可核查的演示等于没演示"
     continue
   fi
-  case "$prep" in
-    *PENDING*) : ;;   # 本 phase 自己的报告尚未写出,放行(见 known_gaps)
-    *) [ -f "$prep" ] || note "$id: ⛔ demo_report 不存在: $prep ⇒ 演示不可核查" ;;
-  esac
+  # ⛔⛔ 源码里不得有任何「放行」白名单 —— 那是**不受 criteria-guard 保护**的逃逸口。
+  # ⭐ 若确需「暂未演示」这个状态,必须走 latch.yml 的豁免形态:显式列出哪条判据 ·
+  #    reason · until(⛔ 须是具体 phase,不得是「以后」)· 运行时打印「已豁免」。
+  # 见 03-LEDGER.md `LATCH-hardcoded-escape-hatch`。
+  [ -f "$prep" ] || note "$id: ⛔ demo_report 不存在: $prep ⇒ 演示不可核查"
 done
 
 if [ -n "$(printf '%s' "$FAILS" | tr -d '[:space:]')" ]; then

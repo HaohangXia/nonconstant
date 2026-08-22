@@ -58,6 +58,11 @@ gates:
     demo_fail: fixture 配置（某条判据缺 demo_fail_exit，或双向同号）
     demo_fail_exit: 1
     demo_report: reports/phase3-cad8012.md
+    # ⚠️ 能力边界（⭐ 承认，⛔ 不修）：本闸只查「登记了没有」，⛔ 查不了「演示是否真跑过」。
+    #    demo_*_exit 是写在本文件里的数字；填了没跑照样放行。
+    #    ⇒ 与协议 R8 完全同形：只挡「完全没做」，⛔ 挡不住「做了但敷衍」（D5，不可根治）。
+    #    ⛔ 收紧方向（配置里存可执行命令、真去跑）会引入更坏的问题：
+    #       那些命令由谁提供？被判定者提供就又是 T1 失效。⇒ 与 hook 拦不住 Bash 同类。
 
   - id: report-pin
     level: hard
