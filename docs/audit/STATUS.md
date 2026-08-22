@@ -57,8 +57,10 @@
 ⚠️ ⭐ 该上限本身是**代用品判据**(§6 Q15),⛔ 精简前先看 `03-LEDGER.md` `LATCH-proxy-criterion` —— 搬去 LEDGER 不算精简。
 
 ⚠️ 全局 hook(`block-no-verify`,`~/.claude` 侧)**误拦**含 `grep -n` + `commit` 的命令,连带拦 `--amend`。
-根因见 `03-LEDGER.md` `LATCH-hook-three-legs`。⛔ **不修** —— 它在全局配置,改动影响所有项目,属环境维护。
-⭐ 规避:命令里避开 `-n` 与 `commit` 同时出现。
+根因见 `03-LEDGER.md` `LATCH-hook-three-legs`。⭐ 规避:命令里避开 `-n` 与 `commit` 同时出现。
+⚠️ **复发计数:4 次**(A001 轮 3 次连拦 + C7 轮 1 次)。⭐ **2026-08-22 重估:维持「⛔ 不修」** ——
+代价经查**仅为多跑几条命令**,⛔ **未曾改变任何做法或产物**(逐条核过,见该轮报告)。
+⚠️ 复发次数须持续更新 —— ⛔ 一个不更新的计数等于没计数(F1)。
 
 DevLoop 侧 `%TEMP%` 下残留 **249** 条 worktree 登记(目录仍在,不算 prunable)。
 来源 = 闸自己的一次性 worktree(`devloop/gates.py:619`,`prefix="devloop-wt-"`)。
