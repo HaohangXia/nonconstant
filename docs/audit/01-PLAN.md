@@ -154,7 +154,7 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 | 4 | **闸门可执行性** —— 判据必须仍是判据 | ⭐ 08-17 退化成常量 | 通用 |
 | 5 | **M3 报告绑 commit**(A3) | ⭐ 91 条老行不可证伪 | 170 行 |
 | — | ─────── 以上五条有实证 ─────── | | |
-| 6 | M5 PreToolUse hook | 有实现(402 + 223 行),但工人跑在子进程里、不过 hook | ⚠️ 只覆盖架构 A,且大半是协议胶水 |
+| 6 | M5 PreToolUse hook | ⭐ **实测拦住过 sub-agent 的 `Write`**(15 号,`calls.log` L19-20);⛔ 但 `Bash` 通道两次均未拦 | ⚠️ 覆盖架构 A **+ 架构 B 的一半**(Claude Code 派出的 sub-agent);⛔ 拦不住另起进程的工人。见 §6 Q11 |
 | 7 | M2 waiver(A4 账期) | ⛔ 零实证 —— 三个月 157 单一次未被需要 | → 降为**设计假说,待验证** |
 | 8 | M4 amendment(A5 影响面) | ⛔ 零实证。唯一实证是我们自己违反了它(§8 #13) | → 降为**设计假说,待验证** |
 
@@ -190,7 +190,7 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 第 0 层  隔离工位          ← 判定的物理前提(见 §3 序 1)
 第 3 层  commit 闸门      ← SK gate step 可用,但需补判据
 第 2 层  stage 检查点     ← SK shell step 直接可用
-第 1 层  PreToolUse hook  ← latch 新增(Claude Code 层)  ⚠️ 只覆盖架构 A
+第 1 层  PreToolUse hook  ← latch 新增(Claude Code 层)  ⚠️ 只对 Write/Edit 事前阻断
 ```
 
 ### P2 PreToolUse hook
@@ -199,7 +199,17 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 
 ~~产品第一个 demo。~~ 已撤回(§8 #11)。**第一个 demo 改为「测试守卫」** —— 工人改动 `tests/` 让自己过关,被当场拦下。它拦的是**主动作弊**,且在 A/B 两种架构下都成立;比"拦模型写 `src/`"(拦手滑)有力得多。
 
-限制:只拿得到工具名与参数,做不了语义判断。**[Q4]** escape hatch 如何不成为后门?
+**⭐ 实测能力边界(15 号靶场,两轮):**
+
+| 通道 | 触发 | 阻断 | 能力 |
+|---|---|---|---|
+| `Write` / `Edit`(主会话 **与** sub-agent) | ⭐ 是 | ⭐ 是 | **事前阻断**,文件不存在 |
+| `Bash`(`echo >` / `python -c`) | ⭐ 是 | ⛔ **否**,两次都写成了 | ⇒ 改为**当场发现**:执行前后快照受保护路径,变了判红 |
+| 阶段边界 | — | — | 事后判定(shell gate 退出码) |
+
+⛔ Bash 漏的原因是**判据不全**,非能力缺失 —— `tool_input.command` 已在手上,判定分支没检查它。⛔ 但不可判命令字符串(拦 `>` ⇒ 绕 `python -c` ⇒ 无穷退化),故只能判结果。
+
+限制:① 只拿得到工具名与参数,做不了语义判断;② ⚠️ **`session=` 字段不区分主会话与 sub-agent**(两轮均复现)⇒ 归属靠时序夹逼 + 计数吻合,**并发场景下这两样都会失效**。**[Q4]** escape hatch 如何不成为后门?
 
 ### P3 phase 表达为 workflow.yml
 
@@ -265,7 +275,8 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | Q3 | 能写出几条**真可机器验证**的 invariant?若零,则回归带是空壳 | P3 |
 | Q4 | PreToolUse escape hatch 如何不成为后门? | P2 |
 | Q6 | waiver 现在做还是等第一次真撞上?倾向后者 | P6 优先级 |
-| Q8 | Task 工具 + spec-kit `fan_out` 的编排能力,够不够替代 DevLoop 的编排层?⛔ **未实测,不得假定** | 架构 B 的落地路径 |
+| Q8 | ~~Task 工具 + spec-kit `fan_out` 够不够替代 DevLoop 编排层?~~ ⭐ **已答:不够**(`dca84db`)—— 作用域不可控 + 不拦跨边界写 | — |
+| Q11 | ⭐ **hook 在 §3 的排名要重估到第几?** 实证已从「只覆盖架构 A」收窄为「覆盖 A + B 的一半」,且它是**唯一被证实拦得住 sub-agent** 的机制。⛔ 本轮不改排名 | §3 序位 · Phase 4 |
 
 ---
 
@@ -318,6 +329,9 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | 12 | **「五机制齐全」** | **撤回。**漏了地基:**隔离工位**。判定必须发生在被判定者改不动的地方,否则 A1 当场失效。隔离是 A1 的**物理前提**,不是并列机制 |
 | 13 | **「DevLoop 是实验室、不发布」** | **撤回,且这是一次无声契约变更。**用户 2026-08-21 裁定「DevLoop 作为模组挂进 spec-kit」;07 号 §5.3 我改成「实验室、不发布」——⛔ 混在技术回复的摘要表里没走独立入口;⛔ 没列影响面(影响 04 号立论、阶段三、要不要接 spec-kit);⛔ 没要求重验;DevLoop 侧问过用户两次、两次未获答复却已标"✅ 采纳";⛔ 13 号我自己判 CONVERGED 把它一并确认。⭐ **我设计了 M4,然后完整违反了 M4 的每一条 —— 它是 M4 的第一条实证。原文摘录见表下,#13 不依赖外部文件** |
 | 14 | **「M2 waiver / M4 amendment 是核心机制」** | 降为**设计假说,待验证**。三个月 157 单,DevLoop 两者都没有,一次都没被需要 |
+| 15 | **「隔离工位 = git worktree」** | **撤回。**实测两个 sub-agent 从"隔离"工位**写进了主仓**(`shared.txt` 含 `A-touched-main` + `B-touched-main`)。worktree 隔离的是 **checkout**,进程写文件用绝对路径 ⇒ 它是 VCS 便利设施,**从来不是沙箱**。⇒ §3 排名第 1 的隔离工位**目前不知道怎么实现**(`dca84db`) |
+| 16 | **「hook 放 Phase 1」** | 撤回(与 #11 同源)。⛔ 违反"按 §3 实测排名"这条铁律 —— 排名第 6 的机制因为**最近讨论过**被提到第一个做 |
+| 17 | **「M5 只覆盖架构 A」** | ⚠️ **收窄,不完全撤回。**2026-08-22 的越权发生在**架构 B**(sub-agent),而 hook 是当前唯一被证实拦得住它的机制(15 号)。准确表述:hook 拦得住 **Claude Code 派出的 sub-agent**,⛔ 拦不住**另起进程的工人**(DevLoop 形态)—— 两者都属架构 B,hook 只覆盖前者。⇒ 排名待重估,记 §6 Q11 |
 
 ### #13 原文摘录(使该条自足)
 
@@ -345,3 +359,37 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | 理解债 | 明说只降低偷懒概率,不解决(D8) |
 | 验证程度 | **真跑完一个改代码的 phase 之前,不得宣称已验证**(D6) |
 | 非原创部分 | phase-gate ← 传统工程;attestation ← 供应链安全;Maker/Checker ← Loop Engineering;引擎 ← Spec Kit。**原创在于组合 + 账期/影响面两个机制** |
+
+---
+
+## §10 阶段划分
+
+> **三条铁律:**① 顺序严格按 §3 实测排名,⛔ 不按讨论热度;② 验收判据 = **一条能跑的命令 + 期望退出码**;③ ⛔ 写不成命令的,停下报告,不许用模糊表述凑数。
+> ⚠️ **latch 零代码** ⇒ ⛔ 任何引用 `src/` 的判据都是常量(恒过),不许用。受保护集合 = `.latch/**` + `latch.yml`,⭐ 它们由 Phase 1 自己创建,故非常量。
+
+### Phase 0 · 边界锁定(零代码)
+
+- `test -f CLAUDE.md && grep -q '## 模块边界' CLAUDE.md` ⇒ **0**
+- `[ "$(git status --porcelain -- '*.py' '*.sh' | wc -l)" -eq 0 ]` ⇒ **0**
+
+### Phase 1 · 测试守卫(§3 排名 2,⭐ 唯一有真拦截实证)
+
+**做:** 判据文件本身不得被被判定者修改。
+
+- 红检 `touch latch.yml && bash .latch/gates.sh` ⇒ **非 0**
+- 绿检 `touch docs/probe.md && bash .latch/gates.sh` ⇒ **0**
+- ⚠️ `tests/` 一并进受保护集合,⛔ 但 latch 现无 `tests/` ⇒ 该路径**在有测试之前是常量**,不得单独作红检
+
+### Phase 2 · 静默失败扫描(T5,86 GB 实证)
+
+⚠️ ⛔ **必须用函数作用域,不用行数窗口**(行数窗口实测误报率 10%)。
+
+- 红检 `bash .latch/scan-silent.sh fixtures/dirty` ⇒ **非 0**
+- 绿检 `bash .latch/scan-silent.sh fixtures/clean` ⇒ **0**
+
+### Phase 3 · 判据可执行性 + 报告绑 commit
+
+- 元判据 新判据未演示"一过一失败" → `bash .latch/gates.sh --meta` ⇒ **非 0**
+- 报告绑定 `ls "reports/phase$N-$(git rev-parse --short HEAD).md"` ⇒ **0**
+
+⛔ **只写 0~3。**Phase 4(hook)等 **Q11** 重估后再定。

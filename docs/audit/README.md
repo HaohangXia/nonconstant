@@ -10,6 +10,9 @@
 | `01-PLAN.md` | 方案主文档 | ⭐ 当前有效,**唯一真源** |
 | `03-LEDGER.md` | 账本(跨轮记录 / 否决库 / 原意图重建档案) | ⭐ 有效 |
 | `STATUS.md` | 当前进度与阻塞 | ⭐ 有效 |
+| `16-DECISIONS.md` | 决策记录(理由档案) | ⭐ 有效 |
+| `17-DEVLOOP-DECISIONS.md` | DevLoop 侧决策记录 | ⭐ 有效 |
+| `14-` / `15-` | 实测报告(编排层核验 / PreToolUse 靶场) | ⭐ 有效 |
 | `04-DEVLOOP-INTEGRATION.md` | 往返审计记录 | ⚠️ 历史档案,结论以 `01-PLAN.md` 为准 |
 | `06-DEVLOOP-REPLY.md` | 往返审计记录 | ⚠️ 历史档案,结论以 `01-PLAN.md` 为准 |
 | `08-DEVLOOP-REPLY.md` | 往返审计记录 | ⚠️ 历史档案,结论以 `01-PLAN.md` 为准 |
