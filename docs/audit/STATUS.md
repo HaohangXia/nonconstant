@@ -10,7 +10,7 @@
 |---|---|
 | 日期 | 2026-08-22 |
 | 上游 pin | spec-kit **v1.0.0** / `bca6790` |
-| §10 阶段 | ⭐ **Phase 0~7 全部完成** |
+| §10 阶段 | ⭐ **Phase 0~7 + 10 全部完成**(⭐ 编号 = 身份,⛔ 非顺序) |
 
 ## latch 现在有什么
 
@@ -28,7 +28,7 @@
 | `upstream-pin` | `.latch/upstream-pin.sh` | hard |
 | `doc-budget` | `.latch/doc-budget.sh` | soft |
 
-配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A005` · 报告 `reports/phase0~7-*.md`
+配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A007` · 报告 `reports/phase0~7,10-*.md`
 ⛔ **未接编排层**,⛔ 无 `workflows/latch/workflow.yml`。⚠️ **B6 指名已满 8/8** ⇒ 后续新文件一律走 **A003 预算外余量**并在报告 `known_gaps` 登记。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理)
