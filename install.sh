@@ -66,12 +66,41 @@ done <<EOF
 $KEEP
 EOF
 
+# ⭐ 探测用户实际装的 spec-kit —— ⛔ 不猜、⛔ 不回落到 latch 自己的 vendor 布局。
+#    探不到就**留空**:upstream-semantics 会判 2(没配就判不了),
+#    ⛔ 而不是指向一个错的路径然后声称验过了。
+UPSTREAM_SRC=""
+if command -v python >/dev/null; then
+  UPSTREAM_SRC=$(python - <<'PYX'
+import importlib.util, os
+spec = importlib.util.find_spec("specify_cli")
+print(os.path.dirname(os.path.dirname(spec.origin)) if spec and spec.origin else "")
+PYX
+  ) || die_broken "探测 specify_cli 失败"
+fi
+if [ -z "$UPSTREAM_SRC" ] && command -v uv >/dev/null; then
+  UV_TOOLS=$(uv tool dir) || die_broken "uv tool dir 失败"
+  CAND="$UV_TOOLS/specify-cli/Lib/site-packages"
+  [ -d "$CAND" ] && UPSTREAM_SRC="$CAND"
+fi
+
 # 生成用户侧 latch.yml:只留可分发判据,⛔ 且 demo_report 指向随装的证据清单
-awk -v keep="$KEEP" '
+UP="$UPSTREAM_SRC" awk -v keep="$KEEP" '
   BEGIN { n=split(keep,rows,"\n"); for(i=1;i<=n;i++){ split(rows[i],f,"\t"); ok[f[1]]=1 } }
-  /^[ \t]*-[ \t]*id:/ { id=$0; sub(/^[ \t]*-[ \t]*id:[ \t]*/,"",id); skip=!(id in ok) }
-  /^[ \t]*impl:/ && !skip { sub(/\.latch\/[^ ]*/, ".latch/" substr($0, match($0,/[^\/]*$/))) }
-  /^[ \t]*demo_report:/ && !skip { print "    demo_report: .latch/EVIDENCE.md"; next }
+  /^[ 	]*-[ 	]*id:/ { id=$0; sub(/^[ 	]*-[ 	]*id:[ 	]*/,"",id); skip=!(id in ok) }
+  /^[ 	]*impl:/ && !skip { sub(/\.latch\/[^ ]*/, ".latch/" substr($0, match($0,/[^\/]*$/))) }
+  /^[ 	]*demo_report:/ && !skip { print "    demo_report: .latch/EVIDENCE.md"; next }
+  # 用 ENVIRON 取路径,不用 -v:awk 会把 Windows 路径里的反斜杠序列当成转义吃掉
+  #    —— Phase 4 同族 bug 复发,已实测
+  /^[ 	]+upstream_src:/ { print "  upstream_src: " ENVIRON["UP"]; next }
+  # status / plan 安装器猜不到 ⇒ 整键省略,不写一个指向 latch 布局的错路径
+  #    键缺失 ⇒ 对应判据判 2 并指名「没配就判不了」,比指错路径诚实
+  /^[ 	]+(status|plan):/ { if (!hint++) print "  # 请填 status: 与 plan: —— 指向本项目的 STATUS 与阶段计划"; next }
+  /^doc_budgets:/ { inb=1
+      print "# ⚠️ 本项目的文档预算由你自己填 —— ⛔ latch 自己那几份不在这里。"
+      print "doc_budgets: []"; next }
+  inb && /^[a-z_#]/ { inb=0 }
+  inb { next }
   !skip { print }
 ' "$SRC/latch.yml" > "$STAGE/latch.yml" || die_broken "生成 latch.yml 失败"
 
@@ -96,6 +125,14 @@ fi
 
 # ── 落位(到这一步才动目标目录)────────────────────────────────────
 mkdir -p "$DST/.latch" || die_broken "建不了 $DST/.latch"
+# ⭐⭐ 创建 reports/ —— ⛔ 让「目录不存在」重新成为**异常**,而不是**必然**。
+#    否则 report-pin 在每个新装环境里恒判 2 ⇒ 那就是常量(§3 序 4)。
+#    ⚠️ 建完是**空目录** ⇒ report-pin 判 0(「每份报告都绑真实提交」在零份时为真,Phase 3 已裁定)。
+REPORTS_DIR=$(awk '/^subjects:/{i=1;next} /^[a-z_]/{i=0}
+                   i && /^[ \t]+reports:/{sub(/^[ \t]+reports:[ \t]*/,"");print;exit}' "$STAGE/latch.yml") \
+  || die_broken "读生成的 subjects.reports 失败"
+[ -n "$REPORTS_DIR" ] || die_broken "生成的 latch.yml 里没有 subjects.reports"
+mkdir -p "$DST/$REPORTS_DIR" || die_broken "建不了 $DST/$REPORTS_DIR"
 mv "$STAGE/latch.yml" "$DST/latch.yml" || die_broken "落位 latch.yml 失败"
 for f in "$STAGE"/*; do
   [ -e "$f" ] || continue
