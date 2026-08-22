@@ -29,7 +29,9 @@
 ### B2 · `vendor/spec-kit/` 的地位
 
 - ⛔ **只读。任何 phase 不得修改其中任何文件。**latch 全部是新增文件。
-- ⚠️ `vendor/` 在 `.gitignore` 内(未跟踪)⇒ ⛔ **"未改上游"无法用 `git status` 证明**,当前只能靠不去动它。⇒ 记入 `known_gaps`,Phase 1 起须给出可执行判据。
+- ⭐ **`vendor/spec-kit` 是 git submodule**,pin 到 `bca679051abb80d6cf0cd909f2539a28a10eb7eb`(**A005**)。⇒ 「pin」由**一句话**变成**可核事实**:`git -C vendor/spec-kit rev-parse HEAD`。
+  ⚠️ ⛔ 原文保留:~~`vendor/` 在 `.gitignore` 内(未跟踪)⇒ 「未改上游」无法用 `git status` 证明~~ —— A005 已改此层。
+  ⚠️ ⛔ **但 submodule 不阻止有人改上游内容**(改了只显示为 ` M vendor/spec-kit`,而 Phase 0 判据 2 看不见)⇒ 「未改上游」仍需独立判据,归 **Phase 7**。
 - ⛔ 不 fork、不改 `HookExecutor`、不删 `extensions/` 或 `presets/`(`16-DECISIONS.md` D-02 / D-03)。
 
 ### B3 · latch 与 DevLoop 的边界
