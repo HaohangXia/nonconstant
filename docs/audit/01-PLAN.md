@@ -422,17 +422,31 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 - 红检 `bash .latch/waiver-expiry.sh <fixture:把某 until 设为已完成的 Phase 1>` ⇒ **非 0**
 - ⚠️ 当前 phase 取自 `reports/phase*.md` 的最大编号;⛔ `until` 不是具体 phase ⇒ 判红
 
-### Phase 6 · Q13 安装形态
+### Phase 6 · 上游语义判据(⭐ 比分发更地基:决定 latch 能否**安全跟随上游**)
+
+⛔ 给整个 `vendor/` 做指纹 ⇒ 上游每次**合法升级**都误报(= `LATCH-hook-three-legs` 第三条腿)。
+⭐ **判语义、⛔ 不判文件内容** —— 验 **Q14** 实测出的那两条,上游怎么改都行,只要语义不变:
+
+| 语义 | 出处 |
+|---|---|
+| `shell` step:退出码非 0 ⇒ 流水线停止 | `workflows/steps/shell/__init__.py` |
+| `gate` step:`on_reject` 默认 `abort` | `workflows/steps/gate/__init__.py` |
+
+- 绿检 当前 `vendor/`(v1.0.0)⇒ **0**
+- 红检 fixture 里把 `shell` step 改成忽略退出码 ⇒ **非 0**
+
+### Phase 7 · Q13 安装形态
 
 ⭐ 验收**判结果、⛔ 不判机制**(D-12)—— 无论用脚本 / extension / PyPI,后置条件相同:
 
-- 绿检 装进一个**空的临时仓**后,在其中 `bash .latch/meta-gate.sh` ⇒ **0**
+- 绿检 装进一个**空的临时仓**后,在其中 **五条判据全部可被调用且返回预期退出码**
+  ⚠️ ⛔ 只验 `meta-gate` 返回 0 不够 —— 那验的是「**装完能跑**」,⛔ 不验「**装对了**」:少装一个文件、装错位置,照样绿
 - 红检 装进一个**已有 `latch.yml`** 的仓 ⇒ **非 0**(⛔ 不得静默覆盖)
 
-### Phase 7+ · Q17 编排层
+### Phase 8+ · Q17 编排层
 
 ⛔ **本轮不排。**⚠️ 它的形态取决于 Q13 的答案(装成 spec-kit extension ⇒ `workflow.yml`;独立 ⇒ 另一套)。
-⇒ ⛔ 在 Q13 答完之前,验收命令写不出来 —— **按铁律不得列为阶段目标**。
+⇒ ⛔ 在 Q13(Phase 7)答完之前,验收命令写不出来 —— **按铁律不得列为阶段目标**。
 ⚠️ 它须一并吞掉:**127 显式处理**(C6)· 判据路径参数固定(A004 `known_gaps`)· 空目录 vacuous 第四态。
 
-⚠️ **⛔ Q11(hook 排名重估)不单列 phase** —— 它是**判断**,验收写不成命令。⇒ 归入 Phase 7 的准入条件。
+⚠️ **⛔ Q11(hook 排名重估)不单列 phase** —— 它是**判断**,验收写不成命令。⇒ 归入 Phase 8 的准入条件。
