@@ -97,6 +97,16 @@ gates:
     demo_fail_exit: 1
     demo_report: reports/phase5-30005dc.md
 
+  - id: upstream-semantics
+    level: hard
+    impl: .latch/upstream-semantics.sh
+    desc: 上游语义——真跑两个 step 观察行为（⛔ 不判文件内容，否则合法升级即误报）
+    demo_pass: 当前 vendor v1.0.0（shell 退出码语义 + gate 不自动放行 + on_reject=abort）
+    demo_pass_exit: 0
+    demo_fail: vendor 副本里把 shell step 的 FAILED 改成 COMPLETED
+    demo_fail_exit: 1
+    demo_report: reports/phase6-33a1b16.md
+
   - id: doc-budget
     level: soft
     impl: .latch/doc-budget.sh

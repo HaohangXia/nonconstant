@@ -10,11 +10,11 @@
 |---|---|
 | 日期 | 2026-08-22 |
 | 上游 pin | spec-kit **v1.0.0** / `bca6790` |
-| §10 阶段 | ⭐ **Phase 0~5 全部完成** |
+| §10 阶段 | ⭐ **Phase 0~6 全部完成** |
 
 ## latch 现在有什么
 
-⭐ **7 条判据,全部以退出码作答、非交互:**
+⭐ **8 条判据,全部以退出码作答、非交互:**
 
 | 判据 | 实现 | 级别 |
 |---|---|---|
@@ -24,9 +24,10 @@
 | `report-pin` | `.latch/report.sh` | hard |
 | `status-facts` | `.latch/status-facts.sh` | hard |
 | `waiver-expiry` | `.latch/waiver-expiry.sh` | hard |
+| `upstream-semantics` | `.latch/upstream-semantics.sh` | hard |
 | `doc-budget` | `.latch/doc-budget.sh` | soft |
 
-配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~5-*.md`
+配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~6-*.md`
 ⛔ **未接编排层**,⛔ 无 `workflows/latch/workflow.yml`。⚠️ **B6 指名已满 8/8** ⇒ 后续新文件一律走 **A003 预算外余量**并在报告 `known_gaps` 登记。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理)
@@ -47,8 +48,7 @@
 ## DevLoop 侧待办(⛔ 不属 latch)
 
 ⬜ ① 验扫描器(在清理修复**之前**的 commit 上跑)· ⬜ ② 三处 helper 非零即抛或开 waiver
-⬜ ③ 三次取上界 → 定预算 → 落元判据 · ⬜ ④ 第七项(pytest 闸)拿到首个非 FAIL
-⬜ ⑤ 接 spec-kit 内建 shell step,红检 + 绿检都做
+⬜ ③ 三次取上界 → 定预算 → 落元判据 · ⬜ ④ 第七项(pytest 闸)拿到首个非 FAIL · ⬜ ⑤ 接 spec-kit 内建 shell step,红绿都做
 
 ## ⚠️ 已知债务
 
