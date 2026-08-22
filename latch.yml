@@ -112,6 +112,16 @@ gates:
     demo_fail_exit: 1
     demo_report: reports/phase6-33a1b16.md
 
+  - id: upstream-pin
+    level: hard
+    impl: .latch/upstream-pin.sh
+    desc: 上游 pin 可核 + 未被本地改过（⭐ submodule 记的就是 commit 本身）
+    demo_pass: submodule 停在 upstream_pin 且工作区干净
+    demo_pass_exit: 0
+    demo_fail: 切到别的 commit / 改上游文件 / 往上游塞新文件
+    demo_fail_exit: 1
+    demo_report: reports/phase7-4dddca8.md
+
   - id: doc-budget
     level: soft
     impl: .latch/doc-budget.sh
