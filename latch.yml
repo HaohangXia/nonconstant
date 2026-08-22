@@ -74,6 +74,16 @@ gates:
     demo_fail_exit: 1
     demo_report: reports/phase3-cad8012.md
 
+  - id: status-facts
+    level: hard
+    impl: .latch/status-facts.sh
+    desc: STATUS 断言须与仓库一致——它的失真可判定（⛔ 不是 D5）
+    demo_pass: 真源 STATUS（判据条数、已完成 phase、清单路径均与仓库一致）
+    demo_pass_exit: 0
+    demo_fail: fixture STATUS（把判据条数改成 99）
+    demo_fail_exit: 1
+    demo_report: reports/phase4-900b8de.md
+
   - id: doc-budget
     level: soft
     impl: .latch/doc-budget.sh

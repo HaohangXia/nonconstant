@@ -10,11 +10,11 @@
 |---|---|
 | 日期 | 2026-08-22 |
 | 上游 pin | spec-kit **v1.0.0** / `bca6790` |
-| §10 阶段 | ⭐ **Phase 0~3 全部完成** |
+| §10 阶段 | ⭐ **Phase 0~4 全部完成** |
 
 ## latch 现在有什么
 
-⭐ **5 条判据,全部以退出码作答、非交互:**
+⭐ **6 条判据,全部以退出码作答、非交互:**
 
 | 判据 | 实现 | 级别 |
 |---|---|---|
@@ -22,9 +22,10 @@
 | `silent-scan` | `.latch/scan-silent.sh` | hard |
 | `meta-gate` | `.latch/meta-gate.sh` | hard |
 | `report-pin` | `.latch/report.sh` | hard |
+| `status-facts` | `.latch/status-facts.sh` | hard |
 | `doc-budget` | `.latch/doc-budget.sh` | soft |
 
-配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~3-*.md`
+配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A004` · 报告 `reports/phase0~4-*.md`
 ⛔ **未接编排层**,⛔ 无 `workflows/latch/workflow.yml`。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理)
