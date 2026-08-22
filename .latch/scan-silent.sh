@@ -30,8 +30,28 @@ TARGET="${1:-}"
 [ -e "$TARGET" ]  || die_broken "扫描目标不存在: $TARGET —— ⛔ 不得当成「没有静默失败 ⇒ 放行」"
 [ -d "$TARGET" ]  || die_broken "扫描目标不是目录: $TARGET"
 
+CONFIG="latch.yml"
+[ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置不等于没有静默失败"
+
+# ⛔ 显式豁免清单来自 latch.yml,⛔ 不硬编码在本脚本里。
+# ⭐ 它受 Phase 1 测试守卫保护:改豁免 = 改判据 ⇒ criteria-guard 判红。
+EXCLUDES=$(awk '
+  /^[ \t]*exclude:/ { e = 1; next }
+  /^[a-z_]/         { e = 0 }
+  e && /^[ \t]*-[ \t]*path:/ { sub(/^[ \t]*-[ \t]*path:[ \t]*/, ""); print }
+' "$CONFIG") || die_broken "读豁免清单失败"
+
 FILES=$(find "$TARGET" -type f \( -name '*.py' -o -name '*.sh' \) | sort) \
   || die_broken "find 失败"
+
+# 逐条剔除豁免项,并把剔除结果**打印出来** —— ⛔ 豁免不得静默生效(T5)
+for ex in $EXCLUDES; do
+  [ -n "$ex" ] || continue
+  if printf '%s\n' "$FILES" | grep -qxF "$ex"; then
+    printf '⚠️ 已豁免(latch.yml 显式登记): %s\n' "$ex"
+    FILES=$(printf '%s\n' "$FILES" | grep -vxF "$ex")
+  fi
+done
 
 FINDINGS=""
 

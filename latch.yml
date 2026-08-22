@@ -21,6 +21,13 @@ gates:
     impl: .latch/scan-silent.sh
     desc: 静默失败扫描（⛔ 函数作用域，不用行数窗口）
     # ⚠️ 尚未接入编排层；当前需显式给扫描目录。见 reports/phase2-*.md known_gaps
+    #
+    # ⛔ 显式豁免。⭐ 这是 waiver 的最小形态：理由 + 到期，皆为受判据检查的字段，
+    #    ⛔ 不是注释。改动本块 = 改判据 ⇒ criteria-guard 判红。
+    exclude:
+      - path: .latch/scan-silent.sh
+        reason: 自指——本工具用文本匹配查找文本模式，其源码必然包含那些模式串（要打印出来）；任何此类工具必然对自己判红
+        until: 引入真解析器后移除（⛔ 解析器会让 103 行变上千行，超 §7a 的 150 行上限，故当前不做）
 
 # 预算(01-PLAN §7a / CLAUDE.md B6)
 budget:
