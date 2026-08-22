@@ -7,11 +7,11 @@
 #
 #   判红的三种情形:
 #     ① until 里没有「Phase <n>」  ⇒ ⛔ 不是具体 phase,等于「以后」
-#     ② n <= 当前 phase            ⇒ ⛔ 已过期未清
+#     ② n ∈ 已完成集合             ⇒ ⛔ 已过期未清
 #     ③ n >  §10 已排的最大 phase  ⇒ ⛔ 指向一个不存在的阶段 = 「以后」换个写法
 #
-#   当前 phase 取自 reports/phase<N>-*.md 的最大编号;
-#   已排最大 phase 取自 01-PLAN.md 的 `### Phase <n>` 标题。
+#   ⭐ 已完成集合 = reports/phase<N>-*.md 里出现过的**全部**编号(⛔ 不是最大值);
+#     已排最大 phase 取自 01-PLAN.md 的 `### Phase <n>` 标题(⛔ 与顺序无关)。
 #
 # 退出码:
 #   0  过     —— 每条豁免都指向一个**尚未到达且已排期**的 phase
@@ -45,9 +45,15 @@ REPORTS=$(subject_of "$CONFIG" reports)
 [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
 [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 算不出当前 phase,不得当成「没有过期」"
 
-CUR=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n | tail -1) \
+# ⭐⭐ 进度 = **已完成 phase 的集合**,⛔ 不是「最大编号」。
+#    A007 之后编号 = 身份 ≠ 顺序 ⇒ 可能先跑 Phase 10 再跑 Phase 8。
+#    ⛔ 用最大编号当进度,跑完 10 后会把 until: Phase 8 误判成「已过期」——
+#    而 Phase 8 根本还没跑。⇒ 「已过期」的准确定义是「**那个 phase 已完成**」,
+#    ⭐ 即编号落在已完成集合里,⛔ 与大小无关。
+DONE=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u) \
   || die_broken "扫 reports/ 失败"
-[ -n "$CUR" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 算不出当前 phase"
+[ -n "$DONE" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 算不出已完成哪些 phase"
+DONE_LIST=$(printf '%s' "$DONE" | tr '\n' ' ')
 
 MAXP=$(grep '^### Phase ' "$PLAN" | sed 's/^### Phase \([0-9]\+\).*/\1/;t;d' | sort -n | tail -1) \
   || die_broken "扫 $PLAN 的 phase 标题失败"
@@ -68,8 +74,8 @@ while IFS=$'\t' read -r lineno val; do
     BAD="${BAD}   · $CONFIG:$lineno ⛔ until 里没有「Phase <n>」:「$val」⇒ 不是具体 phase,等于「以后」"$'\n'
     continue
   fi
-  if [ "$n" -le "$CUR" ]; then
-    BAD="${BAD}   · $CONFIG:$lineno ⛔ 已过期:until = Phase $n,而当前已到 Phase $CUR"$'\n'
+  if printf '%s\n' "$DONE" | grep -qx "$n"; then
+    BAD="${BAD}   · $CONFIG:$lineno ⛔ 已过期:until = Phase $n,而 Phase $n 已完成(已完成: $DONE_LIST)"$'\n'
     continue
   fi
   if [ "$n" -gt "$MAXP" ]; then
@@ -84,16 +90,16 @@ EOF
 #    本判据断言的是「**每一条**豁免都未过期」,零条时该断言为真。
 #    ⚠️ 与 status-facts 不同:那里零断言 = 未履行职责;⭐ 这里零豁免 = 本来就没欠债。
 if [ "$N" -eq 0 ]; then
-  printf '⭐ waiver-expiry PASS —— %s 里一条豁免都没有(当前 Phase %s)\n' "$CONFIG" "$CUR"
+  printf '⭐ waiver-expiry PASS —— %s 里一条豁免都没有(已完成: %s)\n' "$CONFIG" "$DONE_LIST"
   exit 0
 fi
 
 if [ -n "$(printf '%s' "$BAD" | tr -d '[:space:]')" ]; then
-  printf '⛔ waiver-expiry FAIL —— 以下豁免不合格(当前 Phase %s,已排到 Phase %s):\n' "$CUR" "$MAXP" >&2
+  printf '⛔ waiver-expiry FAIL —— 以下豁免不合格(已完成: %s· 已排到 Phase %s):\n' "$DONE_LIST" "$MAXP" >&2
   printf '%s' "$BAD" >&2
   printf '⇒ 写下的到期没有判据 = 没有到期。⛔ 修豁免,不是修判据。\n' >&2
   exit 1
 fi
 
-printf '⭐ waiver-expiry PASS —— %s 条豁免均指向尚未到达且已排期的 phase(当前 Phase %s)\n' "$N" "$CUR"
+printf '⭐ waiver-expiry PASS —— %s 条豁免均指向尚未完成且已排期的 phase(已完成: %s)\n' "$N" "$DONE_LIST"
 exit 0
