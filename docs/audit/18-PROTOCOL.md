@@ -44,6 +44,7 @@
 | F3 | 凡「**X 不存在 / A 不依赖 B**」的否定命题,须 ① 搜索模式覆盖所有已知形式 ② 给对照组 ③ 说明可能漏掉什么 | `LATCH-incomplete-set` |
 | F4 | ⭐ 凡「**某个数超了**」,先问**这个数在测什么**。⚠️ 本项目实例:`03-LEDGER.md` 行数未变而实际改动 **13 处指针** ⇒ ⛔ **行数亦不适合作为「改动量」的代用品** | `LATCH-proxy-criterion` |
 | F5 | ⭐ 任何**自律型预算**,须把「**修正自身**」排除在计数之外 | `LATCH-budget-eats-the-fix` · `LATCH-self-referential-deadlock` |
+| F6 | ⭐⭐ 凡「**这个做不到 / 太贵**」的断言,**须先量根因**;⛔ 未量根因的成本估算**不得作为放弃的依据** | `LATCH-cost-estimated-without-root-cause` |
 
 ## §4 判据纪律
 
