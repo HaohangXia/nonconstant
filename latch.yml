@@ -205,6 +205,8 @@ doc_budgets:
     max_lines: 60
   - file: docs/audit/21-PRIOR-ART.md
     max_lines: 60
+  - file: docs/RETROSPECTIVE.md
+    max_lines: 200          # ⭐ 只管行数；⛔ 不为它造判据——散文的价值不可机器判定（D5）
 
 # 预算(01-PLAN §7a / CLAUDE.md B6)
 budget:
