@@ -161,7 +161,7 @@ gates:
     demo_pass_exit: 0
     demo_fail: fixture README（命令指向不存在的文件 / 抹掉某个披露锚点）
     demo_fail_exit: 1
-    demo_report: reports/phase11-PENDING.md
+    demo_report: reports/phase11-e19e562.md
     # ⛔ scope: bootstrap —— 它判的是 latch 自己的 README，⛔ 不随安装分发。
     # ⚠️ 能力边界（⭐ 承认，⛔ 不修）：查得了「命令指向的文件在不在」「披露锚点在不在」，
     #    ⛔ 查不了「README 有没有说服力」——那是 D5，A008 §6 已承认。
