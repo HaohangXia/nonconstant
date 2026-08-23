@@ -21,6 +21,7 @@
 | P12-C3 | ⭐ **`silent-scan` 的扫描目标由判据自己从 `subjects.scan_target` 取**，⛔ 编排层不得写死 | `.latch/scan-silent.sh` |
 | P12-C4 | ⭐ **soft 判据排在最后并吞掉退出码** —— soft 的定义就是「不阻断」；⛔ 排在最后才不会掩盖 hard | `workflows/latch/workflow.yml` |
 | P12-C5 | ⭐ **C6 由 `meta-gate` 兑现，⛔ 不在 YAML 里重写存在性检查** —— 它逐条查 `impl:` 是否存在，缺失判 **2** | `.latch/meta-gate.sh:79` |
+| P12-C6 | ⭐⭐ **A006 完整兑现：十条判据全部由 `latch.yml` 驱动。**`silent-scan` 曾是**最后一条**需要调用方硬编码输入的判据（Phase 2 `known_gaps` #4 · Q16 · `LATCH-input-control` 同族：「判定的输入由调用方给」）。改成从 `subjects.scan_target` 取之后，⛔ **没有任何一条判据的输入还由调用方决定** | `.latch/scan-silent.sh` · `latch.yml:subjects` |
 
 ## references_contracts
 
@@ -51,6 +52,16 @@ Phase 8 的教训：`config-read.sh` 没被装过去 ⇒ 装出来的每条判�
 | **127（纯）** | 删掉第一步自己的 `.latch/meta-gate.sh` | 非 0 | ⭐ CLI **1** · 错误串 `Shell command exited with code 127.` |
 
 ⇒ ⛔ **停机条件未触发** —— 127 **没有**被当成「跳过」。
+
+### ⚠️ 中途删掉的一步：`gates-present`（⭐ 重复造轮子）
+
+⛔ 我最初在 workflow 里写了一个 `gates-present` step，用内联 shell 遍历 `impl:` 查文件是否存在。
+⭐ 后来发现 **`meta-gate` 已经在做这件事**，而且做得更好 —— `.latch/meta-gate.sh:79`：
+「判据 `<id>` 的实现不存在: `<impl>` —— ⛔ 闸门缺失 ≠ 未配置 ⇒ 绝不跳过(C6)」，且判 **2**（⛔ 不是 1）。
+
+⇒ ⭐ 删掉那一步，改为把 **`meta-gate` 排在第一位**。两条收益：
+① ⛔ 少一段内联 shell（`known_gaps` #2 说明了为什么那很危险）；
+② ⭐ C6 由**真判据**兑现，⛔ 不由 YAML 里的临时脚本兑现 —— 后者没有红绿演示，按 **C2** 根本不该被当成判据。
 
 ### 探针
 
@@ -83,6 +94,20 @@ Phase 8 的教训：`config-read.sh` 没被装过去 ⇒ 装出来的每条判�
 ⭐ 它**现在就在跑** —— pre-commit 已拦下**两次真实事故**（`status-facts` 判红、`doc-budget` 判红）。
 ⇒ ⭐⭐ **接 spec-kit 是增强，⛔ 不是必需。**⛔ 且它引入一个新依赖（`specify` 必须已安装）。
 
+### ⭐ pre-commit 五档复跑（⚠️ `scan-silent` 改成无参**之后**重验）
+
+⚠️ `.latch/pre-commit.sh` 原先给 `silent-scan` 传 `$SCAN_TARGET`；本 phase 改成统一 `bash "$impl"`（目标由判据自己取）⇒ ⛔ 调用形态变了，**必须重验各档**：
+
+| 档 | 场景 | 期望 | 实测 |
+|---|---|---|---|
+| ① 基线 | 干净树 | 0 | ⭐ **0** |
+| ② **hard 判红** | `status-facts`（STATUS 称「99 条判据」）| 拒绝 | ⭐ **1** · 点名 `status-facts` |
+| ③ **soft 判红** | `doc-budget` 超限，`criteria-guard` 为 0 | 放行 | ⭐ **0** · 打印「`doc-budget`(soft)」 |
+| ④ **判 2** | `subjects.status` 指向不存在的文件 | 拒绝 | ⭐ **1** ·「闸自身故障（比判红更严重，C6）」|
+| ⑤ **脚本被删** | `rm .latch/report.sh` | 拒绝 | ⭐ **1** —— ⭐⭐ 两条**独立**抓到：`meta-gate: 退出码 2` **与** `report-pin: 实现不存在` |
+
+⇒ ⭐ ③ 证明 soft/hard 的区别在 hook 层**真的存在**；⑤ 证明 C6 在 hook 层有**两道**独立防线。
+
 ## ⭐ 收尾必答：装了 latch 的项目里，用户日常敲什么
 
 ⭐ **三者并存，各管一个时机 —— ⛔ 不是三选一：**
@@ -100,7 +125,7 @@ Phase 8 的教训：`config-read.sh` 没被装过去 ⇒ 装出来的每条判�
 
 | # | 缺口 | 说明 |
 |---|---|---|
-| 1 | ⛔⛔ **判据的诊断串在 workflow 里读不到** | ① spec-kit `capture_output=True` ⇒ ⛔ 不回显；② ⛔⛔ 更糟：Windows 上 `text=True` 用 **gbk** 解码，而 latch 判据打 UTF-8 ⇒ `UnicodeDecodeError` 在 reader 线程抛出，**stdout/stderr 直接丢失**。⚠️ ⭐ **退出码不受影响**（三档验收全部正确），⛔ 但「为什么红」只能靠 `bash .latch/<x>.sh` 复跑。⇒ ⛔ 改不了（vendor 只读，且用户装的是他自己那份） |
+| 1 | ⛔⛔ **判据的诊断串在 workflow 里读不到** | ① spec-kit `capture_output=True` ⇒ ⛔ 不回显；② ⛔⛔ 更糟：Windows 上 `text=True` 用 **gbk** 解码，而 latch 判据打 UTF-8 ⇒ `UnicodeDecodeError` 在 reader 线程抛出，**stdout/stderr 直接丢失**。⚠️ ⭐ **退出码不受影响**（三档验收全部正确），⛔ 但「为什么红」只能靠 `bash .latch/<x>.sh` 复跑。⇒ ⛔ 改不了（vendor 只读，且用户装的是他自己那份）。<br>⭐ **实际后果（⛔ 说清）**：workflow 层**只看得到退出码**，⛔ 看不到 latch 的诊断 ⇒ ⚠️ 用户排查时**必须自己单独跑一遍那条判据**。<br>⭐ **规避方案（⛔ 只记，本轮不实施）**：判据侧改用 **ASCII 诊断**（或 `LC_ALL` 探测后降级）。⛔ 不做的理由：那要改**十条判据的输出串**，而输出串正是 **Q19-A**（失败类型码）要动的东西 ⇒ ⭐ 两件事该一起做，⛔ 分两次做等于改两遍。⚠️ 且 `readme-runnable` 与红检都依赖现有措辞。 |
 | 2 | ⛔⛔ **`shell=True` 在 Windows 上是 `cmd.exe`，⛔ 不是 bash** | ⭐ 实测：`echo COMSPEC=%COMSPEC% DOLLAR0=$0` 写出 `COMSPEC=C:\WINDOWS\system32\cmd.exe DOLLAR0=$0`。⚠️ ⛔ **而那一步判 0「通过」** —— POSIX 单行不报错、悄悄什么也没做 ⇒ ⭐⭐ **T5 出现在编排层**。⚠️ 且 cmd.exe **不认单引号** ⇒ `bash -c '...'` 根本没分组。⇒ ⭐ 本文件因此**零内联 shell 逻辑**（P12-C1） |
 | 3 | ⛔ **workflow 装不进用户项目** | `install.sh` **不装** `workflows/`。⇒ ⚠️ 用户须自己把 `workflows/latch/workflow.yml` 拷过去。⭐ 与 `.git/hooks/` 同类问题，⛔ 本 phase 未修 |
 | 4 | ⛔ **workflow 不会自己跑** | ⭐ 见「三条收益 a」：它只是**提供**触发点。⇒ ⚠️ 「判据跑 0 次」这个根问题，⛔ 手动 workflow **解决不了** |
