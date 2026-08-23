@@ -5,7 +5,7 @@
 | 编号 | **A004** |
 | 日期 | 2026-08-22 |
 | 触发 | §6 **Q16** · `LATCH-input-control` —— Phase 3 硬前置 B |
-| 状态 | ⭐ 已采纳,应用于 `latch.yml` + `.latch/gates.sh` |
+| 状态 | ⭐ 已采纳,应用于 `nonconstant.yml` + `.nonconstant/gates.sh` |
 | B6 名额 | ⛔ **不新增**(`amendments/` 目录整体已占第 4 格) |
 
 ---
@@ -41,14 +41,14 @@ base 由调用方提供
 
 ## 4 · 新内容
 
-⭐ **base 只从 `latch.yml` 的顶层 `base:` 取。**
+⭐ **base 只从 `nonconstant.yml` 的顶层 `base:` 取。**
 
 | | 旧(P1-C4) | ⭐ 新 |
 |---|---|---|
-| 无参 | 工作树相对 `HEAD` | **工作树相对 `latch.yml:base`** |
+| 无参 | 工作树相对 `HEAD` | **工作树相对 `nonconstant.yml:base`** |
 | 带参 | `<base>..HEAD` | ⛔ **拒绝,退出码 2** |
 
-⇒ `base` 落在 `latch.yml` 内 ⇒ 它受 **criteria-guard** 保护 ⇒ ⭐ **被判定者改 base = 改判据 ⇒ 当场判红。**
+⇒ `base` 落在 `nonconstant.yml` 内 ⇒ 它受 **criteria-guard** 保护 ⇒ ⭐ **被判定者改 base = 改判据 ⇒ 当场判红。**
 
 ⚠️ ⛔ **拒绝而非静默忽略** —— 静默忽略会让调用方以为自己指定的 base 生效了(`LATCH-waiver-must-announce` 同形:静默的处置等于没有处置)。
 
@@ -74,4 +74,4 @@ base 由调用方提供
 |---|---|---|
 | 1 | ⚠️ **`silent-scan` 的扫描目标仍由调用方给** | A004 只关了 `criteria-guard` 的 base 口子。`scan-silent.sh <目录>` 的目标仍是调用方参数 ⇒ ⛔ **同族缺口未全关**。⚠️ 区别:base 是**基线**(可用来藏改动),扫描目标是**范围**(只能用来漏扫,不能用来藏);⭐ 但「漏扫」同样是静默 ⇒ 须在编排层固定。⇒ 归 **Q17** |
 | 2 | ⚠️ **`meta-gate.sh` 与 `report.sh` 的配置/目录参数同理** | 二者都接受一个路径参数。⭐ 与 base 的关键区别:该参数指向的是**被判定的对象本身**(配置、报告目录),⛔ 不是**判定的基线** —— 换掉它等于换掉考卷,而不是换掉答案。⚠️ 仍须在编排层固定 |
-| 3 | ⚠️ **`latch.yml:base` 目前恒为 `HEAD`** | ⇒ 「基线可配」这一能力**未被任何测试覆盖非 `HEAD` 的取值** |
+| 3 | ⚠️ **`nonconstant.yml:base` 目前恒为 `HEAD`** | ⇒ 「基线可配」这一能力**未被任何测试覆盖非 `HEAD` 的取值** |

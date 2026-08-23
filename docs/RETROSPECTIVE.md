@@ -1,6 +1,6 @@
-# 做 latch 学到的
+# 做 nonconstant 学到的
 
-> 这份文档不讲 latch 怎么用（那是 README 的活）。
+> 这份文档不讲 nonconstant 怎么用（那是 README 的活）。
 > 它讲的是：**做这个东西的过程里，我发现自己错在哪。**
 
 ---
@@ -13,7 +13,7 @@ v1 叫 DevLoop。想法很直接：让 AI agent 不只是写代码，而是跑�
 
 这时候有两条路。一条是继续写自己的编排层，理由现成：「我的更贴合需求」。另一条是承认那半年的工作里，**真正独特的不是编排，是别的东西**。
 
-我选了第二条。DevLoop 归档，latch 从零开始，建在 spec-kit 上，不 fork、不改上游一个字符。
+我选了第二条。DevLoop 归档，nonconstant 从零开始，建在 spec-kit 上，不 fork、不改上游一个字符。
 
 而「别的东西」是什么，是被一次事故逼出来的：
 
@@ -23,13 +23,13 @@ v1 叫 DevLoop。想法很直接：让 AI agent 不只是写代码，而是跑�
 
 两件事的形状是同一个：**失败没有让任何东西变红，所以没有人知道。**
 
-latch 就是围着这个形状建的。
+nonconstant 就是围着这个形状建的。
 
 ---
 
 ## 二 · 最值钱的一次：我把自己的四条差异化证伪了
 
-发布前查重时，我撞见了同领域的其他项目。于是我列了四条「latch 有、别人没有」的差异化，去核实。
+发布前查重时，我撞见了同领域的其他项目。于是我列了四条「nonconstant 有、别人没有」的差异化，去核实。
 
 **四条全部落空。**逐条对照 [ryangu00/axiom](https://github.com/ryangu00/axiom) 的 README 原文：
 
@@ -78,11 +78,11 @@ sub-agent **写了盘，还提交了**。hook 在主 session 拦住了同样的�
 
 ### 3 · 判据的清单，放在它自己保护的文件里
 
-`criteria-guard` 的职责是：谁动了判据文件，就判红。它的受保护路径清单写在 `latch.yml` 里，而 `latch.yml` 自己也在那份清单上。
+`criteria-guard` 的职责是：谁动了判据文件，就判红。它的受保护路径清单写在 `nonconstant.yml` 里，而 `nonconstant.yml` 自己也在那份清单上。
 
-实测：给清单条目加一个**行尾注释** —— `- latch.yml            # 配置本体` —— 提取出的匹配串就带上了注释文本，从此永不命中。
+实测：给清单条目加一个**行尾注释** —— `- nonconstant.yml            # 配置本体` —— 提取出的匹配串就带上了注释文本，从此永不命中。
 
-于是：`git status` 明明显示 ` M latch.yml`，而 `criteria-guard` 判 **0，通过**。
+于是：`git status` 明明显示 ` M nonconstant.yml`，而 `criteria-guard` 判 **0，通过**。
 
 一次编辑同时完成了「越界」和「让越界不可见」。
 
@@ -135,13 +135,13 @@ sub-agent **写了盘，还提交了**。hook 在主 session 拦住了同样的�
 
 ---
 
-## 五 · latch 作为工具，不是这个空间里最好的
+## 五 · nonconstant 作为工具，不是这个空间里最好的
 
 这话得说清楚。
 
 [ryangu00/axiom](https://github.com/ryangu00/axiom) 有 4 个运行时适配（Claude Code、Codex CLI、hermes-agent、OpenClaw），有完整的 prior-art 文档，有 `KNOWN-LIMITATIONS.md` 和一份正面回答质疑的 FAQ。它的 prior-art 一节还点名了另外六个同域项目 —— 其中 `groundtruth` 在 1,272 个真实 turn 上标定，`nah` 在 101,194 次工具调用的**公开**语料上标定。
 
-latch：一个 shell 安装器，一个运行时，零公开语料，未发布。
+nonconstant：一个 shell 安装器，一个运行时，零公开语料，未发布。
 
 如果你要的是一个能用的工具，去看它们。
 
@@ -153,7 +153,7 @@ latch：一个 shell 安装器，一个运行时，零公开语料，未发布�
 
 ## 六 · 如果只记一句
 
-做 latch 之前，我以为难的是**想出对的检查**。
+做 nonconstant 之前，我以为难的是**想出对的检查**。
 
 做完之后我知道，难的是承认：**你想出的检查，会在你不知道的时候悄悄停止工作，而你会一直以为它在工作。**
 

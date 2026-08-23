@@ -24,21 +24,21 @@
 
 ## 3 · ⛔ 为什么当初排错
 
-⭐ **排期时未识别:自扫豁免是 latch 唯一一条要装进用户项目的豁免 ⇒ 它是分发路径上的唯一障碍。**
+⭐ **排期时未识别:自扫豁免是 nonconstant 唯一一条要装进用户项目的豁免 ⇒ 它是分发路径上的唯一障碍。**
 
 实测链条(Phase 8 探针 4):
 
-1. 安装器把 `latch.yml` 的 `exclude` 块(自扫豁免)一并装进用户项目 —— ⭐ **必须装**,因为用户的 `.latch/scan-silent.sh` 有同样的自指问题。
-2. 该豁免的 `until: Phase 10` 引用的是 **latch 自己的阶段编号**。
+1. 安装器把 `nonconstant.yml` 的 `exclude` 块(自扫豁免)一并装进用户项目 —— ⭐ **必须装**,因为用户的 `.nonconstant/scan-silent.sh` 有同样的自指问题。
+2. 该豁免的 `until: Phase 10` 引用的是 **nonconstant 自己的阶段编号**。
 3. ⇒ 用户项目的阶段计划里没有 Phase 10 ⇒ `waiver-expiry` 判 **1**「Phase 10 尚未排期」。
 
-⇒ ⭐⭐ **这是项目里第一个「跨项目失效」的问题** —— 引用在 latch 仓内成立,装出去就不成立。
+⇒ ⭐⭐ **这是项目里第一个「跨项目失效」的问题** —— 引用在 nonconstant 仓内成立,装出去就不成立。
 
 **⛔ 两个被否决的补丁式解法:**
 
 | | 方案 | ⛔ 否决理由 |
 |---|---|---|
-| a | 安装器**剥掉** `exclude` 块 | ⛔ 用户扫 `.latch/` 时 `scan-silent` 会对自身判红 ⇒ **把 latch 的已知问题变成用户的问题** |
+| a | 安装器**剥掉** `exclude` 块 | ⛔ 用户扫 `.nonconstant/` 时 `scan-silent` 会对自身判红 ⇒ **把 nonconstant 的已知问题变成用户的问题** |
 | b | 安装器把 `until` 改写成用户计划的最后一个 phase | ⛔ 替用户决定到期时间,且他随时会加 phase |
 
 ⇒ ⭐ **两个都是把债转移,⛔ 不是还债。**
@@ -54,8 +54,8 @@
 | 若重编号,须同步的引用 | 处 |
 |---|---|
 | `### Phase <n>` 标题 | 3 |
-| `latch.yml:75` `until: Phase 10` + 其中的解除条件句 | 1 |
-| `latch.yml:123` `demo_pass` 文案 | 1 |
+| `nonconstant.yml:75` `until: Phase 10` + 其中的解除条件句 | 1 |
+| `nonconstant.yml:123` `demo_pass` 文案 | 1 |
 | `01-PLAN.md:461`「Q13(Phase 8)」 | 1 |
 | `01-PLAN.md:488`「即 `Phase 10`」 | 1 |
 | **合计** | **≥ 7 处** |
@@ -84,8 +84,8 @@
 
 | # | 依赖点 | 出处 | 是否失效 |
 |---|---|---|---|
-| 1 | `latch.yml` 自扫豁免 `until: Phase 10` | `latch.yml:75` | ⛔ **否** —— 编号未变 ⇒ 引用原样有效。⭐ **这正是不重编号的收益** |
-| 2 | `waiver-expiry` 的「已排期」判定(`n > MAXP` ⇒ 红) | `.latch/waiver-expiry.sh` | ⛔ **否** —— `MAXP` 取的是**最大编号**(10),与顺序无关 |
+| 1 | `nonconstant.yml` 自扫豁免 `until: Phase 10` | `nonconstant.yml:75` | ⛔ **否** —— 编号未变 ⇒ 引用原样有效。⭐ **这正是不重编号的收益** |
+| 2 | `waiver-expiry` 的「已排期」判定(`n > MAXP` ⇒ 红) | `.nonconstant/waiver-expiry.sh` | ⛔ **否** —— `MAXP` 取的是**最大编号**(10),与顺序无关 |
 | 3 | ⚠️ `waiver-expiry` 的「当前 phase」(`CUR` = 最大报告编号) | 同上 | ⚠️ **有条件失效** —— 见 `known_gaps` #2 |
 | 4 | Phase 8 的 `next_entry_conditions` | `reports/phase7-4dddca8.md` | ⛔ **否** —— 内容不变,只是先跑 Phase 10 |
 | 5 | `01-PLAN.md:461/488` 的文内引用 | `01-PLAN.md` | ⛔ **否** —— 编号未变 |
@@ -102,4 +102,4 @@
 | 1 | ⭐ **下达方指令第 ② 步「同步更新 until」经查为不必要** | 该步以「重排 = 重编号」为前提。⭐ 本文改用「移动块、保留编号」⇒ `until` 无需改动。⚠️ ⛔ **未改是结论,不是遗漏** |
 | 2 | ⛔⛔ **`waiver-expiry` 的「当前 phase」是代用品,乱序执行下会误判** | 它取 `reports/` 里的**最大报告编号**当进度。⭐ 编号 = 顺序时这没问题;⛔ **A007 之后编号 ≠ 顺序** ⇒ 跑完 Phase 10 后 `CUR = 10`,此时一条 `until: Phase 8` 的豁免会被判「已过期」,**而 Phase 8 根本还没跑**。<br>⚠️ **当前不咬人**:唯一的豁免 `until: Phase 10`,而 Phase 10 跑完时该豁免本就该消失(它的第一条验收就是「exclude 项已不存在」)。⇒ ⛔ 但这是 **F4 的又一实例**(这个数在测什么:测的是「最大编号」,想测的是「进度」) |
 | 3 | ⚠️ **「执行顺序」目前只写在 §10 的块位置里,⛔ 无判据** | 没有任何东西检查「下一个该跑哪个 phase」。⇒ 与 `LATCH-protocol-has-no-teeth` 同族 |
-| 4 | ⚠️ **`until` 用编号仍是跨项目脆弱的** | A007 只解决了 latch 仓内的顺序问题。⭐ 根治方向是让 `until` 变成**可核的条件**(如「`latch.yml` 中不再存在该 exclude 项」)而非 phase 编号 ⇒ 跨项目也成立,且不受重排影响。⚠️ ⛔ 本轮不做(会改 `waiver-expiry` 的判据语义)⇒ 已记 §6 **Q18** |
+| 4 | ⚠️ **`until` 用编号仍是跨项目脆弱的** | A007 只解决了 nonconstant 仓内的顺序问题。⭐ 根治方向是让 `until` 变成**可核的条件**(如「`nonconstant.yml` 中不再存在该 exclude 项」)而非 phase 编号 ⇒ 跨项目也成立,且不受重排影响。⚠️ ⛔ 本轮不做(会改 `waiver-expiry` 的判据语义)⇒ 已记 §6 **Q18** |

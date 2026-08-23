@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# latch · report-pin  —— 完成报告绑 commit(§3 序 5)
+# nonconstant · report-pin  —— 完成报告绑 commit(§3 序 5)
 #
 #   ⭐ 报告文件名须含**它所描述的那个 commit** 的短 hash。
 #   实证:DevLoop 91 条老行声称「闸过了」却不绑任何代码状态 ⇒ ⛔ 不可证伪。
@@ -15,22 +15,22 @@
 #   1  未过   —— 有报告的 hash 不存在 / 不是祖先 / 文件名不合规
 #   2  闸自身故障
 #
-# 用法:  bash .latch/report.sh [报告目录]        # 默认 reports
+# 用法:  bash .nonconstant/report.sh [报告目录]        # 默认 reports
 
 set -u
 
 die_broken() { printf '⛔ REPORT-PIN BROKEN: %s\n' "$1" >&2; exit 2; }
 
-# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+# ⭐⭐ 配置取值一律走 .nonconstant/config-read.sh —— ⛔ 本脚本内不再自行解析
 #    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
 DIR="${1:-}"
-[ -f latch.yml ] || die_broken "找不到 latch.yml —— ⛔ 读不到 subjects,不得回落到默认路径"
-[ -n "$DIR" ] || DIR=$(latch_subject latch.yml reports)
-[ -n "$DIR" ] || die_broken "latch.yml 的 subjects 里没有 reports —— ⛔ 没配就判不了,不得猜"
+[ -f nonconstant.yml ] || die_broken "找不到 nonconstant.yml —— ⛔ 读不到 subjects,不得回落到默认路径"
+[ -n "$DIR" ] || DIR=$(nc_subject nonconstant.yml reports)
+[ -n "$DIR" ] || die_broken "nonconstant.yml 的 subjects 里没有 reports —— ⛔ 没配就判不了,不得猜"
 git rev-parse --git-dir >/dev/null || die_broken "不在 git 仓库内"
 [ -d "$DIR" ] || die_broken "报告目录不存在: $DIR —— ⛔ 没有报告不等于报告都合规"
 

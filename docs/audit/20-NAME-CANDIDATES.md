@@ -2,13 +2,13 @@
 
 > ⭐ **起因**：`LATCH-name-collision-blocks-release` —— 名字在**同领域**已被占，发布已停。
 > ⛔ **本文只做「查重与排序」，⛔ 未开始任何替换。**定名之前一个字不改。
-> ⚠️ 上限 60 行（`latch.yml:doc_budgets`）。
+> ⚠️ 上限 60 行（`nonconstant.yml:doc_budgets`）。
 
 ## ⭐ 选名方向：⛔ 离开「闸门/控制」语义场
 
-⚠️ ⛔ 撞车正是发生在那里：`gate` · `latch` · `control layer` · `mission control` 全被占。
+⚠️ ⛔ 撞车正是发生在那里：`gate` · `nonconstant` · `control layer` · `mission control` 全被占。
 
-⇒ ⭐ latch 的独特之处**不是**「有闸门」，⭐ 是 **判定者不能是被判定者**（T1）。
+⇒ ⭐ nonconstant 的独特之处**不是**「有闸门」，⭐ 是 **判定者不能是被判定者**（T1）。
 ⇒ ⇒ 候选取自**司法回避 / 独立鉴定**语义场。
 
 ## 查重表（⛔ 逐项实测；⚠️ 判别：①同名不同域可共存 · ⛔②同名同域 ⇒ 淘汰）
@@ -25,7 +25,7 @@
 
 ⛔ **已淘汰(注册表被占或同域)**:`invigil` · `crossexam` · `hallmark` · `touchstone` · `assay` · `arbiter` · `iudex` · `deposition`。
 
-⛔⛔ **`invigil` 是最险的一条**：PyPI 简介写着「Linters check your code. **Invigil checks whether your…**」—— ⭐ 那正是 latch 的位置。⚠️ ⛔ 若只查「仓名是否被占」而不看**它做什么**，这条会被判成「1★，可用」。
+⛔⛔ **`invigil` 是最险的一条**：PyPI 简介写着「Linters check your code. **Invigil checks whether your…**」—— ⭐ 那正是 nonconstant 的位置。⚠️ ⛔ 若只查「仓名是否被占」而不看**它做什么**，这条会被判成「1★，可用」。
 
 ## ⭐ 我的排序
 

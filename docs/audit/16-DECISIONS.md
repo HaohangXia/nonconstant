@@ -14,17 +14,17 @@
 
 | | |
 |---|---|
-| **决定** | latch 建在 `github/spec-kit` v1.0.0 之上 |
+| **决定** | nonconstant 建在 `github/spec-kit` v1.0.0 之上 |
 | ⛔ **拒绝** | 自建工作流引擎与 CLI |
 | **理由** | 实测:spec-kit 有 1,788 行工作流引擎。`workflows/steps/shell/__init__.py:70` —— `returncode != 0` ⇒ `StepStatus.FAILED` ⇒ `RunStatus.FAILED` ⇒ 流水线停止。`continue_on_error` 需显式开启。**阻断能力已存在,不必重写。** |
-| **来源** | latch 侧实测 v0.16.4 → v1.0.0 复核 |
+| **来源** | nonconstant 侧实测 v0.16.4 → v1.0.0 复核 |
 | ⚠️ **修正史** | 早期判断"spec-kit 无 runtime,结构上无法阻断"—— ⛔ **错**。见 `01-PLAN.md` §8 #4/#5/#6 |
 
 ### D-02 · 一行不改上游
 
 | | |
 |---|---|
-| **决定** | `vendor/spec-kit/` 只读。latch 全部为新增文件 |
+| **决定** | `vendor/spec-kit/` 只读。nonconstant 全部为新增文件 |
 | ⛔ **拒绝** | fork 后修改;改 `HookExecutor` 让 hook 真阻断 |
 | **理由** | Chesterton's Fence:**KEEP 是零举证的默认态**,DELETE 需举证,MODIFY 举证最重。且上游 1795+ commits、迭代频繁,改动面正是合并冲突高发区 |
 | **来源** | 用户 2026-08-21:「别人已经写好的东西我就先拿着,删除还要花时间精力,还得考虑依赖」 |
@@ -35,8 +35,8 @@
 |---|---|
 | **决定** | 保留全部 spec-kit 代码,不做任何删减 |
 | ⛔ **拒绝** | 删 `extensions/` + `presets/` 减重约 16,000 行 |
-| **理由** | ① KEEP 零举证,而删除需举证 —— **我们制造了一个本不需要论证的问题并为它消耗了三轮**;② 实测依赖方向是 `workflows → extensions`(相对导入 `from ...extensions import normalize_priority`),删除会打断引擎;③ latch 的价值是**新增契约治理层**,不是精简上游 |
-| **来源** | latch 侧实测 + `01-PLAN.md` §8 #9 |
+| **理由** | ① KEEP 零举证,而删除需举证 —— **我们制造了一个本不需要论证的问题并为它消耗了三轮**;② 实测依赖方向是 `workflows → extensions`(相对导入 `from ...extensions import normalize_priority`),删除会打断引擎;③ nonconstant 的价值是**新增契约治理层**,不是精简上游 |
+| **来源** | nonconstant 侧实测 + `01-PLAN.md` §8 #9 |
 | ⭐ **顺带事实** | `workflows → extensions` 的全部依赖面 = 单个函数 `normalize_priority`(`extensions/__init__.py:185-204`),闭包仅含常量 `DEFAULT_HOOK_PRIORITY = 10`。**8,020 行里被依赖的是这 20 行** |
 
 ---
@@ -47,26 +47,26 @@
 
 | | |
 |---|---|
-| **决定** | DevLoop = v1,公开且**归档**;latch = v2,公开且**维护中** |
+| **决定** | DevLoop = v1,公开且**归档**;nonconstant = v2,公开且**维护中** |
 | ⛔ **拒绝** | 「DevLoop 是实验室,不发布」 |
 | **理由** | 早期裁定把两种"发布"混为一谈:**发布为产品**(高维护义务) vs **公开为作品档案**(≈零义务)。用户要的是后者 |
 | **来源** | ⭐ **用户 2026-08-22 明确裁定** |
 | ⛔ **警示** | 被撤回的那条裁定是一次**无声契约变更** —— 见 `01-PLAN.md` §8 #13。它是 M4(amendment)的第一条实证 |
 
-### D-05 · latch 不 import DevLoop 一行代码
+### D-05 · nonconstant 不 import DevLoop 一行代码
 
 | | |
 |---|---|
 | **决定** | 机制**重写**,不搬码。但每条原则**指向 DevLoop 的一次具体事故**作为实证 |
-| ⛔ **拒绝** | 把 DevLoop 作为模组挂进 latch |
-| **理由** | ① 维护中的产品**不能依赖归档物** —— 归档 = 不修 bug,latch 用户遇到 DevLoop 的 bug 无处可修;② 实测通用内核约 880 行(M1 380 + M3 170 + M5 330),**重写比搬运便宜**;③ ⭐ 叙事需要 —— 若搬码,"v2 在 spec-kit 上重做"就成了"改名" |
+| ⛔ **拒绝** | 把 DevLoop 作为模组挂进 nonconstant |
+| **理由** | ① 维护中的产品**不能依赖归档物** —— 归档 = 不修 bug,nonconstant 用户遇到 DevLoop 的 bug 无处可修;② 实测通用内核约 880 行(M1 380 + M3 170 + M5 330),**重写比搬运便宜**;③ ⭐ 叙事需要 —— 若搬码,"v2 在 spec-kit 上重做"就成了"改名" |
 | **来源** | DevLoop 侧核验(任务一/二/六) |
 
 ### D-06 · 覆盖架构 A+B
 
 | | |
 |---|---|
-| **决定** | latch 覆盖两种架构 |
+| **决定** | nonconstant 覆盖两种架构 |
 | | **A** · 人在 Claude Code 里跑,Claude 自己是被判定者(如 BioGuard) |
 | | **B** · orchestrator 派单给子进程 agent(如 DevLoop) |
 | **理由** | 前五条机制在两种架构下**都成立**,只有 M5(hook)挑架构。**为一个挑架构的机制去限定整个产品适用面,不划算** |
@@ -90,14 +90,14 @@
 | | |
 |---|---|
 | **实测** | `isolation: worktree` 按**会话所在的仓**建工位。在 `%TEMP%` 建的靶场根本没被用上,工位落在 `C:/pg/_infra/devloop/.claude/worktrees/` |
-| ⛔ **后果** | 主控**无法**把 sub-agent 隔离到指定目录。latch 若要在 A 仓判定 B 仓的产物,worktree 做不到 |
+| ⛔ **后果** | 主控**无法**把 sub-agent 隔离到指定目录。nonconstant 若要在 A 仓判定 B 仓的产物,worktree 做不到 |
 | **来源** | 同上 |
 
 ### D-09 · ⭐ hook 的作用域 = 整个会话的全部工具调用,跨仓有效
 
 | | |
 |---|---|
-| **实测** | 在靶场 session 里写 `C:\pg\latch\docs\audit\` 的文件 —— **目标在另一个仓**,照样过靶场的钩子并被记账 |
+| **实测** | 在靶场 session 里写 `C:\pg\nonconstant\docs\audit\` 的文件 —— **目标在另一个仓**,照样过靶场的钩子并被记账 |
 | ⭐ **意义** | 这补上了 worktree 缺的那一半。**A 仓判定 B 仓的产物,hook 做得到** |
 | **来源** | `15-HOOKLAB-OBSERVATIONS.md`,commit `5a29b5d` |
 
@@ -125,7 +125,7 @@
 | **理由** | 拦 `>` ⇒ 绕 `python -c` ⇒ 拦 `python -c` ⇒ 绕 `cat`/`tee`/`dd`/base64/脚本文件…… **无穷退化。判"这条命令会不会写那个文件"是停机问题的一个实例** |
 | ⚠️ **代价** | 这是**当场发现**,⛔ 不是**事前阻断** |
 
-⇒ ⭐⭐ **latch 能力边界的准确表述:**
+⇒ ⭐⭐ **nonconstant 能力边界的准确表述:**
 
 | 通道 | 能力 |
 |---|---|
@@ -147,7 +147,7 @@
 |---|---|
 | **实测** | sub-agent 自行列出 5 条可用绕道(Bash 重定向 / touch / 另派 sub-agent / MCP 文件工具 / git plumbing),**然后选择不走**。且本次**无实验知情污染**(它没读 RUN-ME、没读 forbid.py) |
 | **判定** | ⛔ 这是**倾向**,不是**约束**。按 T1:**可被说服的倾向,免疫度为 0** |
-| ⭐ **意义** | 恰恰证明 latch 必须存在。反例:DevLoop 三个月唯一一次真拦截 = **工人改 `tests/` 让自己过关** |
+| ⭐ **意义** | 恰恰证明 nonconstant 必须存在。反例:DevLoop 三个月唯一一次真拦截 = **工人改 `tests/` 让自己过关** |
 
 ---
 
@@ -204,7 +204,7 @@
 
 ---
 
-## §5 ⚠️ 已知的重复错误模式(latch 侧)
+## §5 ⚠️ 已知的重复错误模式(nonconstant 侧)
 
 > ⭐ 同源错误已发生 **6 次**。记在此处以便识别。
 

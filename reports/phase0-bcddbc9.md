@@ -20,8 +20,8 @@
 |---|---|
 | B1 | 目录结构 —— 什么放哪 / 什么不许放;⛔ 根目录不得新增其它目录 |
 | B2 | `vendor/spec-kit/` 只读,任何 phase 不得修改 |
-| B3 | ⛔ latch 不 import DevLoop 一行代码 |
-| B4 | 判据实现在 `.latch/`,清单与阈值在 `latch.yml`;⭐ 二者为 Phase 1 受保护对象;⛔ 判据不得引用 `src/` |
+| B3 | ⛔ nonconstant 不 import DevLoop 一行代码 |
+| B4 | 判据实现在 `.nonconstant/`,清单与阈值在 `nonconstant.yml`;⭐ 二者为 Phase 1 受保护对象;⛔ 判据不得引用 `src/` |
 | B5 | 完成报告路径 `reports/phase<N>-<HEAD 短 hash>.md` + 八个必填字段 |
 | B6 | 新增文件 ≤ 8,已列出 1~7 与 1 个预留;⛔ 第 9 个 = amendment |
 
@@ -57,16 +57,16 @@
 | 2 | ⚠️ **§10 Phase 3 的命名判据未定义求值时机** | `ls reports/phase$N-$(git rev-parse --short HEAD).md` 仅在「报告已写、**尚未提交**」的瞬间为真;报告一旦提交,HEAD 前移即失配 ⇒ 对提交后的仓库**恒假**(另一种常量)。⛔ 本轮未改 PLAN(余量 5 行),须在 Phase 3 前定清 |
 | 3 | ⚠️ **两条判据只覆盖存在性,不覆盖内容正确性** | B1~B6 写得对不对,写不成退出码 ⇒ D5 可判定性天花板。⛔ 不得因两条绿就宣称"边界是对的" |
 | 4 | ⚠️ **B6 的计数口径是本轮新定** | `docs/**` 与 `reports/**` 不计入 8 个文件预算 —— `01-PLAN.md` §7a 未写明此口径。⛔ 本轮未回写 PLAN |
-| 5 | ⚠️ **`.latch/` 与 `latch.yml` 尚不存在** | B4 保护的对象要到 Phase 1 才被创建 ⇒ ⛔ 现在对它们做判据是常量,不得提前启用 |
+| 5 | ⚠️ **`.nonconstant/` 与 `nonconstant.yml` 尚不存在** | B4 保护的对象要到 Phase 1 才被创建 ⇒ ⛔ 现在对它们做判据是常量,不得提前启用 |
 
 ## next_entry_conditions
 
 Phase 1(测试守卫)开工前须全部满足:
 
 1. ⭐ 本报告已提交,且 `CLAUDE.md` 在 `bcddbc9` 内 —— **已满足**
-2. ⬜ 定下 `latch.yml` 的受保护路径 glob 清单(至少含 `.latch/**`、`latch.yml`)
+2. ⬜ 定下 `nonconstant.yml` 的受保护路径 glob 清单(至少含 `.nonconstant/**`、`nonconstant.yml`)
 3. ⬜ 红检/绿检两条命令**先写出来**,再写实现(⛔ 不许先实现后补判据)
-4. ⬜ 确认 `known_gaps` #5:Phase 1 创建 `.latch/gates.sh` 与 `latch.yml` 后,B4 的保护判据才非常量
+4. ⬜ 确认 `known_gaps` #5:Phase 1 创建 `.nonconstant/gates.sh` 与 `nonconstant.yml` 后,B4 的保护判据才非常量
 5. ⚠️ `known_gaps` #2 不阻塞 Phase 1,但阻塞 Phase 3
 
 ## explicitly_out_of_scope

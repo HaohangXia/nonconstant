@@ -1,13 +1,13 @@
-# latch · 项目配置
+# nonconstant · 项目配置
 #
-# ⛔ 判定逻辑不在本文件 —— 逻辑在 .latch/(见 CLAUDE.md B4)。
+# ⛔ 判定逻辑不在本文件 —— 逻辑在 .nonconstant/(见 CLAUDE.md B4)。
 # ⭐ 本文件自身是受保护对象:改它必须判红。考卷不能由考生自己改。
 
 # 受保护路径:被判定者改动其中任何一个 ⇒ hard 红
-# ⛔ 不得写 src/**(latch 无 src/,该模式恒不命中 = 常量,违反 §3 序 4)
+# ⛔ 不得写 src/**(nonconstant 无 src/,该模式恒不命中 = 常量,违反 §3 序 4)
 protected:
-  - latch.yml
-  - .latch/**
+  - nonconstant.yml
+  - .nonconstant/**
 
 # ⭐⭐ 判定的基线。⛔ 只能由操作者在本文件里给 —— 本文件受 criteria-guard 保护。
 # ⛔ 闸不接受来自调用方的 base:被判定者可选一个「改完判据之后」的基线把改动藏进去
@@ -17,11 +17,11 @@ base: HEAD
 
 # ⭐⭐ 上游 pin。⛔ 「pin」必须是可核事实,不是一句话(A005)。
 #    vendor/spec-kit 是 submodule ⇒ 它记的**就是 commit 本身**,
-#    ⛔ 不是版本声明、不是内容摘要。判据见 .latch/upstream-pin.sh。
+#    ⛔ 不是版本声明、不是内容摘要。判据见 .nonconstant/upstream-pin.sh。
 upstream_pin: bca679051abb80d6cf0cd909f2539a28a10eb7eb
 
 # ⭐⭐ 被判定对象的路径。⛔ 判据里不得再有硬编码默认值 ——
-#    硬编码 = 悄悄指向 latch 自己的仓布局,装到别的项目里必然判 2(A006 探针 4 实测)。
+#    硬编码 = 悄悄指向 nonconstant 自己的仓布局,装到别的项目里必然判 2(A006 探针 4 实测)。
 #    ⚠️ 与 base 不同:base 是**判定的基线**(A004:⛔ 不接受调用方给);
 #    ⭐ subject 是**被判定的对象本身** —— 换掉它等于换考卷,⛔ 不是换答案
 #    ⇒ 允许 argv 覆盖(红检要指向 fixture,C3)。
@@ -32,14 +32,14 @@ subjects:
   reports: reports
   upstream_src: vendor/spec-kit/src
   readme: README.md
-  scan_target: .latch          # silent-scan 扫哪里（⛔ 不由调用方硬编码，A006）
+  scan_target: .nonconstant          # silent-scan 扫哪里（⛔ 不由调用方硬编码，A006）
 
 # 判据清单。level: hard = 阻断且不可 waiver(01-PLAN §5 P4)
 #
 # ⭐⭐ scope(A006):每条判据必须声明它属于哪一类,⛔ meta-gate 查「声明了且取值合法」。
 #   project   判被装项目自己的产物,路径可配 ⇒ ⭐ 可分发
 #   upstream  判上游(⭐ 指向用户实际会跑的那份 spec-kit)⇒ ⭐ 可分发,⚠️ 需已装 spec-kit
-#   bootstrap ⛔ 仅 latch 自举(结构上需要 submodule)⇒ ⛔ 不分发
+#   bootstrap ⛔ 仅 nonconstant 自举(结构上需要 submodule)⇒ ⛔ 不分发
 #   ⇒ 可分发 ≡ scope != bootstrap。⛔ 安装脚本据此决定装哪些,不靠人挑。
 #
 # ⭐⭐ 元判据(§3 序 4):每条判据必须登记「一过一失败」的演示,否则不得启用。
@@ -58,18 +58,18 @@ gates:
     #    ⭐ 但 hook 本来就挡不住（`git commit --no-verify` 是 git 自带的）。
     #    ⭐ 真正拦它的是**任务期跑闸**（被判定者跑 gates.sh 时判红），⛔ 那条未被削弱。
     pre_commit: advisory
-    impl: .latch/gates.sh
+    impl: .nonconstant/gates.sh
     desc: 判据文件不得被被判定者修改
     demo_pass: 只改 docs/audit/README.md 后跑
     demo_pass_exit: 0
-    demo_fail: 改 latch.yml 内容后跑
+    demo_fail: 改 nonconstant.yml 内容后跑
     demo_fail_exit: 1
     demo_report: reports/phase1-ae6f82f.md
 
   - id: silent-scan
     scope: project
     level: hard
-    impl: .latch/scan-silent.sh
+    impl: .nonconstant/scan-silent.sh
     desc: 静默失败扫描（⛔ 函数作用域，不用行数窗口）
     demo_pass: 干净 fixture（capture_output 后查了 returncode）
     demo_pass_exit: 0
@@ -85,7 +85,7 @@ gates:
   - id: meta-gate
     scope: project
     level: hard
-    impl: .latch/meta-gate.sh
+    impl: .nonconstant/meta-gate.sh
     desc: 判据可执行性——未演示「一过一失败」的判据不得启用
     demo_pass: 本文件（每条判据都登记了双向演示）
     demo_pass_exit: 0
@@ -101,7 +101,7 @@ gates:
   - id: report-pin
     scope: project
     level: hard
-    impl: .latch/report.sh
+    impl: .nonconstant/report.sh
     desc: 完成报告文件名须含它所描述的那个 commit 的短 hash
     demo_pass: reports/phase1-ae6f82f.md（ae6f82f 在历史中且是 HEAD 祖先）
     demo_pass_exit: 0
@@ -112,7 +112,7 @@ gates:
   - id: status-facts
     scope: project
     level: hard
-    impl: .latch/status-facts.sh
+    impl: .nonconstant/status-facts.sh
     desc: STATUS 断言须与仓库一致——它的失真可判定（⛔ 不是 D5）
     demo_pass: 真源 STATUS（22 条断言：判据表三元组 id|impl|level、phase 编号集合、上游 pin、amendments 区间、清单路径）
     demo_pass_exit: 0
@@ -132,7 +132,7 @@ gates:
   - id: waiver-expiry
     scope: project
     level: hard
-    impl: .latch/waiver-expiry.sh
+    impl: .nonconstant/waiver-expiry.sh
     desc: 豁免到期——写下的到期没有判据 = 没有到期
     demo_pass: 真源（until = Phase 10，未到达且已排期）
     demo_pass_exit: 0
@@ -143,7 +143,7 @@ gates:
   - id: upstream-semantics
     scope: upstream
     level: hard
-    impl: .latch/upstream-semantics.sh
+    impl: .nonconstant/upstream-semantics.sh
     desc: 上游语义——真跑两个 step 观察行为（⛔ 不判文件内容，否则合法升级即误报）
     demo_pass: 当前 vendor v1.0.0（shell 退出码语义 + gate 不自动放行 + on_reject=abort）
     demo_pass_exit: 0
@@ -154,7 +154,7 @@ gates:
   - id: upstream-pin
     scope: bootstrap
     level: hard
-    impl: .latch/upstream-pin.sh
+    impl: .nonconstant/upstream-pin.sh
     desc: 上游 pin 可核 + 未被本地改过（⭐ submodule 记的就是 commit 本身）
     demo_pass: submodule 停在 upstream_pin 且工作区干净
     demo_pass_exit: 0
@@ -165,21 +165,21 @@ gates:
   - id: readme-runnable
     scope: bootstrap
     level: hard
-    impl: .latch/readme-runnable.sh
+    impl: .nonconstant/readme-runnable.sh
     desc: README 里的命令必须真能跑，且三条必含内容不得隐去（A008）
     demo_pass: 真源 README（命令引用均存在 + 三个披露锚点齐全）
     demo_pass_exit: 0
     demo_fail: fixture README（命令指向不存在的文件 / 抹掉某个披露锚点）
     demo_fail_exit: 1
     demo_report: reports/phase11-e19e562.md
-    # ⛔ scope: bootstrap —— 它判的是 latch 自己的 README，⛔ 不随安装分发。
+    # ⛔ scope: bootstrap —— 它判的是 nonconstant 自己的 README，⛔ 不随安装分发。
     # ⚠️ 能力边界（⭐ 承认，⛔ 不修）：查得了「命令指向的文件在不在」「披露锚点在不在」，
     #    ⛔ 查不了「README 有没有说服力」——那是 D5，A008 §6 已承认。
 
   - id: doc-budget
     scope: project
     level: soft
-    impl: .latch/doc-budget.sh
+    impl: .nonconstant/doc-budget.sh
     desc: 文档预算——写下的上限必须有机器判据（协议 C8）
     demo_pass: 三个文件均在预算内
     demo_pass_exit: 0

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# latch · waiver-expiry  —— 豁免到期判据
+# nonconstant · waiver-expiry  —— 豁免到期判据
 #
 #   ⭐ 写下的到期没有判据 = 没有到期(= LATCH-uncheckable-limit 同族)。
-#   实证:`latch.yml` 已有多处豁免形态,⛔ 到期从未被任何东西检查。
+#   实证:`nonconstant.yml` 已有多处豁免形态,⛔ 到期从未被任何东西检查。
 #
 #   判红的三种情形:
 #     ① until 里没有「Phase <n>」  ⇒ ⛔ 不是具体 phase,等于「以后」
@@ -18,22 +18,22 @@
 #   1  未过   —— 有豁免过期 / 不是具体 phase / 指向未排期的 phase
 #   2  闸自身故障
 #
-# 用法:  bash .latch/waiver-expiry.sh [配置文件] [PLAN 文件]
+# 用法:  bash .nonconstant/waiver-expiry.sh [配置文件] [PLAN 文件]
 
 set -u
 
 die_broken() { printf '⛔ WAIVER-EXPIRY BROKEN: %s\n' "$1" >&2; exit 2; }
 
-# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+# ⭐⭐ 配置取值一律走 .nonconstant/config-read.sh —— ⛔ 本脚本内不再自行解析
 #    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-CONFIG="${1:-latch.yml}"
+CONFIG="${1:-nonconstant.yml}"
 PLAN="${2:-}"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 读不到 subjects"
-[ -n "$PLAN" ] || PLAN=$(latch_subject "$CONFIG" plan)
+[ -n "$PLAN" ] || PLAN=$(nc_subject "$CONFIG" plan)
 [ -n "$PLAN" ] || die_broken "$CONFIG 的 subjects 里没有 plan —— ⛔ 没配就判不了,不得猜"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置不等于没有过期豁免"
 [ -f "$PLAN" ]   || die_broken "找不到 $PLAN —— ⛔ 算不出已排到第几 phase"
@@ -56,7 +56,7 @@ if [ "$NENT" -eq 0 ]; then
   exit 0
 fi
 
-REPORTS=$(latch_subject "$CONFIG" reports)
+REPORTS=$(nc_subject "$CONFIG" reports)
 [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
 [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 算不出当前 phase,不得当成「没有过期」"
 

@@ -16,10 +16,10 @@
 
 | ID | 契约 | 落点 |
 |---|---|---|
-| P1-C1 | **受保护路径 = `latch.yml` + `.latch/**`** —— 被判定者改动其一 ⇒ hard 红,⛔ 不可 waiver | `latch.yml:protected` |
-| P1-C2 | **判据清单与阈值在 `latch.yml`,判定逻辑在 `.latch/`** —— 兑现 `CLAUDE.md` B4 | `latch.yml:gates` |
-| P1-C3 | **三档退出码:`0` 过 / `1` 未过 / `2` 闸自身故障** —— ⛔ 闸绝不因自身故障返回 0 | `.latch/gates.sh` |
-| P1-C4 | **base 由调用方给**:无参 = 工作树相对 `HEAD`;带参 = `<base>..HEAD` | `.latch/gates.sh` 用法 |
+| P1-C1 | **受保护路径 = `nonconstant.yml` + `.nonconstant/**`** —— 被判定者改动其一 ⇒ hard 红,⛔ 不可 waiver | `nonconstant.yml:protected` |
+| P1-C2 | **判据清单与阈值在 `nonconstant.yml`,判定逻辑在 `.nonconstant/`** —— 兑现 `CLAUDE.md` B4 | `nonconstant.yml:gates` |
+| P1-C3 | **三档退出码:`0` 过 / `1` 未过 / `2` 闸自身故障** —— ⛔ 闸绝不因自身故障返回 0 | `.nonconstant/gates.sh` |
+| P1-C4 | **base 由调用方给**:无参 = 工作树相对 `HEAD`;带参 = `<base>..HEAD` | `.nonconstant/gates.sh` 用法 |
 
 ⛔ 改动上述任何一条 = **amendment**。
 
@@ -27,10 +27,10 @@
 
 | 上游契约 | 出处 | 本 phase 如何兑现 |
 |---|---|---|
-| B4 判据放 `.latch/` + `latch.yml`,⛔ 不得引用 `src/` | `CLAUDE.md` | ⭐ 已兑现;`protected` 清单内注明了 `src/**` 恒不命中 = 常量 |
-| B6 新增文件 ≤ 8 | `CLAUDE.md` | 本轮用掉 **#2 `latch.yml`**、**#3 `.latch/gates.sh`** |
+| B4 判据放 `.nonconstant/` + `nonconstant.yml`,⛔ 不得引用 `src/` | `CLAUDE.md` | ⭐ 已兑现;`protected` 清单内注明了 `src/**` 恒不命中 = 常量 |
+| B6 新增文件 ≤ 8 | `CLAUDE.md` | 本轮用掉 **#2 `nonconstant.yml`**、**#3 `.nonconstant/gates.sh`** |
 | §3 序 2 M1 判定者独立性 | `01-PLAN.md` | 判定者 = shell 退出码,⛔ 非模型意见 |
-| §5 P4 闸门三级制(hard 不可 waiver) | `01-PLAN.md` | `latch.yml:gates[0].level: hard` |
+| §5 P4 闸门三级制(hard 不可 waiver) | `01-PLAN.md` | `nonconstant.yml:gates[0].level: hard` |
 | D-17 红检必须配绿检 | `16-DECISIONS.md` | ⭐ 见 `gate_results`,红绿都做了 |
 | §10 元判据(一过一失败) | `01-PLAN.md` | ⭐ **当场演示**,⛔ 未等 Phase 3 |
 
@@ -40,13 +40,13 @@
 
 | # | 检 | 命令 | 期望 | 实测退出码 |
 |---|---|---|---|---|
-| 1 | 基线 | `bash .latch/gates.sh`(干净树) | 0 | ⭐ **0** |
-| 2 | **绿检** | 只改普通文件(`docs/audit/README.md`)后 `bash .latch/gates.sh` | 0 | ⭐ **0** |
-| 3 | **红检 A** | 改 `latch.yml` 后 `bash .latch/gates.sh` | 非 0 | ⭐ **1** |
-| 4 | **红检 B** | 改 `.latch/gates.sh` 后 `bash .latch/gates.sh` | 非 0 | ⭐ **1** |
-| 5 | 故障档 | `bash .latch/gates.sh no-such-ref` | 非 0 且 ≠ 1 | ⭐ **2** |
-| 6 | 规避档 A | 删 `latch.yml` 后跑闸 | 非 0 | ⭐ **2**(闸自身故障,⛔ 不是过) |
-| 7 | 规避档 B | 删 `.latch/gates.sh` 后跑闸 | 非 0 | ⚠️ **127**(shell 找不到命令,见 `known_gaps` #2) |
+| 1 | 基线 | `bash .nonconstant/gates.sh`(干净树) | 0 | ⭐ **0** |
+| 2 | **绿检** | 只改普通文件(`docs/audit/README.md`)后 `bash .nonconstant/gates.sh` | 0 | ⭐ **0** |
+| 3 | **红检 A** | 改 `nonconstant.yml` 后 `bash .nonconstant/gates.sh` | 非 0 | ⭐ **1** |
+| 4 | **红检 B** | 改 `.nonconstant/gates.sh` 后 `bash .nonconstant/gates.sh` | 非 0 | ⭐ **1** |
+| 5 | 故障档 | `bash .nonconstant/gates.sh no-such-ref` | 非 0 且 ≠ 1 | ⭐ **2** |
+| 6 | 规避档 A | 删 `nonconstant.yml` 后跑闸 | 非 0 | ⭐ **2**(闸自身故障,⛔ 不是过) |
+| 7 | 规避档 B | 删 `.nonconstant/gates.sh` 后跑闸 | 非 0 | ⚠️ **127**(shell 找不到命令,见 `known_gaps` #2) |
 
 ⇒ ⭐ **一过一失败已当场演示(#2 vs #3/#4)⇒ 该判据不是常量。**
 
@@ -54,8 +54,8 @@
 
 | # | 缺口 | 说明 |
 |---|---|---|
-| 1 | ⛔ **§10 Phase 1 的字面写法不成立** | §10 写的是 `touch latch.yml && bash .latch/gates.sh` ⇒ 非 0。**实测 ⇒ `0`** —— `touch` 只改 mtime,而内容判据看不见 mtime。⭐ 本轮验收改用本次指令的措辞(**「改」**latch.yml)才成立。⇒ **与 `LATCH-constant-criterion` 同族第 3 例**。⛔ 未改 `01-PLAN.md`(余量 1 行,按铁律停下报告) |
-| 2 | ⚠️ **「删掉闸」只靠调用方守住** | 删 `.latch/gates.sh` 后退出码是 **127**(shell 报的),⛔ 不是 latch 的 2。若编排层把「闸文件不存在」当成「没配闸 ⇒ 跳过」,就变成**静默通过** —— 正是 `dossier.py:147`「SKIP/VOID = 没验,⛔ 不是验过没事」那条教训。⇒ Phase 3 接 spec-kit 时必须验:**闸缺失判 FAIL/VOID,⛔ 绝不判 PASS** |
+| 1 | ⛔ **§10 Phase 1 的字面写法不成立** | §10 写的是 `touch nonconstant.yml && bash .nonconstant/gates.sh` ⇒ 非 0。**实测 ⇒ `0`** —— `touch` 只改 mtime,而内容判据看不见 mtime。⭐ 本轮验收改用本次指令的措辞(**「改」**nonconstant.yml)才成立。⇒ **与 `LATCH-constant-criterion` 同族第 3 例**。⛔ 未改 `01-PLAN.md`(余量 1 行,按铁律停下报告) |
+| 2 | ⚠️ **「删掉闸」只靠调用方守住** | 删 `.nonconstant/gates.sh` 后退出码是 **127**(shell 报的),⛔ 不是 nonconstant 的 2。若编排层把「闸文件不存在」当成「没配闸 ⇒ 跳过」,就变成**静默通过** —— 正是 `dossier.py:147`「SKIP/VOID = 没验,⛔ 不是验过没事」那条教训。⇒ Phase 3 接 spec-kit 时必须验:**闸缺失判 FAIL/VOID,⛔ 绝不判 PASS** |
 | 3 | ⚠️ **base 可被选择** | P1-C4 让调用方给 base。若被判定者能自己选 base,它可以选一个「改判据之后」的提交当基线 ⇒ 改动落在基线里,闸看不见。⇒ **base 必须由操作者给**,⛔ 不得由被判定者给。当前无编排层,⛔ 该约束尚无处安放 |
 | 4 | ⚠️ **glob 表达力不足** | 用 bash `case` 匹配,`*` 与 `**` 都跨 `/` ⇒ ⛔ 表达不了「只匹配单层」。当前清单不需要,⚠️ 写更精细的清单时会踩 |
 | 5 | ⚠️ **Q12 未触及** | B4 未区分「判据」与「判据比对的数据」。本轮受保护清单内**没有数据文件**,故未暴露;⛔ Phase 2 若引入 fixture 基准数据即会撞上 |
@@ -65,9 +65,9 @@
 
 Phase 2(静默失败扫描)开工前须满足:
 
-1. ⭐ 本报告已提交,`latch.yml` + `.latch/gates.sh` 在 `ae6f82f` 内 —— **已满足**
+1. ⭐ 本报告已提交,`nonconstant.yml` + `.nonconstant/gates.sh` 在 `ae6f82f` 内 —— **已满足**
 2. ⬜ 红/绿两条命令**先写出来**再写实现(⛔ 不许先实现后补判据)
-3. ⬜ 决定 fixture 放哪 —— ⚠️ 直接触发 `known_gaps` #5 / **Q12**:基准数据若进 `.latch/`,合法更新数据会被 criteria-guard 误报
+3. ⬜ 决定 fixture 放哪 —— ⚠️ 直接触发 `known_gaps` #5 / **Q12**:基准数据若进 `.nonconstant/`,合法更新数据会被 criteria-guard 误报
 4. ⬜ 扫描单位 ⛔ 必须是**函数作用域**,不用行数窗口(实测误报率 10% → 0)
 5. ⚠️ `known_gaps` #1 不阻塞 Phase 2,但阻塞任何引用 §10 Phase 1 字面判据的动作
 
@@ -86,6 +86,6 @@ Phase 2(静默失败扫描)开工前须满足:
 
 ⛔ **模型不得代填。**
 
-- [ ] 我确认受保护清单 `latch.yml` + `.latch/**` 就是我要保护的范围
+- [ ] 我确认受保护清单 `nonconstant.yml` + `.nonconstant/**` 就是我要保护的范围
 - [ ] 我确认 `known_gaps` #1(§10 字面写法不成立)的处置 = 记录而非改判据
 - [ ] 我确认 Phase 1 可以关闭

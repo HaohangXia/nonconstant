@@ -9,7 +9,7 @@
 |---|---|
 | 报告绑定 commit | **`33a1b16`** `feat: lock Phase 6 upstream-semantics criterion` |
 | 上游 pin | `github/spec-kit` **v1.0.0** / `bca6790` / MIT |
-| 阶段 | **Phase 6 · 上游语义判据**(⭐ 比分发更地基:决定 latch 能否安全跟随上游) |
+| 阶段 | **Phase 6 · 上游语义判据**(⭐ 比分发更地基:决定 nonconstant 能否安全跟随上游) |
 | 日期 | 2026-08-22 |
 
 ## ⭐⭐ a / b 方案的选择:**选 b(真跑,观察行为)**
@@ -34,8 +34,8 @@
 
 | ID | 契约 | 落点 |
 |---|---|---|
-| P6-C1 | ⭐ **判语义,⛔ 不判文件内容** —— 判据必须**执行**上游代码并观察返回,⛔ 不得比对源码文本或指纹 | `.latch/upstream-semantics.sh` |
-| P6-C2 | latch 依赖的语义**恰为两条**:`shell` 退出码非 0 ⇒ `FAILED` / 0 ⇒ `COMPLETED`;`gate` 非 TTY ⇒ `PAUSED` 且 `on_reject` 默认 `abort` | 同上 |
+| P6-C1 | ⭐ **判语义,⛔ 不判文件内容** —— 判据必须**执行**上游代码并观察返回,⛔ 不得比对源码文本或指纹 | `.nonconstant/upstream-semantics.sh` |
+| P6-C2 | nonconstant 依赖的语义**恰为两条**:`shell` 退出码非 0 ⇒ `FAILED` / 0 ⇒ `COMPLETED`;`gate` 非 TTY ⇒ `PAUSED` 且 `on_reject` 默认 `abort` | 同上 |
 | P6-C3 | ⭐⭐ **「判不了」判 `2`,⛔ 绝不判 0** —— 上游缺失 / 导不进 / 结构对不上,一律 2 | 同上 |
 | P6-C4 | ⭐ **注入的依赖桩必须打印出来** —— ⛔ 静默的桩会让「语义没变」变得不可信 | 同上 |
 
@@ -82,9 +82,9 @@
 
 | # | 缺口 | 说明 |
 |---|---|---|
-| 1 | ⚠️ **动用了预算外余量,登记如下**(A003) | **用了什么:**`.latch/upstream-semantics.sh`(110 行)。**属哪类:**⭐ **②计划外发现所必需** —— 该 phase 由 Phase 5 收尾时扫出的 `phase0 known_gaps #1`(B2 无可执行判据)提出,⛔ §10 原先没有它。**为什么名额装不下:**B6 八格**全部指名**,第 8 格留给 Phase 7/8 的 `workflow.yml`(A003 §3 已否决挤占) |
+| 1 | ⚠️ **动用了预算外余量,登记如下**(A003) | **用了什么:**`.nonconstant/upstream-semantics.sh`(110 行)。**属哪类:**⭐ **②计划外发现所必需** —— 该 phase 由 Phase 5 收尾时扫出的 `phase0 known_gaps #1`(B2 无可执行判据)提出,⛔ §10 原先没有它。**为什么名额装不下:**B6 八格**全部指名**,第 8 格留给 Phase 7/8 的 `workflow.yml`(A003 §3 已否决挤占) |
 | 2 | ⛔⛔ **三个依赖桩是本判据最大的不确定性** | 桩掉 `json5`/`readchar`/`pathspec` 后,⛔ **无法保证被测路径完全没碰到它们**。⭐ 现有证据:`gate/__init__.py` 源码内 `readchar` 零命中(已查),`shell` step 只用 `subprocess`。⚠️ 但**上游升级后可能改变**。⇒ ⭐ 桩名已强制打印(P6-C4),⛔ 但「桩是否污染了结果」本身**无判据**。<br>⚠️ ⛔ **订正(2026-08-22,A006 轮;⛔ 原文不删):本条措辞过宽。**⭐ 实测对**真实安装**(`uv tool install specify-cli`,pin 同为 `bca6790`)跑本判据 ⇒ **0**,且**注入的桩为「(无)」**—— 真实安装自带那三个依赖。⇒ ⭐⭐ **该不确定性是 vendored 源码树的产物,⛔ 不是判据的缺陷。**⚠️ 但由此暴露更大的一条:**「读 vendor」与「跑真实安装」是两个不同的对象** ⇒ 见 `LATCH-vendored-is-not-installed` 与协议 **C10**。 |
-| 3 | ⚠️ **只验两条语义** | latch 若将来依赖第三条(如 `continue_on_error` 默认 false、`fan_out` 语义),⛔ **静默失去覆盖**(T5 形状)。⇒ 新增依赖时必须同步扩本判据 |
+| 3 | ⚠️ **只验两条语义** | nonconstant 若将来依赖第三条(如 `continue_on_error` 默认 false、`fan_out` 语义),⛔ **静默失去覆盖**(T5 形状)。⇒ 新增依赖时必须同步扩本判据 |
 | 4 | ⚠️ **未验 `vendor/` 是否被改** | 本判据验的是**语义在不在**,⛔ 不是**上游有没有被动过**。⇒ B2「未改上游」仍无判据(`phase0 known_gaps` #1 **只解决了一半**) |
 | 5 | ⚠️ **`vendor/` 在 `.gitignore` 内** | ⇒ 判据跑的是**工作区里的那份**,⛔ 无法确认它就是 pin 的 `bca6790`。⭐ 与 `LATCH-untracked-invisible` 同一根因的另一面 |
 | 6 | ⚠️ **依赖本机 `python`** | 版本/环境不同可能改变行为。实测环境:**Python 3.14.3** |
@@ -93,10 +93,10 @@
 
 Phase 7(Q13 安装形态)开工前须满足:
 
-1. ⭐ 本报告已提交,`.latch/upstream-semantics.sh` 在 `33a1b16` 内 —— **已满足**
+1. ⭐ 本报告已提交,`.nonconstant/upstream-semantics.sh` 在 `33a1b16` 内 —— **已满足**
 2. ⬜ 先答 **Q13**:① 安装脚本 ② spec-kit extension ③ PyPI 包
 3. ⚠️ 验收**判结果不判机制**:装进空临时仓后,**八条判据全部可被调用且返回预期退出码**(⛔ 只验一条 = 只验「装完能跑」,不验「装对了」)
-4. ⬜ 红检:装进**已有 `latch.yml`** 的仓 ⇒ 非 0(⛔ 不得静默覆盖)
+4. ⬜ 红检:装进**已有 `nonconstant.yml`** 的仓 ⇒ 非 0(⛔ 不得静默覆盖)
 5. ⚠️ `known_gaps` #5 会直接影响 Q13 —— **`vendor/` 未跟踪** ⇒ 安装形态必须回答「上游那份从哪来」
 
 ## explicitly_out_of_scope

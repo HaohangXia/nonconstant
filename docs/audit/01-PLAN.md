@@ -1,8 +1,8 @@
-# latch · PLAN
+# nonconstant · PLAN
 
 | 项 | 值 |
 |---|---|
-| 项目名 | **latch** |
+| 项目名 | **nonconstant** |
 | 上游 pin | `github/spec-kit` **v1.0.0** / `bca6790` / MIT |
 | 版本 | **v0.1**(已按实测代码修订,未经独立审计) |
 | 收敛状态 | 未开始 |
@@ -17,7 +17,7 @@
 ### 一句话
 
 > spec-kit 已发布 1.0。它的引擎能跑机器判定的闸门 —— 而它自己的官方 workflow,78 行,依然是 0 个 shell step、2 个纯人工点批准。**这不是尚未完成,是设计选择。**
-> **latch 是把那个引擎真正用起来的方法论** —— 带判据、带证据、带技术债账期、带契约影响面追踪。
+> **nonconstant 是把那个引擎真正用起来的方法论** —— 带判据、带证据、带技术债账期、带契约影响面追踪。
 
 ### 可核实的依据(任何人两分钟能验)
 
@@ -38,16 +38,16 @@
 | A | 人在 Claude Code 里跑 | Claude 自己 | BioGuard |
 | B | orchestrator 派单给子进程 agent | 子进程工人 | DevLoop |
 
-**latch 覆盖 A + B。**§3 前五条机制在两种架构下都成立;**只有 M5(PreToolUse hook)挑架构** —— 它只在 A 下拦得住被判定者。
+**nonconstant 覆盖 A + B。**§3 前五条机制在两种架构下都成立;**只有 M5(PreToolUse hook)挑架构** —— 它只在 A 下拦得住被判定者。
 
 ### 与 DevLoop 的关系
 
 | | 状态 | 定位 |
 |---|---|---|
 | v1 · DevLoop | 公开、**归档** | 「我想做什么,做到一半发现 spec-kit 开源了」 |
-| v2 · latch | 公开、**维护中** | 建在 spec-kit v1.0.0 上 |
+| v2 · nonconstant | 公开、**维护中** | 建在 spec-kit v1.0.0 上 |
 
-- latch **不 import DevLoop 一行代码**。实测通用内核约 880 行,重写比搬运便宜。
+- nonconstant **不 import DevLoop 一行代码**。实测通用内核约 880 行,重写比搬运便宜。
 - 但每条原则**指向 DevLoop 的一次具体事故**作为实证 —— 见 §3 实证栏。
 
 ### 三条公理
@@ -69,15 +69,15 @@
 
 ### 与 Loop Engineering 的关系
 
-LE 自己承认三个未解问题,latch 对应三个解:
+LE 自己承认三个未解问题,nonconstant 对应三个解:
 
-| LE 的风险 | latch | 覆盖 |
+| LE 的风险 | nonconstant | 覆盖 |
 |---|---|---|
 | 验证仍是你的责任 | shell 判据 + 退出码 | ✅ |
 | Comprehension debt | 会话切割强制产物自足 | ⚠️ 见 D8 |
 | Cognitive surrender | 分级放行,人只在高风险处 | ⚠️ 见 D3 |
 
-> LE 是油门的工程学。latch 是刹车和仪表的工程学。
+> LE 是油门的工程学。nonconstant 是刹车和仪表的工程学。
 
 ---
 
@@ -85,7 +85,7 @@ LE 自己承认三个未解问题,latch 对应三个解:
 
 ### 2.1 Spec Kit 已有的能力
 
-| 事实 | 位置 | 对 latch 的意义 |
+| 事实 | 位置 | 对 nonconstant 的意义 |
 |---|---|---|
 | `shell` step 真跑 `subprocess.run`,`returncode != 0` → `StepStatus.FAILED` | `workflows/steps/shell/` 169 行 | **`gate-check.sh` 的语义已实现,不用写** |
 | FAILED → `RunStatus.FAILED` → 流水线停止;`continue_on_error` 需显式开启 | `workflows/engine.py` 1788 行 | 默认即阻断 |
@@ -95,7 +95,7 @@ LE 自己承认三个未解问题,latch 对应三个解:
 ### 2.2 上游代码盘点(背景资料,不驱动任何决策)
 
 > **处置已定:保留全部 spec-kit 代码,vendor 化,只读。**
-> latch 全部是新增文件,不修改 `vendor/spec-kit/` 任何内容。
+> nonconstant 全部是新增文件,不修改 `vendor/spec-kit/` 任何内容。
 > 以下依赖关系仅供理解引擎怎么跑,**不驱动删除决策**。
 
 > ⚠️ 名字有二义:`workflows/`/`extensions/`/`presets/` 在仓库里**各有两份** ——
@@ -136,15 +136,15 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 
 ⚠️ `specify` 混有大量英文动词("specify the timeout"),**不可无脑 sed**,需按上下文分批。
 
-### 2.4 确认为 latch 原创
+### 2.4 确认为 nonconstant 原创
 
 `src/` 全仓 grep `waiver | amendment | exemption | expiry | expires_at` → **零命中**(仅 `constitution-template.md` 用了 amendment 的普通词义)。
 
 ---
 
-## §3 latch 净增量
+## §3 nonconstant 净增量
 
-> 按「实证 / 通用 / 是否地基」重排。**分割线以上五条有实证,这五条就是 latch。**
+> 按「实证 / 通用 / 是否地基」重排。**分割线以上五条有实证,这五条就是 nonconstant。**
 
 | 序 | 机制 | 实证 | 通用性 / 是否地基 |
 |---|---|---|---|
@@ -160,7 +160,7 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 
 > 另:A2 **会话切割**(一 phase 一 session,二等效果:强制产物自足)保留,本轮未重新评级。
 
-**B 档(只是不同,不得当卖点)** —— **[示例]** BioGuard 形态示例,latch 不内建这两种切法:按架构层次分 phase;phase 状态按模块分片。
+**B 档(只是不同,不得当卖点)** —— **[示例]** BioGuard 形态示例,nonconstant 不内建这两种切法:按架构层次分 phase;phase 状态按模块分片。
 
 ---
 
@@ -175,7 +175,7 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 | D3 | **人是瓶颈,与 LE 直接冲突** | 分级放行:`requires_human` 声明,低风险自动放行 | 分级可能定错。兜底:触发 amendment 无条件要人 |
 | D4 | **Phase 0 悖论** —— 理解最浅时做最有约束力的决定 | amendment + `provisional: true` 契约,到期强制复审(相对到期,默认 +2 phase) | provisional 会被滥用。限额 ≤ 30%(可覆盖默认) |
 | D5 | **可判定性天花板** —— "边界划得对不对"永远写不成退出码。**能硬化的恰恰不是最重要的** | 不能根治。① 承认;② Maker/Checker 交与 maker 不同的独立 checker(后端可配,例:Codex);③ 意见必须给行号 | token 翻倍;假阳性噪音 → 人忽略 advisory → 又回橡皮图章 |
-| D6 | **只跑过 Phase 0,且是最易的**(约束本质是"什么都别改")。**[示例]** latch 自举验证记录,不列入产品能力 | 用 latch 建 latch,Phase 1 起真改代码 | 可能发现方法论不好用需大改。**这个代价必须付** |
+| D6 | **只跑过 Phase 0,且是最易的**(约束本质是"什么都别改")。**[示例]** nonconstant 自举验证记录,不列入产品能力 | 用 nonconstant 建 nonconstant,Phase 1 起真改代码 | 可能发现方法论不好用需大改。**这个代价必须付** |
 | D7 | 元工作膨胀 | 预算写进方法论当 invariant;**方法论须含"删自己"的机制** | 预算太紧则该有的约束写不下 |
 | D8 | 理解债只解一半 —— 强制**产物**自足,未强制**人**读 | 报告加必须人填字段;Phase N 开始考 `references_contracts` 指向的上游契约 | 会被敷衍。**本质无解,只降低无痛偷懒概率** |
 | D9 | `CLAUDE.md` 是**上下文**非强制配置。「零源码改动」是事后审计,非实时阻断 | P2 | 见 D2 |
@@ -190,12 +190,12 @@ specify_cli/__init__.py  →  extensions / integrations / presets / commands.bun
 第 0 层  隔离工位          ← 判定的物理前提(见 §3 序 1)
 第 3 层  commit 闸门      ← SK gate step 可用,但需补判据
 第 2 层  stage 检查点     ← SK shell step 直接可用
-第 1 层  PreToolUse hook  ← latch 新增(Claude Code 层)  ⚠️ 只对 Write/Edit 事前阻断
+第 1 层  PreToolUse hook  ← nonconstant 新增(Claude Code 层)  ⚠️ 只对 Write/Edit 事前阻断
 ```
 
 ### P2 PreToolUse hook
 
-让「零源码改动」从**承诺**变成**物理不可能**:模型试图 `Edit` 受保护路径下的文件 → hook 拒绝 → 该次工具调用根本不发生。受保护路径是 glob 清单,由项目填(默认示例 `src/**`);拦截器由 latch 提供。
+让「零源码改动」从**承诺**变成**物理不可能**:模型试图 `Edit` 受保护路径下的文件 → hook 拒绝 → 该次工具调用根本不发生。受保护路径是 glob 清单,由项目填(默认示例 `src/**`);拦截器由 nonconstant 提供。
 
 ~~产品第一个 demo。~~ 已撤回(§8 #11)。**第一个 demo 改为「测试守卫」** —— 工人改动 `tests/` 让自己过关,被当场拦下。它拦的是**主动作弊**,且在 A/B 两种架构下都成立;比"拦模型写 `src/`"(拦手滑)有力得多。
 
@@ -276,29 +276,29 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | Q4 | PreToolUse escape hatch 如何不成为后门? | P2 |
 | Q6 | waiver 现在做还是等第一次真撞上?倾向后者 | P6 优先级 |
 | Q8 | ~~Task 工具 + spec-kit `fan_out` 够不够替代 DevLoop 编排层?~~ ⭐ **已答:不够**(`dca84db`)—— 作用域不可控 + 不拦跨边界写 | — |
-| Q12 | ⛔ **B4 未区分「判据」与「判据比对的数据」** —— 若把 vendor 指纹这类**基准数据**放进受保护的 `.latch/`,上游每次合法升级都会触发误报(= `LATCH-hook-three-legs` 第三条腿的形状)。⛔ 改 B4 须走 amendment | Phase 1 受保护集合的定义 |
+| Q12 | ⛔ **B4 未区分「判据」与「判据比对的数据」** —— 若把 vendor 指纹这类**基准数据**放进受保护的 `.nonconstant/`,上游每次合法升级都会触发误报(= `LATCH-hook-three-legs` 第三条腿的形状)。⛔ 改 B4 须走 amendment | Phase 1 受保护集合的定义 |
 | Q11 | ⭐ **hook 在 §3 的排名要重估到第几?** 实证已从「只覆盖架构 A」收窄为「覆盖 A + B 的一半」,且它是**唯一被证实拦得住 sub-agent** 的机制。⛔ 本轮不改排名 | §3 序位 · Phase 4 |
-| Q13 | ⛔ **安装形态未定。**候选:① 安装脚本 ② spec-kit extension ③ PyPI 包。⚠️ ② 的陷阱:扩展命令被迫叫 `speckit.latch.xxx`,且要接触 **D-03 决定不碰**的扩展系统(8,000 行) | ⛔ **Phase 1~3 完成后再定** —— 分发的前提是有东西可分发;⛔ 现在定 = 给一个还不存在的东西设计包装 |
-| Q18 | ⛔ **`until` 用 phase 编号是跨项目脆弱的。**⭐ 根治方向:改成**可核的条件**(如「`latch.yml` 中不再存在该 exclude 项」)⇒ 跨项目也成立,且不受重排影响。⚠️ 会改 `waiver-expiry` 的判据语义 | ⛔ 触发:**Phase 8 之后**;⭐ 实证见 `amendments/A007-*.md` |
+| Q13 | ⛔ **安装形态未定。**候选:① 安装脚本 ② spec-kit extension ③ PyPI 包。⚠️ ② 的陷阱:扩展命令被迫叫 `speckit.nonconstant.xxx`,且要接触 **D-03 决定不碰**的扩展系统(8,000 行) | ⛔ **Phase 1~3 完成后再定** —— 分发的前提是有东西可分发;⛔ 现在定 = 给一个还不存在的东西设计包装 |
+| Q18 | ⛔ **`until` 用 phase 编号是跨项目脆弱的。**⭐ 根治方向:改成**可核的条件**(如「`nonconstant.yml` 中不再存在该 exclude 项」)⇒ 跨项目也成立,且不受重排影响。⚠️ 会改 `waiver-expiry` 的判据语义 | ⛔ 触发:**Phase 8 之后**;⭐ 实证见 `amendments/A007-*.md` |
 | **Q19** | ⛔⛔ **判据加固已推迟的四项**(⭐ 全部已有 LEDGER 条目,⛔ 带着文档化的已知缺口发布):**A** 判据 id 对齐 + 失败类型码(`silent-scan` vs `silent-failure-scan`;`GATE`/`SCAN` BROKEN 前缀不一致;⛔ 无机器可读失败类型)· **B** 自遮蔽配套(①「每条模式至少命中一个现存对象」+ ③「显式声明允许为空」,见 `LATCH-self-blinding`)· **C** C14 红检基线自检 + 「soft 判红不得提交」条款(`LATCH-harness-failure-looks-like-red`)· **D** B6 表判据(⭐ 状态列已订正为事实 ⇒ ⛔ 当前无假话 ⇒ 不建判据也能发) | ⛔ **触发:首个外部用户报告相关问题**,⛔ 不是「有空就做」。⭐ 依据:自然发生率 **1 次**(`status-facts` 断言 2,且被下一轮扫出),⛔ 其余全由探针刻意构造 ⇒ **是脚枪,不是漏洞** |
 | Q17 | ⛔ **编排层的可自动化边界。**完整论证见 `03-LEDGER.md` `LATCH-orchestration-boundary` | ⛔ 触发:**Phase 3 后** |
 | T6 候选 | ⭐ **凡让「修复成本随时间上升」的机制,必然固化错误。**T5 / 自指死锁 / 预算吃掉修正三者共用母题。见 `03-LEDGER.md` `LATCH-fix-cost-monotonicity` | ⛔ 升格进 §1 定理表须走 amendment。**归属:与 Q17 同批,⛔ 触发 = Phase 3 后** —— 编排层上线后 LEDGER 增速数量级上升,复查缺口那时才真正咬人;⛔ 提前处理是预先建设 |
 | Q16 | ⛔ **闸的 base 由谁提供未强制。**被判定者自选 base ⇒ 可先改判据、再把 base 设成改后状态 ⇒ 差集为空 ⇒ 判绿。⭐ **判定的输入被被判定者控制 ⇒ T1 失效**(见 `03-LEDGER.md` `LATCH-input-control`) | ⛔ 触发:**Phase 3 接编排层**时解决 |
 | Q15 | ⛔ **§7a「`01-PLAN.md` ≤ 400 行」是代用品判据。**它测的是**行数**,想测的是「文档膨胀成没人读的东西」。⭐ 本轮实证:两条未决被各**压成一行**塞入 —— 行数达标而信息密度反升 ⇒ **Goodhart**。⚠️ 完整论证待补,归 `16-DECISIONS.md` | ⛔ 改 §7a 走 **amendment**。触发:**Phase 1 完成后** |
-| Q14 | ⛔ **B2 未声明对 spec-kit 的接口面。**实测 latch 只依赖两条语义:`shell` step 退出码非 0 ⇒ 流水线停止(`workflows/steps/shell/__init__.py:70`)· `gate` step `on_reject` 默认 `abort`(`workflows/steps/gate/__init__.py:45`)⇒ ⭐ 上游升级只需验这两条(v0.16.4 → v1.0.0 两处**一字未改**)。⭐ 附:latch 真正依赖的只是"**能跑 shell 并检查退出码的东西**",⛔ 不一定非得是 spec-kit(Makefile / CI / 脚本皆可)—— ⛔ 不写进 v1 宣传,先在 spec-kit 上做扎实 | B2 的缺口,与 **Q12 同族**。⛔ 改 B2 走 amendment |
+| Q14 | ⛔ **B2 未声明对 spec-kit 的接口面。**实测 nonconstant 只依赖两条语义:`shell` step 退出码非 0 ⇒ 流水线停止(`workflows/steps/shell/__init__.py:70`)· `gate` step `on_reject` 默认 `abort`(`workflows/steps/gate/__init__.py:45`)⇒ ⭐ 上游升级只需验这两条(v0.16.4 → v1.0.0 两处**一字未改**)。⭐ 附:nonconstant 真正依赖的只是"**能跑 shell 并检查退出码的东西**",⛔ 不一定非得是 spec-kit(Makefile / CI / 脚本皆可)—— ⛔ 不写进 v1 宣传,先在 spec-kit 上做扎实 | B2 的缺口,与 **Q12 同族**。⛔ 改 B2 走 amendment |
 
 ---
 
 ## §7 复杂度预算(硬约束)
 
-### 7a latch 自律上限(用户看不见)
+### 7a nonconstant 自律上限(用户看不见)
 
 | 项 | 上限 |
 |---|---|
 | 本文档 · ⭐ **仅现行结论**(§1 §3 §4 §5 §6 §7 §10) | **400 行** · 级别 **soft** |
 | 档案(§2 §8 §9) | ⛔ **不计入**。⭐ **分区规则:档案仅此三节,其余章节一律计入现行结论;新增章节默认计入**,除非在 A00x 中显式划为档案 |
 | `gate-check` 脚本 | 150 行 |
-| latch 新增文件 | **8** 个**指名**名额 + **预算外余量**;⚠️ 余量仅限「修正自身的产物」与「计划外必需」,⛔ 用了必须在完成报告 `known_gaps` 登记。依据 **A003** |
+| nonconstant 新增文件 | **8** 个**指名**名额 + **预算外余量**;⚠️ 余量仅限「修正自身的产物」与「计划外必需」,⛔ 用了必须在完成报告 `known_gaps` 登记。依据 **A003** |
 
 > ⚠️ **soft** = 超限须登记 **waiver**(理由 + 到期 phase),⛔ **不阻断**。⭐ 这是「记录自身缺陷」的通道 —— ⛔ 不需要另开例外。
 > ⛔ **waiver 机制尚未实现**(§10 Phase 0~3 均未排)⇒ 在它存在之前,该上限**实为建议**。见 `amendments/A001-line-budget-scope-and-level.md` `known_gaps` #1。
@@ -337,8 +337,8 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | 6 | **「硬闸门装进它的机箱会变软」** | 由 #4 推出,随之失效 |
 | 7 | **「`workflows/` 不引用 `extensions/`,可安全删除后者」**(原 §2.2) | **错,方向是反的。**`overlays/schema.py:9` 与 `overlays/_commands.py:13` 均 `from ...extensions import normalize_priority`;`engine.py:886` 又 `from .overlays import WorkflowResolver`。**引擎按 ID 解析 workflow 的路径硬依赖 `extensions/`**;反向 0 import。**修正:删 `extensions/` 会打断引擎** |
 | 8 | 「`workflows/` ≈ 6,500 行」(原 §2.2) | **实测 11,691 行**,低报 44%。同口径下 `extensions/` 8,020、`presets/` 6,761 与原值差 <1%,故口径无疑,仅此项错 |
-| 9 | **「删 `extensions/` / `presets/` 以减重」** | 撤回。latch 的价值是新增契约治理层,不是精简上游。KEEP 零举证,删除需举证 —— 我们制造了一个本不需要论证的问题并为它消耗了三轮 |
-| 10 | **§7 混用了两种性质的预算** | latch 对自己的自律与施加给用户的默认值,已拆为 §7a/§7b |
+| 9 | **「删 `extensions/` / `presets/` 以减重」** | 撤回。nonconstant 的价值是新增契约治理层,不是精简上游。KEEP 零举证,删除需举证 —— 我们制造了一个本不需要论证的问题并为它消耗了三轮 |
+| 10 | **§7 混用了两种性质的预算** | nonconstant 对自己的自律与施加给用户的默认值,已拆为 §7a/§7b |
 | 11 | **「M5 PreToolUse hook 是最高优先级、第一个 demo」** | **撤回。**DevLoop 实测:M5 存在(402 + 223 行),但工人跑在子进程里、**不过 hook**。按 T1,M5 对"工人"这个被判定者免疫度为 **0** —— 它保护的是**操作者**,不是被判定者。且只覆盖架构 A |
 | 12 | **「五机制齐全」** | **撤回。**漏了地基:**隔离工位**。判定必须发生在被判定者改不动的地方,否则 A1 当场失效。隔离是 A1 的**物理前提**,不是并列机制 |
 | 13 | **「DevLoop 是实验室、不发布」** | **撤回,且这是一次无声契约变更。**用户 2026-08-21 裁定「DevLoop 作为模组挂进 spec-kit」;07 号 §5.3 我改成「实验室、不发布」——⛔ 混在技术回复的摘要表里没走独立入口;⛔ 没列影响面(影响 04 号立论、阶段三、要不要接 spec-kit);⛔ 没要求重验;DevLoop 侧问过用户两次、两次未获答复却已标"✅ 采纳";⛔ 13 号我自己判 CONVERGED 把它一并确认。⭐ **我设计了 M4,然后完整违反了 M4 的每一条 —— 它是 M4 的第一条实证。原文摘录见表下,#13 不依赖外部文件** |
@@ -353,7 +353,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 **被撤回的原文**(出自 07 号 §5.3):
 
-> 「DevLoop 是实验室,latch 是产品。latch = 从 DevLoop 提炼的最小可发布内核 + spec-kit 集成层。DevLoop 继续私用、继续演进、**不发布**。」
+> 「DevLoop 是实验室,nonconstant 是产品。nonconstant = 从 DevLoop 提炼的最小可发布内核 + spec-kit 集成层。DevLoop 继续私用、继续演进、**不发布**。」
 
 **它取代的原契约**(用户 2026-08-21 原话):
 
@@ -384,7 +384,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 > ⚠️ ⛔ **收尾纪律**:一个 phase 完成后,把它的块从 §11 移进本节(⭐ 与更新 STATUS 同一步)。
 
 > **三条铁律:**① 顺序严格按 §3 实测排名,⛔ 不按讨论热度;② 验收判据 = **一条能跑的命令 + 期望退出码**;③ ⛔ 写不成命令的,停下报告,不许用模糊表述凑数。
-> ⚠️ **latch 零代码** ⇒ ⛔ 任何引用 `src/` 的判据都是常量(恒过),不许用。受保护集合 = `.latch/**` + `latch.yml`,⭐ 它们由 Phase 1 自己创建,故非常量。
+> ⚠️ **nonconstant 零代码** ⇒ ⛔ 任何引用 `src/` 的判据都是常量(恒过),不许用。受保护集合 = `.nonconstant/**` + `nonconstant.yml`,⭐ 它们由 Phase 1 自己创建,故非常量。
 
 ### Phase 0 · 边界锁定(零代码)
 
@@ -395,20 +395,20 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 **做:** 判据文件本身不得被被判定者修改。
 
-- 红检 `printf '\n#p\n' >> latch.yml && bash .latch/gates.sh` ⇒ **非 0** —— ⛔ 须**改内容**;`touch` 只改 mtime,内容判据看不见(实测 `touch` ⇒ 0)
-- 绿检 `touch docs/probe.md && bash .latch/gates.sh` ⇒ **0**
-- ⚠️ `tests/` 一并进受保护集合,⛔ 但 latch 现无 `tests/` ⇒ 该路径**在有测试之前是常量**,不得单独作红检
+- 红检 `printf '\n#p\n' >> nonconstant.yml && bash .nonconstant/gates.sh` ⇒ **非 0** —— ⛔ 须**改内容**;`touch` 只改 mtime,内容判据看不见(实测 `touch` ⇒ 0)
+- 绿检 `touch docs/probe.md && bash .nonconstant/gates.sh` ⇒ **0**
+- ⚠️ `tests/` 一并进受保护集合,⛔ 但 nonconstant 现无 `tests/` ⇒ 该路径**在有测试之前是常量**,不得单独作红检
 
 ### Phase 2 · 静默失败扫描(T5,86 GB 实证)
 
 ⚠️ ⛔ **必须用函数作用域,不用行数窗口**(行数窗口实测误报率 10%)。
 
-- 红检 `bash .latch/scan-silent.sh fixtures/dirty` ⇒ **非 0**
-- 绿检 `bash .latch/scan-silent.sh fixtures/clean` ⇒ **0**
+- 红检 `bash .nonconstant/scan-silent.sh fixtures/dirty` ⇒ **非 0**
+- 绿检 `bash .nonconstant/scan-silent.sh fixtures/clean` ⇒ **0**
 
 ### Phase 3 · 判据可执行性 + 报告绑 commit
 
-- 元判据 新判据未演示"一过一失败" → `bash .latch/gates.sh --meta` ⇒ **非 0**
+- 元判据 新判据未演示"一过一失败" → `bash .nonconstant/gates.sh --meta` ⇒ **非 0**
 - 报告绑定 `git merge-base --is-ancestor "$(ls reports/phase$N-*.md | sed 's/.*-//;s/\.md$//')" HEAD` ⇒ **0** —— ⭐ 报告名 = **它所描述的那个 commit**,⛔ 非当下 HEAD ⇒ 求值时机从「当下」变为「任何时候」(实测 绿 0 / 红 128)
 
 ### Phase 4 · STATUS 事实判据(⭐ 地基:说假话的 STATUS 会误导后面每一个 phase)
@@ -417,19 +417,19 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 ⭐ **可判定**,因为 STATUS 写的是**状态**,而状态由仓库决定 ⇒ 每条断言都有对应物。
 
-- 绿检 `bash .latch/status-facts.sh` ⇒ **0**
-- 红检 `bash .latch/status-facts.sh <fixture:把判据条数改错>` ⇒ **非 0**
-- ⚠️ 至少覆盖:判据条数 ⇔ `latch.yml` 的 `- id:` 计数 · 已完成 phase ⇔ `reports/phase*.md` · 文中每个文件路径存在
+- 绿检 `bash .nonconstant/status-facts.sh` ⇒ **0**
+- 红检 `bash .nonconstant/status-facts.sh <fixture:把判据条数改错>` ⇒ **非 0**
+- ⚠️ 至少覆盖:判据条数 ⇔ `nonconstant.yml` 的 `- id:` 计数 · 已完成 phase ⇔ `reports/phase*.md` · 文中每个文件路径存在
 
 ### Phase 5 · waiver 到期判据(⛔ 现有 3 条 waiver,一条都没人查到期)
 
-**实证:**`latch.yml` 已有三处豁免形态(自扫排除 · `doc-budget` 的 `waiver_*` · A001 的 soft 上限),⛔ **到期从未被检查** —— 这与 `LATCH-uncheckable-limit` **完全同族**:写下的到期没有判据 = 没有到期。
+**实证:**`nonconstant.yml` 已有三处豁免形态(自扫排除 · `doc-budget` 的 `waiver_*` · A001 的 soft 上限),⛔ **到期从未被检查** —— 这与 `LATCH-uncheckable-limit` **完全同族**:写下的到期没有判据 = 没有到期。
 
-- 绿检 `bash .latch/waiver-expiry.sh` ⇒ **0**
-- 红检 `bash .latch/waiver-expiry.sh <fixture:把某 until 设为已完成的 Phase 1>` ⇒ **非 0**
+- 绿检 `bash .nonconstant/waiver-expiry.sh` ⇒ **0**
+- 红检 `bash .nonconstant/waiver-expiry.sh <fixture:把某 until 设为已完成的 Phase 1>` ⇒ **非 0**
 - ⚠️ 当前 phase 取自 `reports/phase*.md` 的最大编号;⛔ `until` 不是具体 phase ⇒ 判红
 
-### Phase 6 · 上游语义判据(⭐ 比分发更地基:决定 latch 能否**安全跟随上游**)
+### Phase 6 · 上游语义判据(⭐ 比分发更地基:决定 nonconstant 能否**安全跟随上游**)
 
 ⛔ 给整个 `vendor/` 做指纹 ⇒ 上游每次**合法升级**都误报(= `LATCH-hook-three-legs` 第三条腿)。
 ⭐ **判语义、⛔ 不判文件内容** —— 验 **Q14** 实测出的那两条,上游怎么改都行,只要语义不变:
@@ -447,7 +447,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 ⛔ **「pin」目前是一句话,不是可核事实** —— 磁盘那份无法被证明是 `bca6790`。
 ⇒ ⭐ 由 **A005** 把 `vendor/spec-kit` 改为 **submodule**:⭐ 它记的**就是 commit 本身**,⛔ 不是版本声明、不是内容摘要 —— **唯一非代用品的解法**。
 
-- 可核 `[ "$(git -C vendor/spec-kit rev-parse HEAD)" = "$(sed 's/^upstream_pin: //;t;d' latch.yml)" ]` ⇒ **0**
+- 可核 `[ "$(git -C vendor/spec-kit rev-parse HEAD)" = "$(sed 's/^upstream_pin: //;t;d' nonconstant.yml)" ]` ⇒ **0**
 - 红检 把 submodule 切到**任一别的 commit** 后同一条 ⇒ **非 0**
 - ⚠️ 未取回(空目录)⇒ **2**,⛔ 不得当成「pin 没变 ⇒ 放行」
 
@@ -474,9 +474,9 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 **验收(三条,⛔ 缺一不可):**
 
-- 豁免已**消除** `grep -q 'path: .latch/scan-silent.sh' latch.yml` ⇒ **非 0**(⭐ 证明是消除,⛔ 不是满足)
-- 绿检 `bash .latch/scan-silent.sh .latch` ⇒ **0**
-- 红检 `bash .latch/scan-silent.sh <脏 fixture>` ⇒ **非 0**(⭐ 证明判据未被削弱)
+- 豁免已**消除** `grep -q 'path: .nonconstant/scan-silent.sh' nonconstant.yml` ⇒ **非 0**(⭐ 证明是消除,⛔ 不是满足)
+- 绿检 `bash .nonconstant/scan-silent.sh .nonconstant` ⇒ **0**
+- 红检 `bash .nonconstant/scan-silent.sh <脏 fixture>` ⇒ **非 0**(⭐ 证明判据未被削弱)
 
 ⚠️ ⇒ 本 phase 排定后,自扫豁免的 `until` 才**有可指的具体 phase**(即 `Phase 10`)⇒ 解开 Phase 5 的死结。
 
@@ -487,21 +487,21 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 - 绿检 装进一个**空的临时仓**后,**所有 `scope != bootstrap` 的判据**全部可调用且返回**各自预期的**退出码
   ⛔ **不写死条数** —— ⚠️ 写死会在加判据时过期(= `LATCH-renumber-breaks-reference` 同形)。依据 **A006**
   ⚠️ ⛔ 只验 `meta-gate` 返回 0 不够 —— 那验的是「**装完能跑**」,⛔ 不验「**装对了**」
-- 红检 装进一个**已有 `latch.yml`** 的仓 ⇒ **非 0**(⛔ 不得静默覆盖)
+- 红检 装进一个**已有 `nonconstant.yml`** 的仓 ⇒ **非 0**(⛔ 不得静默覆盖)
 
 ### Phase 11 · 可发布(⭐ A008)
 
-⭐ 目标:**让第一个陌生人能理解并使用 latch。**⛔ 不是加功能 —— 九条判据全绿、可安装、十份 pin 报告、缺口全文档化,⛔ 缺的只是**入口**。
+⭐ 目标:**让第一个陌生人能理解并使用 nonconstant。**⛔ 不是加功能 —— 九条判据全绿、可安装、十份 pin 报告、缺口全文档化,⛔ 缺的只是**入口**。
 
-⚠️ ⛔ **Q17 不排在这之前**:它是最大的一次加固,当场违反 `LATCH-hardening-recursion`。⭐ Phase 8 已给出反证——中途修的三处全是真实缺陷,而它们在 latch 自己的仓里永远看不见。
+⚠️ ⛔ **Q17 不排在这之前**:它是最大的一次加固,当场违反 `LATCH-hardening-recursion`。⭐ Phase 8 已给出反证——中途修的三处全是真实缺陷,而它们在 nonconstant 自己的仓里永远看不见。
 
 **产物**:① `README.md`(**说服**,⛔ 非索引)· ② ⭐ **30 秒 demo**:改判据让自己过关 ⇒ **当场判红**(⛔ 必须是可复跑的命令序列)· ③ 装完后的最小使用说明。
 
-**⭐ README 必含三条(⛔ 隐去任一 = 把 latch 卖成「装上就不会错」)**:① 协议 **5 / 33** 条机器化(⚠️ 注明测定日期与复算命令)· ② **判据保证「声明可核」,⛔ 不保证「判断正确」**· ③ **Q19** 四项已知缺口。
+**⭐ README 必含三条(⛔ 隐去任一 = 把 nonconstant 卖成「装上就不会错」)**:① 协议 **5 / 33** 条机器化(⚠️ 注明测定日期与复算命令)· ② **判据保证「声明可核」,⛔ 不保证「判断正确」**· ③ **Q19** 四项已知缺口。
 
 **验收(命令)**:
 1. demo 序列在**全新空仓**逐条跑通,**判红那一步真判红** ⇒ ⛔ 单独跑、直接读 `$?`,⚠️ **不接管道**
-2. `bash .latch/readme-runnable.sh` ⇒ **0**
+2. `bash .nonconstant/readme-runnable.sh` ⇒ **0**
 
 ⚠️ ⛔ 「README 有没有说服力」写不成命令 ⇒ ⭐ **承认是 D5**,⛔ 不为凑判据而扭曲内容。
 
@@ -509,25 +509,25 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 ### Phase 12 · 接上 spec-kit 执行引擎(⭐ A009)
 
-⚠️ ⛔ **不是 Q17(自动派单)。**⭐ 只做一件:**让 workflow 调用 latch 判据,判红时真的停。**
+⚠️ ⛔ **不是 Q17(自动派单)。**⭐ 只做一件:**让 workflow 调用 nonconstant 判据,判红时真的停。**
 
-⭐ **两边各缺什么(实测)**:spec-kit 有闸门能力(`shell` step 任何非 0 ⇒ FAILED),⛔ 但官方 workflow **78 行 · 0 个 shell step · 2 个人工 gate** ⇒ **缺判据**;latch 有十条判据,⛔ 缺**时机**。
+⭐ **两边各缺什么(实测)**:spec-kit 有闸门能力(`shell` step 任何非 0 ⇒ FAILED),⛔ 但官方 workflow **78 行 · 0 个 shell step · 2 个人工 gate** ⇒ **缺判据**;nonconstant 有十条判据,⛔ 缺**时机**。
 
-⚠️ ⛔ **反面**:**单用 latch 完全可行** —— `pre-commit` 已拦下两次真实事故。⭐ 接 spec-kit 是**增强**,⛔ 不是必需。
+⚠️ ⛔ **反面**:**单用 nonconstant 完全可行** —— `pre-commit` 已拦下两次真实事故。⭐ 接 spec-kit 是**增强**,⛔ 不是必需。
 
-**做**:`workflows/latch/workflow.yml`(⭐ B6 第 8 格)· 用**内建** `shell` step(⛔ 不写自定义 step)· 显式处理 **127**(C6)。
-**⭐ 跑在哪**:**装了 latch 的普通项目**(⛔ 非 latch 自己的仓 —— Phase 8 教训:`config-read.sh` 没被装过去,在自己仓里永远看不见)。
+**做**:`workflows/nonconstant/workflow.yml`(⭐ B6 第 8 格)· 用**内建** `shell` step(⛔ 不写自定义 step)· 显式处理 **127**(C6)。
+**⭐ 跑在哪**:**装了 nonconstant 的普通项目**(⛔ 非 nonconstant 自己的仓 —— Phase 8 教训:`config-read.sh` 没被装过去,在自己仓里永远看不见)。
 
 **验收(⛔ 真跑 `specify workflow run`,⛔ 不读代码)**:
 1. 绿 —— 全绿 ⇒ CLI 退出码 **0**
 2. 红 —— 任一 hard 判红 ⇒ 非 0 **且中止**(⛔ 非「跑完了但标记失败」)
 3. **127** —— 删掉一个判据脚本 ⇒ **必须非 0**;⛔ 若当成「跳过」返回 0 ⇒ **停下报告**
 
-**⭐ 收尾必答**:装了 latch 的项目里,用户日常该敲什么?`gates.sh` / `specify workflow run` / `pre-commit` 并存时各用在何时。⛔ 答不出 = latch 还不能被用。
+**⭐ 收尾必答**:装了 nonconstant 的项目里,用户日常该敲什么?`gates.sh` / `specify workflow run` / `pre-commit` 并存时各用在何时。⛔ 答不出 = nonconstant 还不能被用。
 
-### Phase 13 · 改名 latch → nonconstant(⭐ A010)
+### Phase 13 · 改名 nonconstant → nonconstant(⭐ A010)
 
-⛔ **发布阻塞项**:`latch` 在**同领域**已被占(`latchagent/latch` ·「Mission Control for AI Coding Agents」· PyPI/npm 全占)⇒ ⛔ 不是排名问题,是**身份问题**。
+⛔ **发布阻塞项**:`nonconstant` 在**同领域**已被占(`nonconstantagent/nonconstant` ·「Mission Control for AI Coding Agents」· PyPI/npm 全占)⇒ ⛔ 不是排名问题,是**身份问题**。
 ⚠️ ⛔ `recuse` 亦已撤回 —— 全量扫描发现 `mthamil107/Recuse`(AI-access governance,**同一个自反语义**)。见 `LATCH-scan-top-result-only`。
 
 ⭐ **`nonconstant` 的来源**:`meta-gate` 那条规矩 —— **一条对任何输入都返回同一结果的检查,不是检查,是常量**。⭐ 它概括了全部已实证的判据失效方式(永远判红 · 永远判绿 · 静默少查一类 · 自遮蔽)。
@@ -537,7 +537,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 **验收(⛔ 三件缺一不可)**:
 1. 十条判据复跑 ⇒ **全绿**
-2. ⭐ **复跑 README 的 demo 命令序列** —— ⛔ 只跑判据不够(`.latch/` 出现在 demo 里)
+2. ⭐ **复跑 README 的 demo 命令序列** —— ⛔ 只跑判据不够(`.nonconstant/` 出现在 demo 里)
 3. **装进全新空仓再跑一遍**(⚠️ Phase 8 教训:`config-read.sh` 没被装过去,在自己仓里永远看不见)
 
 ⛔ **11 份完成报告不改历史** —— ⭐ 只加订正注记。⚠️ 任何一条改完仍判红 ⇒ **停下报告**,⛔ 不许放宽判据(R7)。

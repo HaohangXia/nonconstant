@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# latch · status-facts  —— STATUS 事实判据
+# nonconstant · status-facts  —— STATUS 事实判据
 #
 #   ⭐ `STATUS.md` 写的是「**现在是什么状态**」,而状态由**仓库**决定
 #      ⇒ 每条断言都有对应物 ⇒ ⭐ **它的失真不是 D5,是「还没做」。**
@@ -16,22 +16,22 @@
 #   1  未过   —— 有断言与仓库不符,或 STATUS 未声明任何可核对的状态
 #   2  闸自身故障
 #
-# 用法:  bash .latch/status-facts.sh [STATUS 文件] [配置文件]
+# 用法:  bash .nonconstant/status-facts.sh [STATUS 文件] [配置文件]
 
 set -u
 
 die_broken() { printf '⛔ STATUS-FACTS BROKEN: %s\n' "$1" >&2; exit 2; }
 
-# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+# ⭐⭐ 配置取值一律走 .nonconstant/config-read.sh —— ⛔ 本脚本内不再自行解析
 #    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-CONFIG="${2:-latch.yml}"
+CONFIG="${2:-nonconstant.yml}"
 STATUS="${1:-}"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 读不到 subjects"
-[ -n "$STATUS" ] || STATUS=$(latch_subject "$CONFIG" status)
+[ -n "$STATUS" ] || STATUS=$(nc_subject "$CONFIG" status)
 [ -n "$STATUS" ] || die_broken "$CONFIG 的 subjects 里没有 status —— ⛔ 没配就判不了,不得猜"
 [ -f "$STATUS" ] || die_broken "找不到 $STATUS —— ⛔ STATUS 不存在 ≠ 没有失真"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有对照物就判不了真伪"
@@ -49,7 +49,7 @@ note() { BAD="${BAD}   · ${1}"$'\n'; }
 #
 # ⭐ 修法:⛔ 不去识别「STATUS 里有没有这句话」(那要先解决同一个问题),
 #    ⭐ 而是让**判据声明自己该查几类**,再对照实际匹配到几类:
-#      N = latch.yml 声明的期望类数(⛔ 不在本脚本里,⇒ 改脚本改不掉它)
+#      N = nonconstant.yml 声明的期望类数(⛔ 不在本脚本里,⇒ 改脚本改不掉它)
 #      I = 本脚本实际实现的类数
 #      M = 本次运行真正匹配到的类数
 #    ⇒ I ≠ N ⇒ **2**(闸自身与契约不符,判不了它该判的)
@@ -59,13 +59,13 @@ CLASS_SEEN=""
 seen_class() { CLASS_SEEN="${CLASS_SEEN}$1 "; }
 count_words() { printf '%s\n' $1 | sed '/^$/d' | wc -l; }
 
-# ── 断言 1:判据条数 ⇔ latch.yml 的 `- id:` 计数 ───────────────────
+# ── 断言 1:判据条数 ⇔ nonconstant.yml 的 `- id:` 计数 ───────────────────
 CLAIM=$(awk 'match($0, /([0-9]+) 条判据/, m) { print m[1]; exit }' "$STATUS")
-REAL=$(grep -c '^[ \t]*-[ \t]*id:' "$CONFIG") || die_broken "数 latch.yml 判据失败"
+REAL=$(grep -c '^[ \t]*-[ \t]*id:' "$CONFIG") || die_broken "数 nonconstant.yml 判据失败"
 if [ -n "$CLAIM" ]; then
   seen_class gate-count
   CHECKED=$((CHECKED + 1))
-  [ "$CLAIM" = "$REAL" ] || note "判据条数:STATUS 称 $CLAIM 条,⛔ latch.yml 实为 $REAL 条"
+  [ "$CLAIM" = "$REAL" ] || note "判据条数:STATUS 称 $CLAIM 条,⛔ nonconstant.yml 实为 $REAL 条"
 fi
 
 # ── 断言 2:已完成 phase ⇔ reports/ 的**编号集合** ─────────────────
@@ -79,7 +79,7 @@ CLAIMLINE=$(grep -o 'Phase [0-9~ +,]*全部完成' "$STATUS" | head -1)
 #    ⚠️ 实测(Phase 8 绿检):新装环境 reports/ 是空的,而那份 STATUS 根本没做 phase 断言。
 if [ -n "$CLAIMLINE" ]; then
   seen_class phase-set
-  REPORTS=$(latch_subject "$CONFIG" reports)
+  REPORTS=$(nc_subject "$CONFIG" reports)
   [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ STATUS 声称了 phase 集合却无从核对"
   [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 数不出已完成阶段"
   REALSET=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u | tr '\n' ' ')
@@ -97,7 +97,7 @@ if [ -n "$CLAIMLINE" ]; then
     || note "已完成阶段:STATUS 称「$CLAIMSET」,⛔ reports/ 实为「$REALSET」"
 fi
 
-# ── 断言 4:判据表三元组 ⇔ latch.yml 的 id / impl / level ──────────
+# ── 断言 4:判据表三元组 ⇔ nonconstant.yml 的 id / impl / level ──────────
 # ⭐⭐ 严格强于旧的「数条数 + 查文件在不在」:
 #    ⛔ 条数对不代表 id 对;⛔ 文件在不代表它是**这条 id 的** impl。
 CFG_TRI=$(awk '/^gates:/{g=1;next} /^[a-z_]/{g=0}
@@ -126,7 +126,7 @@ EOF
     || note "判据表:STATUS 列了 $ST_N 条,⛔ $CONFIG 实有 $CFG_N 条(⛔ 少列 = 静默漏报)"
 fi
 
-# ── 断言 5:上游 pin ⇔ latch.yml:upstream_pin ─────────────────────
+# ── 断言 5:上游 pin ⇔ nonconstant.yml:upstream_pin ─────────────────────
 # ⚠️ STATUS 写短 hash,配置写全 hash ⇒ ⭐ 判「是不是前缀」,⛔ 不判相等。
 CFG_PIN=$(sed -n 's/^upstream_pin:[ \t]*//p' "$CONFIG" | head -1)
 ST_PIN=$(grep -o '上游 pin.*`[0-9a-f]\{7,\}`' "$STATUS" \
@@ -169,7 +169,7 @@ fi
 # ── 断言 3:清单里的文件路径都存在 ────────────────────────────────
 # ⛔⛔ **只查表格行(`|` 开头)**,⛔ 不查正文。
 #    根因:正文**可以合法地提到一个路径,正是为了说它不存在**
-#    ——「⛔ 无 workflows/latch/workflow.yml」这句是**真的**。
+#    ——「⛔ 无 workflows/nonconstant/workflow.yml」这句是**真的**。
 #    ⇒ 「凡提到的路径都须存在」是**过宽的判据** ⇒ 必然误报
 #      (= LATCH-hook-three-legs 第三条腿)。实测首跑即撞上。
 #    ⭐ 表格行是**清单**,语义就是「这些东西存在」⇒ 结构性判据,⛔ 非启发式猜测。
@@ -188,8 +188,8 @@ for p in $PATHS; do
 done
 
 # ══ C12 · 覆盖面判定 ══════════════════════════════════════════════
-# ⭐ N 从 latch.yml 读 —— ⛔ 不在本脚本里。改脚本(删掉一整类)改不掉 N ⇒ 判 2。
-#   ⚠️ 且 latch.yml 在 protected 清单内 ⇒ 改 N 会被 criteria-guard 判红。
+# ⭐ N 从 nonconstant.yml 读 —— ⛔ 不在本脚本里。改脚本(删掉一整类)改不掉 N ⇒ 判 2。
+#   ⚠️ 且 nonconstant.yml 在 protected 清单内 ⇒ 改 N 会被 criteria-guard 判红。
 EXP_N=$(awk '
   /^[ \t]*-[ \t]*id:[ \t]*status-facts[ \t]*$/ { g = 1; next }
   g && /^[ \t]*-[ \t]*id:/                     { g = 0 }
@@ -205,7 +205,7 @@ SEEN_N=$(count_words "$CLASS_SEEN")
 
 # ⭐⭐ N = **本项目承诺检查的类数下界**,⛔ 不是「脚本实现了几类」。
 #    ⚠️ 实测(Phase 8):新装项目没有 amendments/ 也没有 phase 报告 ⇒ 做不出那两类断言。
-#    ⛔ 若强求 N == I,等于把 latch 自己的仓结构强加给每个用户。
+#    ⛔ 若强求 N == I,等于把 nonconstant 自己的仓结构强加给每个用户。
 # ⛔ N > I ⇒ 2:承诺查的比脚本实现的还多 ⇒ **它判不了它承诺的**。
 #    ⭐ 同时专治「有人从脚本里删掉一整类」—— 那时 N 不变、I 少了 ⇒ N > I ⇒ 判 2。
 [ "$EXP_N" -le "$IMPL_N" ] || die_broken \

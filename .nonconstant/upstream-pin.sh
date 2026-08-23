@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# latch · upstream-pin  —— 上游 pin 可核 + 未被本地改过
+# nonconstant · upstream-pin  —— 上游 pin 可核 + 未被本地改过
 #
 #   ⭐ 在 A005 之前,「pin 到 bca6790」**是一句话,不是可核事实** ——
 #      vendor 是解包的源码树,⛔ 树上没有任何东西把它绑到某个 commit。
@@ -8,7 +8,7 @@
 #      **这是唯一非代用品的解法。**
 #
 #   本判据管两件事(⭐ B2 的两半):
-#     ① 是不是 pin 的那一份  —— submodule HEAD == latch.yml:upstream_pin
+#     ① 是不是 pin 的那一份  —— submodule HEAD == nonconstant.yml:upstream_pin
 #     ② 有没有被本地改过     —— submodule 工作区必须干净
 #   ⚠️ ⛔ 只做 ① 不够:submodule 停在正确 commit 上,内容照样可以被改;
 #      改了在超级项目里只显示为 ` M vendor/spec-kit`,⛔ 而 Phase 0 判据 2 看不见它。
@@ -20,23 +20,23 @@
 #      ⚠️ 「未取回(空目录)」判 2:那是「**没测到**」,⛔ 不是「pin 没变」
 #         (LATCH-cannot-judge-vs-judged-fail)
 #
-# 用法:  bash .latch/upstream-pin.sh [配置文件] [submodule 路径]
+# 用法:  bash .nonconstant/upstream-pin.sh [配置文件] [submodule 路径]
 
 set -u
 
 die_broken() { printf '⛔ UPSTREAM-PIN BROKEN: %s\n' "$1" >&2; exit 2; }
 
-CONFIG="${1:-latch.yml}"
+CONFIG="${1:-nonconstant.yml}"
 SUB="${2:-vendor/spec-kit}"
 
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置就没有 pin 可比"
-# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+# ⭐⭐ 配置取值一律走 .nonconstant/config-read.sh —— ⛔ 本脚本内不再自行解析
 #    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-WANT=$(latch_top "$CONFIG" upstream_pin) || die_broken "读 upstream_pin 失败"
+WANT=$(nc_top "$CONFIG" upstream_pin) || die_broken "读 upstream_pin 失败"
 [ -n "$WANT" ] || die_broken "$CONFIG 里没有 upstream_pin —— ⛔ 没写 pin ≠ pin 没变"
 
 [ -d "$SUB" ] || die_broken "$SUB 不存在 —— ⛔ 上游不在 ≠ pin 没变"

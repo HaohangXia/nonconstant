@@ -1,4 +1,4 @@
-# latch
+# nonconstant
 
 > ⭐ 本文件是 **Phase 0 冻结的契约**。⛔ 后续 phase 不得违反其中任何一条。
 > ⛔ 要改这里的任何一条 = **amendment**,须走独立入口、列影响面、要求下游重验(`01-PLAN.md` §7c / §8 #13)。
@@ -18,33 +18,33 @@
 | 路径 | 放什么 | ⛔ 不许放 |
 |---|---|---|
 | `CLAUDE.md` | 本文件。**唯一**的边界契约 | ⛔ 方案、待办、进度 |
-| `latch.yml` | 项目配置:受保护路径 glob · 判据清单 · 预算 | ⛔ 判定逻辑(逻辑在 `.latch/`) |
-| `.latch/` | **判据实现**(shell)。⭐ Phase 1 起为受保护对象 | ⛔ 业务代码、⛔ 与判定无关的工具 |
+| `nonconstant.yml` | 项目配置:受保护路径 glob · 判据清单 · 预算 | ⛔ 判定逻辑(逻辑在 `.nonconstant/`) |
+| `.nonconstant/` | **判据实现**(shell)。⭐ Phase 1 起为受保护对象 | ⛔ 业务代码、⛔ 与判定无关的工具 |
 | `docs/audit/` | 往返审计、决策记录、账本、STATUS | ⛔ 可执行文件 |
 | `reports/` | phase 完成报告(见 B5) | ⛔ 手写笔记、⛔ 无 commit hash 的报告 |
-| `vendor/` | 上游只读副本(见 B2) | ⛔ latch 自己的任何文件 |
+| `vendor/` | 上游只读副本(见 B2) | ⛔ nonconstant 自己的任何文件 |
 
 ⛔ **根目录不得新增其它目录。**需要新目录 = amendment。
 
 ### B2 · `vendor/spec-kit/` 的地位
 
-- ⛔ **只读。任何 phase 不得修改其中任何文件。**latch 全部是新增文件。
+- ⛔ **只读。任何 phase 不得修改其中任何文件。**nonconstant 全部是新增文件。
 - ⭐ **`vendor/spec-kit` 是 git submodule**,pin 到 `bca679051abb80d6cf0cd909f2539a28a10eb7eb`(**A005**)。⇒ 「pin」由**一句话**变成**可核事实**:`git -C vendor/spec-kit rev-parse HEAD`。
   ⚠️ ⛔ 原文保留:~~`vendor/` 在 `.gitignore` 内(未跟踪)⇒ 「未改上游」无法用 `git status` 证明~~ —— A005 已改此层。
   ⚠️ ⛔ **但 submodule 不阻止有人改上游内容**(改了只显示为 ` M vendor/spec-kit`,而 Phase 0 判据 2 看不见)⇒ 「未改上游」仍需独立判据,归 **Phase 7**。
 - ⛔ 不 fork、不改 `HookExecutor`、不删 `extensions/` 或 `presets/`(`16-DECISIONS.md` D-02 / D-03)。
 
-### B3 · latch 与 DevLoop 的边界
+### B3 · nonconstant 与 DevLoop 的边界
 
-- ⛔ **latch 不 import DevLoop 一行代码**,不作为依赖、不作为子模块、不复制其源文件(D-05)。
-- ⭐ 允许且**必须**的关联:每条机制**引用** DevLoop 的一次具体事故作为实证 —— 引用写在 `docs/`,⛔ 不进 `.latch/`。
+- ⛔ **nonconstant 不 import DevLoop 一行代码**,不作为依赖、不作为子模块、不复制其源文件(D-05)。
+- ⭐ 允许且**必须**的关联:每条机制**引用** DevLoop 的一次具体事故作为实证 —— 引用写在 `docs/`,⛔ 不进 `.nonconstant/`。
 - ⛔ DevLoop 是 v1 且**已归档**;维护中的产物不得依赖归档物。
 
 ### B4 · 判据文件放哪
 
-- 判据实现一律在 **`.latch/`**;判据的**清单与阈值**在 **`latch.yml`**。⛔ 判据不得写在 `docs/` 里当文字。
-- ⭐ **`.latch/**` 与 `latch.yml` 是 Phase 1「测试守卫」的受保护对象** —— 被判定者改动它们必须判红。
-- ⛔ 判据不得引用 `src/`(latch 无 `src/`,该路径下的判据恒过 = 常量,违反 §3 序 4)。
+- 判据实现一律在 **`.nonconstant/`**;判据的**清单与阈值**在 **`nonconstant.yml`**。⛔ 判据不得写在 `docs/` 里当文字。
+- ⭐ **`.nonconstant/**` 与 `nonconstant.yml` 是 Phase 1「测试守卫」的受保护对象** —— 被判定者改动它们必须判红。
+- ⛔ 判据不得引用 `src/`(nonconstant 无 `src/`,该路径下的判据恒过 = 常量,违反 §3 序 4)。
 - ⛔ 新增或修改判据须先演示"一过一失败"(元判据,§10 Phase 3),未演示者不得启用。
 
 ### B5 · 完成报告
@@ -56,20 +56,20 @@
 
 ### B6 · 复杂度预算的落点
 
-`01-PLAN.md` §7a:latch 新增文件 **≤ 8**。⭐ 计数口径:**可执行文件与配置文件**;⛔ `docs/**` 与 `reports/**` 不计入。
+`01-PLAN.md` §7a:nonconstant 新增文件 **≤ 8**。⭐ 计数口径:**可执行文件与配置文件**;⛔ `docs/**` 与 `reports/**` 不计入。
 
 ⭐ **名额按实际消耗顺序编号**(A002 对齐;⛔ 原表把「排期顺序」当成了「名额编号」)。
 
 | # | 文件 / 目录 | 何时 | 状态 |
 |---|---|---|---|
 | 1 | `CLAUDE.md` | Phase 0 | ⭐ 已用 |
-| 2 | `latch.yml` | Phase 1 | ⭐ 已用 |
-| 3 | `.latch/gates.sh` | Phase 1 | ⭐ 已用 |
+| 2 | `nonconstant.yml` | Phase 1 | ⭐ 已用 |
+| 3 | `.nonconstant/gates.sh` | Phase 1 | ⭐ 已用 |
 | 4 | **`amendments/`(整个目录)** | A001 | ⭐ 已用 |
-| 5 | `.latch/scan-silent.sh` | Phase 2 | ⭐ 已用 |
-| 6 | `.latch/meta-gate.sh` | Phase 3 | ⭐ 已用 |
-| 7 | `.latch/report.sh` | Phase 3 | ⭐ 已用 |
-| 8 | `workflows/latch/workflow.yml` | 接 spec-kit `shell` step | ⬜ |
+| 5 | `.nonconstant/scan-silent.sh` | Phase 2 | ⭐ 已用 |
+| 6 | `.nonconstant/meta-gate.sh` | Phase 3 | ⭐ 已用 |
+| 7 | `.nonconstant/report.sh` | Phase 3 | ⭐ 已用 |
+| 8 | `workflows/nonconstant/workflow.yml` | 接 spec-kit `shell` step | ⬜ |
 
 ⚠️ ⛔ **原「#8 预留」已被 A002 的对齐吃掉** —— 8 个名额**全部指名**。见 `amendments/A002-b6-slot-alignment.md`。
 
@@ -79,10 +79,10 @@
 
 | 文件 | 何时 | 属哪类 | 为什么名额装不下 |
 |---|---|---|---|
-| `.latch/upstream-semantics.sh` | Phase 6 | ② 计划外发现所必需 | 见 `reports/phase6-*.md` `known_gaps` #1 |
-| `.latch/status-facts.sh` · `.latch/waiver-expiry.sh` · `.latch/upstream-pin.sh` · `.latch/doc-budget.sh` | Phase 3~7 | ② 同上 | 八格全部指名 |
+| `.nonconstant/upstream-semantics.sh` | Phase 6 | ② 计划外发现所必需 | 见 `reports/phase6-*.md` `known_gaps` #1 |
+| `.nonconstant/status-facts.sh` · `.nonconstant/waiver-expiry.sh` · `.nonconstant/upstream-pin.sh` · `.nonconstant/doc-budget.sh` | Phase 3~7 | ② 同上 | 八格全部指名 |
 | `install.sh` | Phase 8 试做 | ② 同上 | 同上 |
-| **`.latch/config-read.sh`** | **2026-08-23** | ⭐ **① 修正自身的产物** —— C12 第二形态(`LATCH-self-blinding` · `LATCH-pattern-miss-reports-pass`)的修复 | ⛔ 剥离逻辑若不集中,八个脚本各写一份 ⇒ 下次改规则要改八处 = 修复成本随判据数上升(**F5** 同族)。⭐ 而 A003 的余量正是为「修正自身」开的口子 |
+| **`.nonconstant/config-read.sh`** | **2026-08-23** | ⭐ **① 修正自身的产物** —— C12 第二形态(`LATCH-self-blinding` · `LATCH-pattern-miss-reports-pass`)的修复 | ⛔ 剥离逻辑若不集中,八个脚本各写一份 ⇒ 下次改规则要改八处 = 修复成本随判据数上升(**F5** 同族)。⭐ 而 A003 的余量正是为「修正自身」开的口子 |
 
 | | 余量 |
 |---|---|

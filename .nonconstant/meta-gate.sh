@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# latch · meta-gate  —— 判据可执行性(§3 序 4)
+# nonconstant · meta-gate  —— 判据可执行性(§3 序 4)
 #
 #   ⭐ 一条判据加入或修改时,必须先证明它**能产出非常量结果**:
 #      登记至少一次「过」与至少一次「失败」的演示。
@@ -9,7 +9,7 @@
 #   实证:DevLoop 某判据 08-17 退化成必然红,08-20 才被发现 ——
 #   而 08-17→08-20 之间闸跑了 0 次(16-DECISIONS D-16)。
 #
-#   ⭐⭐ 本闸自身也是一条判据 ⇒ 它必须先满足自己(见 latch.yml 的 meta-gate 条目)。
+#   ⭐⭐ 本闸自身也是一条判据 ⇒ 它必须先满足自己(见 nonconstant.yml 的 meta-gate 条目)。
 #
 # 退出码:
 #   0  过     —— 每条判据都登记了双向演示,且 impl 存在
@@ -19,26 +19,26 @@
 #   ⭐⭐ 「闸门缺失」判 2,⛔ 比「判红」更严重(协议 C6):
 #      ⛔ 编排层不得把它等同于「未配置 ⇒ 跳过」。
 #
-# 用法:  bash .latch/meta-gate.sh [配置文件]     # 默认 latch.yml
+# 用法:  bash .nonconstant/meta-gate.sh [配置文件]     # 默认 nonconstant.yml
 
 set -u
 
 die_broken() { printf '⛔ META-GATE BROKEN: %s\n' "$1" >&2; exit 2; }
 
-CONFIG="${1:-latch.yml}"
+CONFIG="${1:-nonconstant.yml}"
 [ -f "$CONFIG" ] || die_broken "找不到配置 $CONFIG —— ⛔ 没有配置不等于判据都合格"
-# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+# ⭐⭐ 配置取值一律走 .nonconstant/config-read.sh —— ⛔ 本脚本内不再自行解析
 #    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-IDS=$(awk '/^[ \t]*-[ \t]*id:/ { sub(/^[ \t]*-[ \t]*id:[ \t]*/, ""); print }' "$CONFIG" | while IFS= read -r ln; do latch_scrub "$ln"; printf "\n"; done | sed '/^$/d') \
+IDS=$(awk '/^[ \t]*-[ \t]*id:/ { sub(/^[ \t]*-[ \t]*id:[ \t]*/, ""); print }' "$CONFIG" | while IFS= read -r ln; do nc_scrub "$ln"; printf "\n"; done | sed '/^$/d') \
   || die_broken "读判据清单失败"
 [ -n "$IDS" ] || die_broken "$CONFIG 里一条判据都没有 —— ⛔ 空清单会让本闸恒过(常量)"
 
 field() {   # field <id> <key>  —— 取某条判据块内的某个字段
-  latch_scrub "$(awk -v want="$1" -v key="$2" '
+  nc_scrub "$(awk -v want="$1" -v key="$2" '
     /^[ \t]*-[ \t]*id:/ {
       cur = $0; sub(/^[ \t]*-[ \t]*id:[ \t]*/, "", cur); inb = (cur == want); next
     }
@@ -109,7 +109,7 @@ for id in $IDS; do
     continue
   fi
   # ⛔⛔ 源码里不得有任何「放行」白名单 —— 那是**不受 criteria-guard 保护**的逃逸口。
-  # ⭐ 若确需「暂未演示」这个状态,必须走 latch.yml 的豁免形态:显式列出哪条判据 ·
+  # ⭐ 若确需「暂未演示」这个状态,必须走 nonconstant.yml 的豁免形态:显式列出哪条判据 ·
   #    reason · until(⛔ 须是具体 phase,不得是「以后」)· 运行时打印「已豁免」。
   # 见 03-LEDGER.md `LATCH-hardcoded-escape-hatch`。
   [ -f "$prep" ] || note "$id: ⛔ demo_report 不存在: $prep ⇒ 演示不可核查"

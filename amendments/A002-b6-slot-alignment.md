@@ -31,8 +31,8 @@ A001 追加 `amendments/`(作为**一个目录整体**占一个名额,理由:若
 
 | | B6 表说 | 实际消耗 |
 |---|---|---|
-| 第 4 个 | `.latch/scan-silent.sh` | ⛔ `amendments/` |
-| 第 5 个 | `.latch/meta-gate.sh` | ⛔ `.latch/scan-silent.sh` |
+| 第 4 个 | `.nonconstant/scan-silent.sh` | ⛔ `amendments/` |
+| 第 5 个 | `.nonconstant/meta-gate.sh` | ⛔ `.nonconstant/scan-silent.sh` |
 
 ⚠️ 一个错位的预算表,**后面每次动用名额都要重新解释一遍** —— 而「需要每次口头解释的表」正是 `LATCH-proxy-criterion` 那一类:数字还在,但已不测它该测的东西。
 
@@ -43,13 +43,13 @@ A001 追加 `amendments/`(作为**一个目录整体**占一个名额,理由:若
 | # | 文件 / 目录 | 何时 | 状态 |
 |---|---|---|---|
 | 1 | `CLAUDE.md` | Phase 0 | ⭐ 已用 |
-| 2 | `latch.yml` | Phase 1 | ⭐ 已用 |
-| 3 | `.latch/gates.sh` | Phase 1 | ⭐ 已用 |
+| 2 | `nonconstant.yml` | Phase 1 | ⭐ 已用 |
+| 3 | `.nonconstant/gates.sh` | Phase 1 | ⭐ 已用 |
 | 4 | **`amendments/`(整个目录)** | A001 | ⭐ 已用 |
-| 5 | `.latch/scan-silent.sh` | Phase 2 | ⭐ 已用 |
-| 6 | `.latch/meta-gate.sh` | Phase 3 | ⬜ |
-| 7 | `.latch/report.sh` | Phase 3 | ⬜ |
-| 8 | `workflows/latch/workflow.yml` | 接 spec-kit `shell` step | ⬜ |
+| 5 | `.nonconstant/scan-silent.sh` | Phase 2 | ⭐ 已用 |
+| 6 | `.nonconstant/meta-gate.sh` | Phase 3 | ⬜ |
+| 7 | `.nonconstant/report.sh` | Phase 3 | ⬜ |
+| 8 | `workflows/nonconstant/workflow.yml` | 接 spec-kit `shell` step | ⬜ |
 
 ⚠️ ⛔ **原表的「#8 预留」被这次对齐吃掉了** —— 8 个名额现已**全部指名**,不再有预留。
 ⇒ ⭐ 这是 A002 的**真实代价**,⛔ 不掩饰:此后任何计划外的新文件都要走 amendment。
@@ -62,8 +62,8 @@ A001 追加 `amendments/`(作为**一个目录整体**占一个名额,理由:若
 
 | # | 决定 | 出处 | 是否失效 |
 |---|---|---|---|
-| 1 | Phase 1 用掉 `latch.yml` + `.latch/gates.sh` | `reports/phase1-ae6f82f.md:31` | ⛔ **否** —— 引用的是**文件名**,#2/#3 编号未变 |
-| 2 | Phase 2 用掉 `.latch/scan-silent.sh` | `reports/phase2-5a3420d.md:35` | ⛔ **否** —— 该报告**未写编号**,只写文件名;`known_gaps` #6 已预先声明错位 |
+| 1 | Phase 1 用掉 `nonconstant.yml` + `.nonconstant/gates.sh` | `reports/phase1-ae6f82f.md:31` | ⛔ **否** —— 引用的是**文件名**,#2/#3 编号未变 |
+| 2 | Phase 2 用掉 `.nonconstant/scan-silent.sh` | `reports/phase2-5a3420d.md:35` | ⛔ **否** —— 该报告**未写编号**,只写文件名;`known_gaps` #6 已预先声明错位 |
 | 3 | A001 记「B6 已用 4/8,#4 = `amendments/`」 | `amendments/A001-*.md:121` | ⛔ **否** —— A002 正是把该行**升格为表内事实**,方向一致 |
 | 4 | Phase 0 `known_gaps` #4:计数口径(`docs/**`、`reports/**` 不计入) | `reports/phase0-bcddbc9.md:59` | ⛔ **否** —— A002 只动**编号顺序**,⛔ 未动计数口径 |
 | 5 | Phase 2 把 `known_gaps` 写进报告而非 PLAN | `reports/phase2-*.md` | ⛔ **否** —— 由 B5 决定,与 B6 无关 |

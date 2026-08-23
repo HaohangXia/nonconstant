@@ -17,8 +17,8 @@
 
 | ID | 契约 | 落点 |
 |---|---|---|
-| P7-C1 | ⭐⭐ **`vendor/spec-kit` 是 submodule,pin 到 `bca6790…`** —— ⭐ submodule 记的**就是 commit 本身**,⛔ 不是版本声明、不是内容摘要 | `.gitmodules` · `latch.yml:upstream_pin` |
-| P7-C2 | ⭐ **本判据覆盖 B2 的两半**:① 是不是 pin 的那一份;② **有没有被本地改过**(submodule 工作区须干净,⚠️ **含未跟踪文件**) | `.latch/upstream-pin.sh` |
+| P7-C1 | ⭐⭐ **`vendor/spec-kit` 是 submodule,pin 到 `bca6790…`** —— ⭐ submodule 记的**就是 commit 本身**,⛔ 不是版本声明、不是内容摘要 | `.gitmodules` · `nonconstant.yml:upstream_pin` |
+| P7-C2 | ⭐ **本判据覆盖 B2 的两半**:① 是不是 pin 的那一份;② **有没有被本地改过**(submodule 工作区须干净,⚠️ **含未跟踪文件**) | `.nonconstant/upstream-pin.sh` |
 | P7-C3 | ⭐⭐ **「未取回(空目录)」判 `2`,⛔ 不判 0 也不判 1** —— 那是「**没测到**」,⛔ 不是「pin 没变」,也不是「pin 不符」 | 同上 |
 | P7-C4 | `.gitignore` 为 `vendor/*` + `!vendor/spec-kit` —— ⛔ 原 `vendor/` 会让 `git submodule add` **拒绝**(实测) | `.gitignore` |
 
@@ -47,7 +47,7 @@
 | 5 | 探针 A · submodule **未取回(空目录)** | 2 | ⭐ **2**「没测到 ≠ 通过」 |
 | 6 | 探针 B · 目录存在但**非 git 仓** | 判断见下 | ⭐ **2** |
 | 7 | 探针 C · 目录不存在 | 非 0 | ⭐ **2** |
-| 8 | 探针 D · `latch.yml` 无 `upstream_pin` | 非 0 | ⭐ **2**「没写 pin ≠ pin 没变」 |
+| 8 | 探针 D · `nonconstant.yml` 无 `upstream_pin` | 非 0 | ⭐ **2**「没写 pin ≠ pin 没变」 |
 | 9 | 探针 E · 配置不存在 | 非 0 | ⭐ **2** |
 | 10 | 兄弟交叉 · `silent-scan` 扫本判据 | 0 | ⭐ **0** |
 | 11 | ⭐ **九条判据全跑** | 全 0 | ⭐ **全 0** |
@@ -76,7 +76,7 @@
 |---|---|---|
 | 1 | ⭐ **「有没有被改过」本轮一并做了,⛔ 未排成单独 phase** | 下达方要求排成 Phase 7b。⚠️ ⛔ **但它是同一个 submodule 上的一行命令**(`git -C vendor/spec-kit status --porcelain`),与 pin 检查天然同属一条判据 ⇒ **拆成两个 phase 是人为的**。⭐ 且下达方的担心是「只躺在 gap 里没人做」—— **现在做了,该担心消解**。⇒ ⛔ 若仍要求拆分,须给出拆分能带来什么 |
 | 2 | ⚠️ **上游自己的 `.gitignore` 会遮蔽一部分改动** | `git status --porcelain` 不报被 spec-kit 自身 ignore 的文件(如 `__pycache__`)。⇒ ⛔ 有人往那些路径塞东西**查不出来**。⭐ 但那些路径本就是生成物,⚠️ 风险有限、⛔ 非零 |
-| 3 | ⚠️ **`.gitmodules` 的 B6 定性(本轮定)** | ⭐ **判定:不计入 B6。**理由三条:① 它是 **git 元数据**,与 `.gitignore` 同类,⛔ 不是 latch 的判据或配置;② 它**不是 latch 写的内容** —— `git submodule add` 生成、格式由 git 定;③ **107 字节 / 3 行**,B6 防的是「复杂度」,⛔ 它不承载复杂度。⚠️ ⛔ **但 B6 的计数口径仍未写明「git 元数据不计入」** ⇒ 与 **Q12** / A002 `known_gaps` #2 同族的口径缺口,须后续 amendment 补 |
+| 3 | ⚠️ **`.gitmodules` 的 B6 定性(本轮定)** | ⭐ **判定:不计入 B6。**理由三条:① 它是 **git 元数据**,与 `.gitignore` 同类,⛔ 不是 nonconstant 的判据或配置;② 它**不是 nonconstant 写的内容** —— `git submodule add` 生成、格式由 git 定;③ **107 字节 / 3 行**,B6 防的是「复杂度」,⛔ 它不承载复杂度。⚠️ ⛔ **但 B6 的计数口径仍未写明「git 元数据不计入」** ⇒ 与 **Q12** / A002 `known_gaps` #2 同族的口径缺口,须后续 amendment 补 |
 | 4 | ⚠️ **克隆者必须 `--recurse-submodules`** | ⛔ 忘了 ⇒ `vendor/spec-kit` 是空目录 ⇒ 判据判 **2**(⭐ 失效模式安全)。⚠️ 但对 **Q13(Phase 8)安装形态**是必答项 |
 | 5 | ⚠️ **上游升级时必须重跑 `upstream-semantics` 并复查依赖桩清单** | 三个桩(`json5`/`readchar`/`pathspec`)是 Phase 6 的已知边界;⛔ 换 pin 后可能变。⇒ ⭐ **换 pin 的动作必须连带这一步**,⛔ 目前无判据强制 |
 | 6 | ⚠️ **红检动了真 submodule** | ⛔ 违反 C3「红检对 fixture 跑」的字面。⭐ 理由:副本不是 submodule,**无法复现被测性质**;⚠️ 缓解:每次红检后**当场复原并复跑绿检**(报告 #1 即复原后的结果) |
@@ -86,10 +86,10 @@
 
 Phase 8(Q13 安装形态)开工前须满足:
 
-1. ⭐ 本报告已提交,`.latch/upstream-pin.sh` 与 submodule 在 `4dddca8` 内 —— **已满足**
+1. ⭐ 本报告已提交,`.nonconstant/upstream-pin.sh` 与 submodule 在 `4dddca8` 内 —— **已满足**
 2. ⬜ 先答 **Q13**:① 安装脚本 ② spec-kit extension ③ PyPI 包
 3. ⚠️ 验收**判结果不判机制**:装进空临时仓后,**九条判据全部可被调用且返回预期退出码**
-4. ⬜ 红检:装进**已有 `latch.yml`** 的仓 ⇒ 非 0(⛔ 不得静默覆盖)
+4. ⬜ 红检:装进**已有 `nonconstant.yml`** 的仓 ⇒ 非 0(⛔ 不得静默覆盖)
 5. ⭐ **`known_gaps` #4 现在是 Q13 的硬输入** —— 安装形态必须回答「上游那份怎么取回」
 
 ## explicitly_out_of_scope

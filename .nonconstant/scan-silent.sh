@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# latch · silent-failure-scan  (T5)
+# nonconstant · silent-failure-scan  (T5)
 #
 #   ⭐ T5:任何可能失败的操作,若其失败不改变任何可观测输出,
 #      则该失败必然被累积到灾难规模。⛔ 与失败率无关,只与速率是否 > 0 有关。
@@ -16,7 +16,7 @@
 #   1  未过   —— 发现静默失败(逐条列出 路径:行号)
 #   2  扫描器自身故障 —— ⛔ 绝不因自身故障返回 0
 #
-# 用法:  bash .latch/scan-silent.sh <目录>
+# 用法:  bash .nonconstant/scan-silent.sh <目录>
 
 set -u
 
@@ -25,26 +25,26 @@ die_broken() {
   exit 2
 }
 
-# ⭐⭐ 扫描目标从 latch.yml 的 subjects.scan_target 取(A006)——
+# ⭐⭐ 扫描目标从 nonconstant.yml 的 subjects.scan_target 取(A006)——
 #    ⚠️ 本条曾是**最后一条**还要调用方硬编码输入的判据(Phase 2 known_gaps #4 · Q16 同族:
 #    「判定的输入(扫哪里)由调用方给」)。⇒ ⛔ 编排层若写死目标,判据就又被外部控制了。
 #    ⭐ argv 仍可覆盖(红检要指向 fixture,C3);⛔ 但**没有硬编码默认值** —— 没配就判 2。
 TARGET="${1:-}"
 if [ -z "$TARGET" ]; then
-  LATCH_DIR=$(dirname "$0")
+  NONCONSTANT_DIR=$(dirname "$0")
   # shellcheck source=/dev/null
-  . "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
-  [ -f latch.yml ] || die_broken "找不到 latch.yml —— ⛔ 读不到 subjects.scan_target"
-  TARGET=$(latch_subject latch.yml scan_target)
+  . "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+  [ -f nonconstant.yml ] || die_broken "找不到 nonconstant.yml —— ⛔ 读不到 subjects.scan_target"
+  TARGET=$(nc_subject nonconstant.yml scan_target)
 fi
-[ -n "$TARGET" ]  || die_broken "未给扫描目标,且 latch.yml 的 subjects 里没有 scan_target —— ⛔ 没有目标不等于没有静默失败"
+[ -n "$TARGET" ]  || die_broken "未给扫描目标,且 nonconstant.yml 的 subjects 里没有 scan_target —— ⛔ 没有目标不等于没有静默失败"
 [ -e "$TARGET" ]  || die_broken "扫描目标不存在: $TARGET —— ⛔ 不得当成「没有静默失败 ⇒ 放行」"
 [ -d "$TARGET" ]  || die_broken "扫描目标不是目录: $TARGET"
 
-CONFIG="latch.yml"
+CONFIG="nonconstant.yml"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置不等于没有静默失败"
 
-# ⛔ 显式豁免清单来自 latch.yml,⛔ 不硬编码在本脚本里。
+# ⛔ 显式豁免清单来自 nonconstant.yml,⛔ 不硬编码在本脚本里。
 # ⭐ 它受 Phase 1 测试守卫保护:改豁免 = 改判据 ⇒ criteria-guard 判红。
 EXCLUDES=$(awk '
   /^[ \t]*exclude:/ { e = 1; next }
@@ -59,7 +59,7 @@ FILES=$(find "$TARGET" -type f \( -name '*.py' -o -name '*.sh' \) | sort) \
 for ex in $EXCLUDES; do
   [ -n "$ex" ] || continue
   if printf '%s\n' "$FILES" | grep -qxF "$ex"; then
-    printf '⚠️ 已豁免(latch.yml 显式登记): %s\n' "$ex"
+    printf '⚠️ 已豁免(nonconstant.yml 显式登记): %s\n' "$ex"
     FILES=$(printf '%s\n' "$FILES" | grep -vxF "$ex")
   fi
 done

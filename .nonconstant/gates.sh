@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# latch · criteria-guard
+# nonconstant · criteria-guard
 #
 #   ⭐ 判据文件本身不得被被判定者修改 —— 考卷不能由考生自己改。
 #   实证:DevLoop 三个月唯一一次真拦截 = 工人改动 tests/ 让自己过关。
@@ -12,26 +12,26 @@
 #   2  闸自身故障 —— ⛔ 绝不因自身故障返回 0
 #
 # 用法:
-#   bash .latch/gates.sh              # 判工作树相对 HEAD 的改动
-#   bash .latch/gates.sh <base-ref>   # 判 <base-ref>..HEAD 的改动
+#   bash .nonconstant/gates.sh              # 判工作树相对 HEAD 的改动
+#   bash .nonconstant/gates.sh <base-ref>   # 判 <base-ref>..HEAD 的改动
 #
 # ⚠️ T5:任何可能失败的操作都必须查返回码。⛔ 本文件不得出现
 #    `|| true` / `2>/dev/null` / 不查返回码的捕获。
 
 set -u
 
-CONFIG="latch.yml"
+CONFIG="nonconstant.yml"
 
 die_broken() {
   printf '⛔ GATE BROKEN: %s\n' "$1" >&2
   exit 2
 }
 
-# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+# ⭐⭐ 配置取值一律走 .nonconstant/config-read.sh —— ⛔ 本脚本内不再自行解析
 #    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
 # ── 闸自身体检(⛔ 缺任何一样都不许返回 0)────────────────────────
 git rev-parse --git-dir >/dev/null || die_broken "不在 git 仓库内"
@@ -39,7 +39,7 @@ git rev-parse --git-dir >/dev/null || die_broken "不在 git 仓库内"
 
 # ── 读受保护路径清单 ────────────────────────────────────────────
 # 取 `protected:` 与下一个顶层键之间的 `- ` 行。⛔ 不引入 YAML 依赖。
-PATTERNS=$(latch_list "$CONFIG" protected)
+PATTERNS=$(nc_list "$CONFIG" protected)
 [ -n "$PATTERNS" ] || die_broken "$CONFIG 的 protected 清单为空 —— 空清单会让本闸恒过(常量)"
 
 # ── 取被判定的改动集合 ──────────────────────────────────────────
@@ -49,7 +49,7 @@ PATTERNS=$(latch_list "$CONFIG" protected)
 # ⛔ 拒绝而非静默忽略:静默忽略会让调用方以为自己指定的 base 生效了。
 [ "$#" -eq 0 ] || die_broken "⛔ 不接受调用方给 base(收到「$1」)—— base 只从 $CONFIG 取(A004)"
 
-BASE=$(latch_top "$CONFIG" base) \
+BASE=$(nc_top "$CONFIG" base) \
   || die_broken "读 base 失败"
 [ -n "$BASE" ] || die_broken "$CONFIG 里没有顶层 base: —— ⛔ 没有基线不等于没有改动"
 git rev-parse --verify "$BASE" >/dev/null || die_broken "配置里的 base 解析不了: $BASE"

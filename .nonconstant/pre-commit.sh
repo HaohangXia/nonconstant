@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# latch · pre-commit  —— ⭐ latch 自己用 latch
+# nonconstant · pre-commit  —— ⭐ nonconstant 自己用 nonconstant
 #
-#   ⚠️ ⛔ **latch 是一个闸门工具,而它自己的提交此前没有闸门。**
+#   ⚠️ ⛔ **nonconstant 是一个闸门工具,而它自己的提交此前没有闸门。**
 #      实证:「提交前先跑判据」是一条**无判据的规则** ⇒ 靠人记 ⇒
 #      **已自然发生两次**(2026-08-23 两次在 hard 判据判红时提交,
 #      两次都靠事后 `--amend` 补救)。⇒ ⭐ git 恰好提供执行点。
@@ -10,7 +10,7 @@
 #   ⭐ 这**不是加固**:与 Q19 那些「探针刻意构造的脚枪」性质不同 ——
 #      ⛔ 它已自然发生,且发生了两次。见 `LATCH-hardening-recursion` 的判别。
 #
-#   ⚠️ ⛔ 作用范围:**仅 latch 自举**。`.git/hooks/` 不受版本控制 ⇒
+#   ⚠️ ⛔ 作用范围:**仅 nonconstant 自举**。`.git/hooks/` 不受版本控制 ⇒
 #      ⛔ 装不进用户项目,`install.sh` **不装它**。⭐ README 告诉用户可以自己建。
 #
 #   判定:
@@ -20,7 +20,7 @@
 #
 # 退出码:  0 放行 / 1 拒绝 / 2 本脚本自身故障
 #
-# 用法:  bash .latch/pre-commit.sh        # 由 .git/hooks/pre-commit 调用
+# 用法:  bash .nonconstant/pre-commit.sh        # 由 .git/hooks/pre-commit 调用
 
 set -u
 
@@ -34,11 +34,11 @@ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_OBJECT_DIRECTORY
 
 die_broken() { printf '⛔ PRE-COMMIT BROKEN: %s\n' "$1" >&2; exit 2; }
 
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-CONFIG="latch.yml"
+CONFIG="nonconstant.yml"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG"
 
 # id｜impl｜level 三元组 —— ⭐ 从配置取,⛔ 不在本脚本里列判据
@@ -50,7 +50,7 @@ GATES=$(awk '/^gates:/{g=1;next} /^[a-z_]/{g=0}
 ' "$CONFIG") || die_broken "读判据清单失败"
 [ -n "$GATES" ] || die_broken "$CONFIG 里一条判据都没有 —— ⛔ 空清单会让本 hook 恒放行(常量)"
 
-# ⭐ 扫描目标不再由本脚本传 —— `.latch/scan-silent.sh` 自己从 subjects.scan_target 取(A006)。
+# ⭐ 扫描目标不再由本脚本传 —— `.nonconstant/scan-silent.sh` 自己从 subjects.scan_target 取(A006)。
 #    ⚠️ Phase 12 改的:编排层若写死目标,判定的输入就又被调用方控制了(Q16 同族)。
 
 HARD_RED=""; SOFT_RED=""; BROKEN=""
@@ -66,7 +66,7 @@ while IFS='|' read -r id impl level pc; do
     0) : ;;
     1) if [ "$level" = "soft" ]; then SOFT_RED="${SOFT_RED}   · $id(soft)"$'\n'
        elif [ "${pc:-}" = "advisory" ]; then
-         SOFT_RED="${SOFT_RED}   · $id(advisory —— 理由见 latch.yml,F5)"$'\n'
+         SOFT_RED="${SOFT_RED}   · $id(advisory —— 理由见 nonconstant.yml,F5)"$'\n'
        else HARD_RED="${HARD_RED}   · $id ($impl)"$'\n'; fi ;;
     *) BROKEN="${BROKEN}   · $id: 退出码 $code(闸自身故障 / 命令缺失)"$'\n' ;;
   esac
@@ -75,7 +75,7 @@ $GATES
 EOF
 
 [ -z "$(printf '%s' "$SOFT_RED" | tr -d '[:space:]')" ] || {
-  printf '⚠️ 以下判据判红但**放行**(soft = 不拦你;advisory = F5,理由在 latch.yml):\n' >&2
+  printf '⚠️ 以下判据判红但**放行**(soft = 不拦你;advisory = F5,理由在 nonconstant.yml):\n' >&2
   printf '%s' "$SOFT_RED" >&2
 }
 

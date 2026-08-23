@@ -1,19 +1,19 @@
 schema_version: "1.0"
 workflow:
-  id: "latch"
-  name: "latch gates"
+  id: "nonconstant"
+  name: "nonconstant gates"
   version: "1.0.0"
-  description: "Run every latch gate as a spec-kit shell step; stop on the first hard red."
+  description: "Run every nonconstant gate as a spec-kit shell step; stop on the first hard red."
 
 # ⭐⭐ 为什么要这个文件（A009）
-#   latch 有判据，⛔ 缺**时机**；spec-kit 有闸门能力（shell step），⛔ 缺判据 ——
+#   nonconstant 有判据，⛔ 缺**时机**；spec-kit 有闸门能力（shell step），⛔ 缺判据 ——
 #   实测：官方 workflow 78 行、**0 个 shell step**、2 个人工 gate。
-#   实证：latch 自己的一条判据 08-17 退化成常量，08-20 才发现，中间那条闸**跑了 0 次**。
+#   实证：nonconstant 自己的一条判据 08-17 退化成常量，08-20 才发现，中间那条闸**跑了 0 次**。
 #   ⇒ 判据需要**固定触发点**，否则退化成常量而无人知。
 #
 # ⚠️ ⛔ 本文件**不做自动派单**（那是 Q17，未排期）。它只做一件事：
-#   把 latch 判据挂到 spec-kit 的执行引擎上，判红时**真的停**。
-# ⛔ 单用 latch 完全可行（`bash .latch/<x>.sh`、pre-commit hook 都在跑）。
+#   把 nonconstant 判据挂到 spec-kit 的执行引擎上，判红时**真的停**。
+# ⛔ 单用 nonconstant 完全可行（`bash .nonconstant/<x>.sh`、pre-commit hook 都在跑）。
 #   ⭐ 本 workflow 是**增强**，⛔ 不是必需。
 
 # ══ ⛔ 四条实测语义，改本文件前必须知道（vendor/spec-kit v1.0.0 / bca6790）══
@@ -40,43 +40,43 @@ workflow:
 #        需要逻辑的，逻辑归**判据自己**（见 `silent-scan` 下的注）。
 
 # ⚠️ 已知限制：shell step 用 capture_output=True，⛔ 判据打印的诊断串**不回显到终端**。
-#   ⇒ 要看原因：`specify workflow status <run-id>`，或直接 `bash .latch/<x>.sh`。
+#   ⇒ 要看原因：`specify workflow status <run-id>`，或直接 `bash .nonconstant/<x>.sh`。
 
 steps:
   # ⭐⭐ meta-gate 放**第一位** —— 它同时兑现 C6「闸门缺失比闸门判红更严重」：
   #   它逐条检查每个 `impl:` 是否存在，缺失 ⇒ **判 2** 并点名是哪一条
-  #   （`.latch/meta-gate.sh` 的「判据 <id> 的实现不存在 …⇒ 绝不跳过(C6)」）。
+  #   （`.nonconstant/meta-gate.sh` 的「判据 <id> 的实现不存在 …⇒ 绝不跳过(C6)」）。
   #   ⇒ ⛔ 不需要在 YAML 里再写一遍存在性检查。⭐ 判据的事归判据。
   - id: meta-gate
     type: shell
-    run: bash .latch/meta-gate.sh
+    run: bash .nonconstant/meta-gate.sh
 
   - id: criteria-guard
     type: shell
-    run: bash .latch/gates.sh
+    run: bash .nonconstant/gates.sh
 
-  # ⭐ 无参 —— 扫描目标由 `.latch/scan-silent.sh` 自己从 latch.yml 的
+  # ⭐ 无参 —— 扫描目标由 `.nonconstant/scan-silent.sh` 自己从 nonconstant.yml 的
   #   `subjects.scan_target` 取（A006）。⛔ 编排层不得写死它：
   #   写死 = 判定的输入由调用方控制（Q16 · `LATCH-input-control` 同族）。
   - id: silent-scan
     type: shell
-    run: bash .latch/scan-silent.sh
+    run: bash .nonconstant/scan-silent.sh
 
   - id: report-pin
     type: shell
-    run: bash .latch/report.sh
+    run: bash .nonconstant/report.sh
 
   - id: status-facts
     type: shell
-    run: bash .latch/status-facts.sh
+    run: bash .nonconstant/status-facts.sh
 
   - id: waiver-expiry
     type: shell
-    run: bash .latch/waiver-expiry.sh
+    run: bash .nonconstant/waiver-expiry.sh
 
   - id: upstream-semantics
     type: shell
-    run: bash .latch/upstream-semantics.sh
+    run: bash .nonconstant/upstream-semantics.sh
 
   # ⭐ soft 判据放**最后**，且吞掉退出码 —— ⛔ 但判据自己会把原因打到 stderr。
   #   理由：soft 的定义就是「不阻断」（01-PLAN §5 P4）。⛔ 若让它中止 workflow，
@@ -86,4 +86,4 @@ steps:
   #   ⭐ `||` 与 `exit 0` 在 cmd.exe 与 POSIX sh 里语义一致 ⇒ 这一行两边都跑得动。
   - id: doc-budget-advisory
     type: shell
-    run: bash .latch/doc-budget.sh || exit 0
+    run: bash .nonconstant/doc-budget.sh || exit 0

@@ -27,8 +27,8 @@
 
 | 类 | 判什么 | 在用户项目里 |
 |---|---|---|
-| ⭐ 判 **latch 自己产物** | 判据文件 · 报告 · STATUS · 文档预算 · 豁免账期 | 装上就能跑 |
-| ⛔ 判 **latch 与上游的关系** | 上游语义 · 上游 pin | 依赖用户环境 |
+| ⭐ 判 **nonconstant 自己产物** | 判据文件 · 报告 · STATUS · 文档预算 · 豁免账期 | 装上就能跑 |
+| ⛔ 判 **nonconstant 与上游的关系** | 上游语义 · 上游 pin | 依赖用户环境 |
 
 **实测(⛔ 不是推测):**
 
@@ -44,9 +44,9 @@
 
 | 取值 | 含义 | 可分发 |
 |---|---|---|
-| `project` | 判**被装项目自己的产物** —— 路径可配,结构上不依赖 latch 仓布局 | ⭐ 是 |
+| `project` | 判**被装项目自己的产物** —— 路径可配,结构上不依赖 nonconstant 仓布局 | ⭐ 是 |
 | `upstream` | 判**上游** —— ⭐ 指向用户实际会跑的那份 spec-kit | ⭐ 是(⚠️ 需用户已装 spec-kit) |
-| `bootstrap` | ⛔ **仅 latch 自举** —— 结构上依赖 latch 仓自己的 submodule | ⛔ 否 |
+| `bootstrap` | ⛔ **仅 nonconstant 自举** —— 结构上依赖 nonconstant 仓自己的 submodule | ⛔ 否 |
 
 ⇒ **可分发 ≡ `scope != bootstrap`**。
 
@@ -67,7 +67,7 @@
 
 ### 4.3 ⭐ `upstream-semantics` 归 `upstream`(可分发)的理由
 
-1. **参数化** —— 它接受源码目录参数 ⇒ 指向用户装好的 `specify_cli` 即可,⛔ 结构上不绑 latch 仓。
+1. **参数化** —— 它接受源码目录参数 ⇒ 指向用户装好的 `specify_cli` 即可,⛔ 结构上不绑 nonconstant 仓。
 2. ⭐ **在用户侧更对** —— 它验的是「**用户实际会跑的那份**」,⛔ 而不是某个 vendored 副本。
 3. ⭐⭐ **已实地验证**(⛔ 不是推断):本轮装了 `specify-cli`(pin 到同一个 `bca6790`),对**真实安装**跑 ⇒ **`0`**。
 4. ⚠️ ⛔ **若因「当前环境演示不了」而标 `bootstrap`,那是把「环境缺口」藏进「作用域标签」** —— 代用品。⇒ ⛔ 不做。
@@ -80,8 +80,8 @@
 |---|---|---|---|
 | 1 | **§10 Phase 8 绿检「九条判据」** | `01-PLAN.md` §10 | ⭐ **正是本文所改** |
 | 2 | `STATUS.md`「9 条判据」 | `docs/audit/STATUS.md` | ⛔ **否** —— 那是**存在数**,⛔ 不是可分发数 |
-| 3 | `meta-gate` 现有检查项 | `.latch/meta-gate.sh` | ⛔ **否** —— A006 **新增**一项检查,⛔ 不改已有项 |
-| 4 | Phase 7 的 `upstream-pin` 判据 | `reports/phase7-4dddca8.md` | ⛔ **否** —— 它在 latch 仓内照常工作;A006 只是**声明它不分发** |
+| 3 | `meta-gate` 现有检查项 | `.nonconstant/meta-gate.sh` | ⛔ **否** —— A006 **新增**一项检查,⛔ 不改已有项 |
+| 4 | Phase 7 的 `upstream-pin` 判据 | `reports/phase7-4dddca8.md` | ⛔ **否** —— 它在 nonconstant 仓内照常工作;A006 只是**声明它不分发** |
 | 5 | Phase 6 的 `upstream-semantics` 判据 | `reports/phase6-33a1b16.md` | ⛔ **否**,⭐ **且被加强** —— 见 `known_gaps` #2 |
 
 ### ⇒ **重验要求:⛔ 无。**
@@ -92,8 +92,8 @@
 
 | # | 缺口 | 说明 |
 |---|---|---|
-| 1 | ⛔⛔ **本轮只记不实现** | `latch.yml` 尚未写 `scope` 字段,`meta-gate` 尚未查它,§10 Phase 8 的绿检**仍写着「九条」** ⇒ ⚠️ **口径暂不一致**(与 **A003** `known_gaps` #1 同形)。⇒ **Phase 8 开工第一件事:落 `scope` 字段 + 改 §10** |
+| 1 | ⛔⛔ **本轮只记不实现** | `nonconstant.yml` 尚未写 `scope` 字段,`meta-gate` 尚未查它,§10 Phase 8 的绿检**仍写着「九条」** ⇒ ⚠️ **口径暂不一致**(与 **A003** `known_gaps` #1 同形)。⇒ **Phase 8 开工第一件事:落 `scope` 字段 + 改 §10** |
 | 2 | ⭐ **Phase 6 的「三个依赖桩」不确定性在真实环境中消失** | 本轮实测:对 `uv tool` 安装跑 `upstream-semantics`,**注入的桩为「(无)」** —— 真实安装自带 `json5`/`readchar`/`pathspec`。⇒ ⭐ **那个不确定性是 vendored 源码树的产物,⛔ 不是判据的缺陷**。⚠️ ⛔ 但 Phase 6 报告 `known_gaps` #2 的措辞据此**过宽**,须在 Phase 8 订正 |
-| 3 | ⚠️ **`scope: project` 的判据仍有 latch 专用默认路径** | 如 `waiver-expiry` 默认读 `docs/audit/01-PLAN.md` 取 phase 编号、`status-facts` 默认读 `docs/audit/STATUS.md`。⭐ 均**可传参**,⛔ 但**默认值**是 latch 自己的布局 ⇒ 安装时须一并配置 |
+| 3 | ⚠️ **`scope: project` 的判据仍有 nonconstant 专用默认路径** | 如 `waiver-expiry` 默认读 `docs/audit/01-PLAN.md` 取 phase 编号、`status-facts` 默认读 `docs/audit/STATUS.md`。⭐ 均**可传参**,⛔ 但**默认值**是 nonconstant 自己的布局 ⇒ 安装时须一并配置 |
 | 4 | ⚠️ **`scope` 的取值正确性判不了** | `meta-gate` 只能查「声明了且取值合法」,⛔ **查不了「归类对不对」**(把 `bootstrap` 写成 `project` 照样过)⇒ **D5**,与 `LATCH-criteria-cannot-test-reasoning` 同族 |
-| 5 | ⚠️ **新引入一个不在版本控制里的依赖** | 本轮装了 `specify-cli`(`uv tool`,pin 到 `bca6790`)。⭐ 与 latch 已有的 `python` / `git` / `bash` 同类(Phase 6 `known_gaps` #6 已记),⛔ 但数量又多一个 |
+| 5 | ⚠️ **新引入一个不在版本控制里的依赖** | 本轮装了 `specify-cli`(`uv tool`,pin 到 `bca6790`)。⭐ 与 nonconstant 已有的 `python` / `git` / `bash` 同类(Phase 6 `known_gaps` #6 已记),⛔ 但数量又多一个 |

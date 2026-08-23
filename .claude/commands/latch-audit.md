@@ -1,8 +1,8 @@
 ---
-description: 跑一轮 latch 方案审计 —— 自动派发隔离的 maker 与 challenger sub-agent,打分,判定收敛
+description: 跑一轮 nonconstant 方案审计 —— 自动派发隔离的 maker 与 challenger sub-agent,打分,判定收敛
 ---
 
-跑 latch 审计的**一轮**。你是主控,不亲自提意见也不亲自打分。
+跑 nonconstant 审计的**一轮**。你是主控,不亲自提意见也不亲自打分。
 
 ## 前置检查
 
@@ -12,7 +12,7 @@ description: 跑一轮 latch 方案审计 —— 自动派发隔离的 maker 与
 
 ### 1 · 派发 Maker
 
-用 Task 工具启动 `latch-maker` sub-agent。给它:
+用 Task 工具启动 `nonconstant-maker` sub-agent。给它:
 
 - `docs/audit/01-PLAN.md` 路径
 - `docs/audit/03-LEDGER.md` 路径(供 G5 去重)
@@ -27,7 +27,7 @@ description: 跑一轮 latch 方案审计 —— 自动派发隔离的 maker 与
 
 **必须剥掉**:推导过程、动机、Benefit 分、Maker 的任何倾向性表述。
 
-用 Task 工具启动 `latch-challenger` sub-agent,给它:
+用 Task 工具启动 `nonconstant-challenger` sub-agent,给它:
 
 - `docs/audit/01-PLAN.md` 路径
 - 上一步剥离后的提案清单

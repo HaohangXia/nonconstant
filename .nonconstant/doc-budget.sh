@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# latch · doc-budget  —— 文档预算判据
+# nonconstant · doc-budget  —— 文档预算判据
 #
 #   ⭐ 一个从不被机器检查的约束,等于不存在 ——
 #      ⚠️ 而且比「没有约束」更坏,因为它让人**以为**有约束。
@@ -17,27 +17,27 @@
 #   1  未过   —— 有文件超限且**未登记 waiver**
 #   2  闸自身故障
 #
-# 用法:  bash .latch/doc-budget.sh [配置文件]     # 默认 latch.yml
+# 用法:  bash .nonconstant/doc-budget.sh [配置文件]     # 默认 nonconstant.yml
 
 set -u
 
 die_broken() { printf '⛔ DOC-BUDGET BROKEN: %s\n' "$1" >&2; exit 2; }
 
-CONFIG="${1:-latch.yml}"
+CONFIG="${1:-nonconstant.yml}"
 [ -f "$CONFIG" ] || die_broken "找不到配置 $CONFIG —— ⛔ 没有配置不等于都在预算内"
-# ⭐⭐ 配置取值一律走 .latch/config-read.sh —— ⛔ 本脚本内不再自行解析
+# ⭐⭐ 配置取值一律走 .nonconstant/config-read.sh —— ⛔ 本脚本内不再自行解析
 #    (C12 第二形态:行尾注释/引号被吞进取值 ⇒ 恒不命中 ⇒ 判据静默失效)
-LATCH_DIR=$(dirname "$0")
+NONCONSTANT_DIR=$(dirname "$0")
 # shellcheck source=/dev/null
-. "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+. "$NONCONSTANT_DIR/config-read.sh" || die_broken "读不到 $NONCONSTANT_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
 
-FILES=$(latch_list "$CONFIG" doc_budgets \
+FILES=$(nc_list "$CONFIG" doc_budgets \
         | sed -n 's/^file:[ \t]*//p') \
   || die_broken "读 doc_budgets 失败"
 [ -n "$FILES" ] || die_broken "$CONFIG 里没有 doc_budgets —— ⛔ 空清单会让本闸恒过(常量)"
 
 field() {   # field <file> <key>
-  latch_scrub "$(awk -v want="$1" -v key="$2" '
+  nc_scrub "$(awk -v want="$1" -v key="$2" '
     /^[ \t]*-[ \t]*file:/ {
       cur = $0; sub(/^[ \t]*-[ \t]*file:[ \t]*/, "", cur); inb = (cur == want); next
     }
@@ -73,7 +73,7 @@ for f in $FILES; do
   wu=$(field "$f" waiver_until)
   if [ -n "$wr" ] && [ -n "$wu" ]; then
     # ⛔ 豁免不得静默生效(LATCH-waiver-must-announce)
-    printf '⚠️ 已豁免(latch.yml 登记): %s  %s/%s 行 · 理由「%s」· 到期「%s」\n' \
+    printf '⚠️ 已豁免(nonconstant.yml 登记): %s  %s/%s 行 · 理由「%s」· 到期「%s」\n' \
       "$f" "$n" "$max" "$wr" "$wu"
     OK=$((OK + 1)); continue
   fi
@@ -83,7 +83,7 @@ done
 if [ -n "$(printf '%s' "$BAD" | tr -d '[:space:]')" ]; then
   printf '⛔ doc-budget FAIL —— 以下文件超出预算:\n' >&2
   printf '%s' "$BAD" >&2
-  printf '⇒ 超限须在 latch.yml 登记 waiver(reason + until 具体 phase)。⛔ 写下的上限必须有机器判据(C8)。\n' >&2
+  printf '⇒ 超限须在 nonconstant.yml 登记 waiver(reason + until 具体 phase)。⛔ 写下的上限必须有机器判据(C8)。\n' >&2
   exit 1
 fi
 
