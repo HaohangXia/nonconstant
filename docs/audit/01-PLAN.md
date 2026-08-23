@@ -507,6 +507,24 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 ## §11 现行与待排阶段(⭐ 计入预算)
 
+### Phase 12 · 接上 spec-kit 执行引擎(⭐ A009)
+
+⚠️ ⛔ **不是 Q17(自动派单)。**⭐ 只做一件:**让 workflow 调用 latch 判据,判红时真的停。**
+
+⭐ **两边各缺什么(实测)**:spec-kit 有闸门能力(`shell` step 任何非 0 ⇒ FAILED),⛔ 但官方 workflow **78 行 · 0 个 shell step · 2 个人工 gate** ⇒ **缺判据**;latch 有十条判据,⛔ 缺**时机**。
+
+⚠️ ⛔ **反面**:**单用 latch 完全可行** —— `pre-commit` 已拦下两次真实事故。⭐ 接 spec-kit 是**增强**,⛔ 不是必需。
+
+**做**:`workflows/latch/workflow.yml`(⭐ B6 第 8 格)· 用**内建** `shell` step(⛔ 不写自定义 step)· 显式处理 **127**(C6)。
+**⭐ 跑在哪**:**装了 latch 的普通项目**(⛔ 非 latch 自己的仓 —— Phase 8 教训:`config-read.sh` 没被装过去,在自己仓里永远看不见)。
+
+**验收(⛔ 真跑 `specify workflow run`,⛔ 不读代码)**:
+1. 绿 —— 全绿 ⇒ CLI 退出码 **0**
+2. 红 —— 任一 hard 判红 ⇒ 非 0 **且中止**(⛔ 非「跑完了但标记失败」)
+3. **127** —— 删掉一个判据脚本 ⇒ **必须非 0**;⛔ 若当成「跳过」返回 0 ⇒ **停下报告**
+
+**⭐ 收尾必答**:装了 latch 的项目里,用户日常该敲什么?`gates.sh` / `specify workflow run` / `pre-commit` 并存时各用在何时。⛔ 答不出 = latch 还不能被用。
+
 ### Phase 9+ · Q17 编排层
 
 ⛔ **本轮不排。**⚠️ 它的形态取决于 Q13 的答案(装成 spec-kit extension ⇒ `workflow.yml`;独立 ⇒ 另一套)。
