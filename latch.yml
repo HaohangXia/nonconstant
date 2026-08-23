@@ -31,6 +31,7 @@ subjects:
   plan: docs/audit/01-PLAN.md
   reports: reports
   upstream_src: vendor/spec-kit/src
+  readme: README.md
 
 # 判据清单。level: hard = 阻断且不可 waiver(01-PLAN §5 P4)
 #
@@ -150,6 +151,20 @@ gates:
     demo_fail: 切到别的 commit / 改上游文件 / 往上游塞新文件
     demo_fail_exit: 1
     demo_report: reports/phase7-4dddca8.md
+
+  - id: readme-runnable
+    scope: bootstrap
+    level: hard
+    impl: .latch/readme-runnable.sh
+    desc: README 里的命令必须真能跑，且三条必含内容不得隐去（A008）
+    demo_pass: 真源 README（命令引用均存在 + 三个披露锚点齐全）
+    demo_pass_exit: 0
+    demo_fail: fixture README（命令指向不存在的文件 / 抹掉某个披露锚点）
+    demo_fail_exit: 1
+    demo_report: reports/phase11-PENDING.md
+    # ⛔ scope: bootstrap —— 它判的是 latch 自己的 README，⛔ 不随安装分发。
+    # ⚠️ 能力边界（⭐ 承认，⛔ 不修）：查得了「命令指向的文件在不在」「披露锚点在不在」，
+    #    ⛔ 查不了「README 有没有说服力」——那是 D5，A008 §6 已承认。
 
   - id: doc-budget
     scope: project
