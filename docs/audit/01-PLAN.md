@@ -527,7 +527,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 ### Phase 13 · 改名 nonconstant → nonconstant(⭐ A010)
 
-⛔ **发布阻塞项**:`nonconstant` 在**同领域**已被占(`nonconstantagent/nonconstant` ·「Mission Control for AI Coding Agents」· PyPI/npm 全占)⇒ ⛔ 不是排名问题,是**身份问题**。
+⛔ **发布阻塞项**:`latch` 在**同领域**已被占(`latchagent/latch` ·「Mission Control for AI Coding Agents」· PyPI/npm 全占)⇒ ⛔ 不是排名问题,是**身份问题**。
 ⚠️ ⛔ `recuse` 亦已撤回 —— 全量扫描发现 `mthamil107/Recuse`(AI-access governance,**同一个自反语义**)。见 `LATCH-scan-top-result-only`。
 
 ⭐ **`nonconstant` 的来源**:`meta-gate` 那条规矩 —— **一条对任何输入都返回同一结果的检查,不是检查,是常量**。⭐ 它概括了全部已实证的判据失效方式(永远判红 · 永远判绿 · 静默少查一类 · 自遮蔽)。

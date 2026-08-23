@@ -30,8 +30,8 @@
 
 | | 冲突 |
 |---|---|
-| ⛔⛔ 同域 | `nonconstantagent/nonconstant`「Control layer for autonomous AI agents」· `runnonconstant.sh`「Mission Control for AI Coding Agents」（点名 Claude Code / Codex / OpenClaw） |
-| ⛔ 注册表 | GitHub `nonconstant` 被 `nonconstantbio/nonconstant` 占（174★）· PyPI `nonconstant` v2.77.0（活跃）· npm `nonconstant` 已注册 |
+| ⛔⛔ 同域 | `latchagent/latch`「Control layer for autonomous AI agents」· `runlatch.sh`「Mission Control for AI Coding Agents」（点名 Claude Code / Codex / OpenClaw） |
+| ⛔ 注册表 | GitHub `latch` 被 `latchbio/latch` 占（174★）· PyPI `latch` v2.77.0（活跃）· npm `latch` 已注册 |
 
 ⇒ ⭐ 撞名分两种：①同名不同域可共存；⛔②**同名同域** —— 用户搜到的是别人，而**定位词也一样** ⇒ ⛔ 不是排名问题，是**身份问题**。**本例是 ②。**
 
