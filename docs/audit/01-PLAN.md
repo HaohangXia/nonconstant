@@ -280,6 +280,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 | Q11 | ⭐ **hook 在 §3 的排名要重估到第几?** 实证已从「只覆盖架构 A」收窄为「覆盖 A + B 的一半」,且它是**唯一被证实拦得住 sub-agent** 的机制。⛔ 本轮不改排名 | §3 序位 · Phase 4 |
 | Q13 | ⛔ **安装形态未定。**候选:① 安装脚本 ② spec-kit extension ③ PyPI 包。⚠️ ② 的陷阱:扩展命令被迫叫 `speckit.latch.xxx`,且要接触 **D-03 决定不碰**的扩展系统(8,000 行) | ⛔ **Phase 1~3 完成后再定** —— 分发的前提是有东西可分发;⛔ 现在定 = 给一个还不存在的东西设计包装 |
 | Q18 | ⛔ **`until` 用 phase 编号是跨项目脆弱的。**⭐ 根治方向:改成**可核的条件**(如「`latch.yml` 中不再存在该 exclude 项」)⇒ 跨项目也成立,且不受重排影响。⚠️ 会改 `waiver-expiry` 的判据语义 | ⛔ 触发:**Phase 8 之后**;⭐ 实证见 `amendments/A007-*.md` |
+| **Q19** | ⛔⛔ **判据加固已推迟的四项**(⭐ 全部已有 LEDGER 条目,⛔ 带着文档化的已知缺口发布):**A** 判据 id 对齐 + 失败类型码(`silent-scan` vs `silent-failure-scan`;`GATE`/`SCAN` BROKEN 前缀不一致;⛔ 无机器可读失败类型)· **B** 自遮蔽配套(①「每条模式至少命中一个现存对象」+ ③「显式声明允许为空」,见 `LATCH-self-blinding`)· **C** C14 红检基线自检 + 「soft 判红不得提交」条款(`LATCH-harness-failure-looks-like-red`)· **D** B6 表判据(⭐ 状态列已订正为事实 ⇒ ⛔ 当前无假话 ⇒ 不建判据也能发) | ⛔ **触发:首个外部用户报告相关问题**,⛔ 不是「有空就做」。⭐ 依据:自然发生率 **1 次**(`status-facts` 断言 2,且被下一轮扫出),⛔ 其余全由探针刻意构造 ⇒ **是脚枪,不是漏洞** |
 | Q17 | ⛔ **编排层的可自动化边界。**完整论证见 `03-LEDGER.md` `LATCH-orchestration-boundary` | ⛔ 触发:**Phase 3 后** |
 | T6 候选 | ⭐ **凡让「修复成本随时间上升」的机制,必然固化错误。**T5 / 自指死锁 / 预算吃掉修正三者共用母题。见 `03-LEDGER.md` `LATCH-fix-cost-monotonicity` | ⛔ 升格进 §1 定理表须走 amendment。**归属:与 Q17 同批,⛔ 触发 = Phase 3 后** —— 编排层上线后 LEDGER 增速数量级上升,复查缺口那时才真正咬人;⛔ 提前处理是预先建设 |
 | Q16 | ⛔ **闸的 base 由谁提供未强制。**被判定者自选 base ⇒ 可先改判据、再把 base 设成改后状态 ⇒ 差集为空 ⇒ 判绿。⭐ **判定的输入被被判定者控制 ⇒ T1 失效**(见 `03-LEDGER.md` `LATCH-input-control`) | ⛔ 触发:**Phase 3 接编排层**时解决 |
