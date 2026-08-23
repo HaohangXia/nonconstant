@@ -171,6 +171,7 @@ doc_budgets:
     exclude_sections: 2 8 9      # 档案，依据 A001
   - file: docs/audit/18-PROTOCOL.md
     max_lines: 80
+    exclude_sections: 5          # §5 是撤回档案，依据 A001 的 scope 模型（⛔ 非新契约）
   - file: docs/audit/STATUS.md
     max_lines: 60
   - file: docs/audit/19-STATUS-ASSERTIONS.md
