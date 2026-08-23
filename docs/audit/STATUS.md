@@ -29,7 +29,7 @@
 | `doc-budget` | `.latch/doc-budget.sh` | soft |
 | `readme-runnable` | `.latch/readme-runnable.sh` | hard |
 
-配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A009` · 报告 `reports/phase0~8,10~12-*.md`
+配置 `latch.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A010` · 报告 `reports/phase0~8,10~12-*.md`
 ⭐ **已接 spec-kit workflow**(`workflows/latch/workflow.yml`)。⚠️ **B6 8/8 全部兑现** ⇒ 后续新文件一律走 **A003 预算外余量**并在报告 `known_gaps` 登记。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理 · ⛔ 无判据,靠人读)

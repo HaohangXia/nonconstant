@@ -525,6 +525,23 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 **⭐ 收尾必答**:装了 latch 的项目里,用户日常该敲什么?`gates.sh` / `specify workflow run` / `pre-commit` 并存时各用在何时。⛔ 答不出 = latch 还不能被用。
 
+### Phase 13 · 改名 latch → nonconstant(⭐ A010)
+
+⛔ **发布阻塞项**:`latch` 在**同领域**已被占(`latchagent/latch` ·「Mission Control for AI Coding Agents」· PyPI/npm 全占)⇒ ⛔ 不是排名问题,是**身份问题**。
+⚠️ ⛔ `recuse` 亦已撤回 —— 全量扫描发现 `mthamil107/Recuse`(AI-access governance,**同一个自反语义**)。见 `LATCH-scan-top-result-only`。
+
+⭐ **`nonconstant` 的来源**:`meta-gate` 那条规矩 —— **一条对任何输入都返回同一结果的检查,不是检查,是常量**。⭐ 它概括了全部已实证的判据失效方式(永远判红 · 永远判绿 · 静默少查一类 · 自遮蔽)。
+
+⭐⭐ **关键在「原子」**:路径与引用**同一次改动内**一起改 ⇒ 判据看到自洽状态 ⇒ 全绿 ⇒ hook 放行。⛔ 不需要绕过 hook。
+⚠️ `protected` 自己也要改 ⇒ `criteria-guard` 必判红 ⇒ ⭐ 由 `pre_commit: advisory` 接住(**F5**)。
+
+**验收(⛔ 三件缺一不可)**:
+1. 十条判据复跑 ⇒ **全绿**
+2. ⭐ **复跑 README 的 demo 命令序列** —— ⛔ 只跑判据不够(`.latch/` 出现在 demo 里)
+3. **装进全新空仓再跑一遍**(⚠️ Phase 8 教训:`config-read.sh` 没被装过去,在自己仓里永远看不见)
+
+⛔ **11 份完成报告不改历史** —— ⭐ 只加订正注记。⚠️ 任何一条改完仍判红 ⇒ **停下报告**,⛔ 不许放宽判据(R7)。
+
 ### Phase 9+ · Q17 编排层
 
 ⛔ **本轮不排。**⚠️ 它的形态取决于 Q13 的答案(装成 spec-kit extension ⇒ `workflow.yml`;独立 ⇒ 另一套)。
