@@ -193,7 +193,7 @@ gates:
 doc_budgets:
   - file: docs/audit/01-PLAN.md
     max_lines: 400
-    exclude_sections: 2 8 9      # 档案，依据 A001
+    exclude_sections: 2 8 9 10   # 档案（§10 = 已完成阶段），依据 A001
   - file: docs/audit/18-PROTOCOL.md
     max_lines: 80
     exclude_sections: 5          # §5 是撤回档案，依据 A001 的 scope 模型（⛔ 非新契约）
