@@ -50,9 +50,8 @@ GATES=$(awk '/^gates:/{g=1;next} /^[a-z_]/{g=0}
 ' "$CONFIG") || die_broken "读判据清单失败"
 [ -n "$GATES" ] || die_broken "$CONFIG 里一条判据都没有 —— ⛔ 空清单会让本 hook 恒放行(常量)"
 
-# ⭐ silent-scan 的扫描目标从配置取(A006:⛔ 判据的输入不得硬编码在调用方里)
-SCAN_TARGET=$(latch_subject "$CONFIG" scan_target)
-[ -n "$SCAN_TARGET" ] || die_broken "$CONFIG 的 subjects 里没有 scan_target —— ⛔ 没配就不知道扫哪里,不得猜"
+# ⭐ 扫描目标不再由本脚本传 —— `.latch/scan-silent.sh` 自己从 subjects.scan_target 取(A006)。
+#    ⚠️ Phase 12 改的:编排层若写死目标,判定的输入就又被调用方控制了(Q16 同族)。
 
 HARD_RED=""; SOFT_RED=""; BROKEN=""
 while IFS='|' read -r id impl level pc; do
@@ -61,10 +60,7 @@ while IFS='|' read -r id impl level pc; do
   # ⛔ 单独跑、直接读 $? —— **不接管道**。
   #    实证:管道会把退出码换成管道末端命令的(本项目已踩 3 次),
   #    ⇒ 「工具没跑起来」会被读成「判据判红了」(LATCH-harness-failure-looks-like-red)。
-  case "$id" in
-    silent-scan) bash "$impl" "$SCAN_TARGET" >/dev/null 2>&1 ;;
-    *)           bash "$impl"                >/dev/null 2>&1 ;;
-  esac
+  bash "$impl" >/dev/null 2>&1
   code=$?
   case "$code" in
     0) : ;;

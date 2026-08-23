@@ -1,0 +1,89 @@
+schema_version: "1.0"
+workflow:
+  id: "latch"
+  name: "latch gates"
+  version: "1.0.0"
+  description: "Run every latch gate as a spec-kit shell step; stop on the first hard red."
+
+# ⭐⭐ 为什么要这个文件（A009）
+#   latch 有判据，⛔ 缺**时机**；spec-kit 有闸门能力（shell step），⛔ 缺判据 ——
+#   实测：官方 workflow 78 行、**0 个 shell step**、2 个人工 gate。
+#   实证：latch 自己的一条判据 08-17 退化成常量，08-20 才发现，中间那条闸**跑了 0 次**。
+#   ⇒ 判据需要**固定触发点**，否则退化成常量而无人知。
+#
+# ⚠️ ⛔ 本文件**不做自动派单**（那是 Q17，未排期）。它只做一件事：
+#   把 latch 判据挂到 spec-kit 的执行引擎上，判红时**真的停**。
+# ⛔ 单用 latch 完全可行（`bash .latch/<x>.sh`、pre-commit hook 都在跑）。
+#   ⭐ 本 workflow 是**增强**，⛔ 不是必需。
+
+# ══ ⛔ 四条实测语义，改本文件前必须知道（vendor/spec-kit v1.0.0 / bca6790）══
+#
+#  1. shell step：`subprocess.run(run, shell=True, cwd=project_root, capture_output=True)`；
+#     **任何非 0 ⇒ StepStatus.FAILED**，退出码进 output.exit_code，
+#     并出现在错误串 "Shell command exited with code N."
+#     ⇒ ⭐ 127（命令不存在）与 1（判据判红）**可区分** —— 靠数值，⛔ 不靠状态。
+#
+#  2. 一步 FAILED ⇒ 整个 run 变 FAILED，**后续 step 不执行**，CLI 进程退出码 **1**。
+#     ⭐ 实测确认，⛔ 不是「跑完了但标记失败」。
+#
+#  3. ⛔⛔ **绝不给这些 step 加 `continue_on_error: true`** ——
+#     那会让失败只记一条日志然后**继续往下跑**。判据判红却不中止 = 闸门形同虚设。
+#     ⇒ 本文件**一处都没有**它。
+#
+#  4. ⛔⛔⛔ **`shell=True` 在 Windows 上是 `cmd.exe`，⛔ 不是 bash。**
+#     实测：`run: 'echo COMSPEC=%COMSPEC% DOLLAR0=$0 > f'` 写出
+#     `COMSPEC=C:\WINDOWS\system32\cmd.exe DOLLAR0=$0` —— %VAR% 展开、$0 是字面量。
+#     ⚠️ ⛔ **而那一步判 0「通过」** —— POSIX 逻辑不报错，悄悄什么也没做。
+#     ⇒ ⭐⭐ T5（静默失败）出现在**编排层**。
+#     ⚠️ 且 cmd.exe **不认单引号** ⇒ `bash -c '...'` 根本没分组。
+#     ⇒ ⛔⛔ **所以本文件里每一步都是「一条命令」，零内联 shell 逻辑。**
+#        需要逻辑的，逻辑归**判据自己**（见 `silent-scan` 下的注）。
+
+# ⚠️ 已知限制：shell step 用 capture_output=True，⛔ 判据打印的诊断串**不回显到终端**。
+#   ⇒ 要看原因：`specify workflow status <run-id>`，或直接 `bash .latch/<x>.sh`。
+
+steps:
+  # ⭐⭐ meta-gate 放**第一位** —— 它同时兑现 C6「闸门缺失比闸门判红更严重」：
+  #   它逐条检查每个 `impl:` 是否存在，缺失 ⇒ **判 2** 并点名是哪一条
+  #   （`.latch/meta-gate.sh` 的「判据 <id> 的实现不存在 …⇒ 绝不跳过(C6)」）。
+  #   ⇒ ⛔ 不需要在 YAML 里再写一遍存在性检查。⭐ 判据的事归判据。
+  - id: meta-gate
+    type: shell
+    run: bash .latch/meta-gate.sh
+
+  - id: criteria-guard
+    type: shell
+    run: bash .latch/gates.sh
+
+  # ⭐ 无参 —— 扫描目标由 `.latch/scan-silent.sh` 自己从 latch.yml 的
+  #   `subjects.scan_target` 取（A006）。⛔ 编排层不得写死它：
+  #   写死 = 判定的输入由调用方控制（Q16 · `LATCH-input-control` 同族）。
+  - id: silent-scan
+    type: shell
+    run: bash .latch/scan-silent.sh
+
+  - id: report-pin
+    type: shell
+    run: bash .latch/report.sh
+
+  - id: status-facts
+    type: shell
+    run: bash .latch/status-facts.sh
+
+  - id: waiver-expiry
+    type: shell
+    run: bash .latch/waiver-expiry.sh
+
+  - id: upstream-semantics
+    type: shell
+    run: bash .latch/upstream-semantics.sh
+
+  # ⭐ soft 判据放**最后**，且吞掉退出码 —— ⛔ 但判据自己会把原因打到 stderr。
+  #   理由：soft 的定义就是「不阻断」（01-PLAN §5 P4）。⛔ 若让它中止 workflow，
+  #   soft 与 hard 就没有区别，而那会让人为了通过而删掉 soft 判据。
+  #   ⚠️ ⛔ 代价不掩饰：workflow 退出码**不反映 soft 判红** ——
+  #     所以它排在最后，⭐ 前面的 hard 判据不会被它的 0 掩盖。
+  #   ⭐ `||` 与 `exit 0` 在 cmd.exe 与 POSIX sh 里语义一致 ⇒ 这一行两边都跑得动。
+  - id: doc-budget-advisory
+    type: shell
+    run: bash .latch/doc-budget.sh || exit 0

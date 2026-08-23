@@ -25,8 +25,19 @@ die_broken() {
   exit 2
 }
 
+# ⭐⭐ 扫描目标从 latch.yml 的 subjects.scan_target 取(A006)——
+#    ⚠️ 本条曾是**最后一条**还要调用方硬编码输入的判据(Phase 2 known_gaps #4 · Q16 同族:
+#    「判定的输入(扫哪里)由调用方给」)。⇒ ⛔ 编排层若写死目标,判据就又被外部控制了。
+#    ⭐ argv 仍可覆盖(红检要指向 fixture,C3);⛔ 但**没有硬编码默认值** —— 没配就判 2。
 TARGET="${1:-}"
-[ -n "$TARGET" ]  || die_broken "未给扫描目标 —— ⛔ 没有目标不等于没有静默失败"
+if [ -z "$TARGET" ]; then
+  LATCH_DIR=$(dirname "$0")
+  # shellcheck source=/dev/null
+  . "$LATCH_DIR/config-read.sh" || die_broken "读不到 $LATCH_DIR/config-read.sh —— ⛔ 取值出口缺失 ≠ 配置为空"
+  [ -f latch.yml ] || die_broken "找不到 latch.yml —— ⛔ 读不到 subjects.scan_target"
+  TARGET=$(latch_subject latch.yml scan_target)
+fi
+[ -n "$TARGET" ]  || die_broken "未给扫描目标,且 latch.yml 的 subjects 里没有 scan_target —— ⛔ 没有目标不等于没有静默失败"
 [ -e "$TARGET" ]  || die_broken "扫描目标不存在: $TARGET —— ⛔ 不得当成「没有静默失败 ⇒ 放行」"
 [ -d "$TARGET" ]  || die_broken "扫描目标不是目录: $TARGET"
 
