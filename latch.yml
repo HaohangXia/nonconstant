@@ -203,6 +203,8 @@ doc_budgets:
     max_lines: 70
   - file: docs/audit/20-NAME-CANDIDATES.md
     max_lines: 60
+  - file: docs/audit/21-PRIOR-ART.md
+    max_lines: 60
 
 # 预算(01-PLAN §7a / CLAUDE.md B6)
 budget:
