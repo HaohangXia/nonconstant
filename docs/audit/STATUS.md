@@ -55,6 +55,6 @@
 ## ⚠️ 已知债务(⛔ 无判据,靠人读 —— 计数与能力判断无对应物)
 
 ⚠️ **全局 hook** `block-no-verify` 误拦含 `grep -n` + `commit` 的命令,连带拦 `--amend`。
-**复发 4 次**;维持「⛔ 不修」(代价仅多跑几条命令)。⭐ 规避:避开 `-n` 与 `commit` 同现。⚠️ 计数须更新(F1)。根因 `LATCH-hook-three-legs`。
+**复发 5 次**(2026-08-23 又一次);维持「⛔ 不修」(代价仅多跑几条命令)。⭐ 规避:避开 `-n` 与 `commit` 同现。⚠️ 计数须更新(F1)。根因 `LATCH-hook-three-legs`。
 ⚠️⚠️ **红检可信度有限**:基线自检未引入前,⛔「工具没跑起来」与「判据判红」不可区分(`LATCH-harness-failure-looks-like-red`)。
 ⚠️ **waiver 机制只做了一半**:到期检查已有,⛔ 过期只判红、无强制清理(`A001` #1)。⚠️ DevLoop 侧 `%TEMP%` 残留 **249** 条 worktree(`devloop/gates.py:619`)⇒ ⛔ 属 DevLoop。
