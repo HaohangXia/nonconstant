@@ -66,6 +66,21 @@ done <<EOF
 $KEEP
 EOF
 
+# ── 判据的共享依赖 ────────────────────────────────────────────────
+# ⭐⭐ 判据会 source 同目录下的共享库(如 config-read.sh)。⛔ 不装 = 装了个坏的:
+#    每条判据都 die_broken 判 2。⚠️ 实测:Phase 8 首次绿检即撞上。
+# ⭐ 依赖清单从**判据源码里推导**(找 `. "$LATCH_DIR/xxx"`),
+#    ⛔ 不在安装器里硬编码文件名 —— 硬编码会在新增共享库时静默过期(C12 同族)。
+# ⛔ 这里**不写** 2>/dev/null:$STAGE/*.sh 此刻必然存在(上面刚 cp 进去),
+#    吞掉 stderr 只会把真实故障藏起来(T5),⛔ 且那正是 silent-scan 要抓的模式。
+DEPS=$(grep -ho '\$LATCH_DIR/[A-Za-z0-9_.-]*' "$STAGE"/*.sh | sed 's|^\$LATCH_DIR/||' | sort -u)   || die_broken "扫判据的共享依赖失败"
+for dep in $DEPS; do
+  [ -e "$STAGE/$dep" ] && continue          # 已随判据装过
+  [ -f "$SRC/.latch/$dep" ] || die_broken "判据引用了不存在的共享依赖: .latch/$dep"
+  cp "$SRC/.latch/$dep" "$STAGE/$dep" || die_broken "复制共享依赖失败: $dep"
+  N_DEP=$((${N_DEP:-0} + 1))
+done
+
 # ⭐ 探测用户实际装的 spec-kit —— ⛔ 不猜、⛔ 不回落到 latch 自己的 vendor 布局。
 #    探不到就**留空**:upstream-semantics 会判 2(没配就判不了),
 #    ⛔ 而不是指向一个错的路径然后声称验过了。
@@ -90,6 +105,11 @@ UP="$UPSTREAM_SRC" awk -v keep="$KEEP" '
   /^[ 	]*-[ 	]*id:/ { id=$0; sub(/^[ 	]*-[ 	]*id:[ 	]*/,"",id); skip=!(id in ok) }
   /^[ 	]*impl:/ && !skip { sub(/\.latch\/[^ ]*/, ".latch/" substr($0, match($0,/[^\/]*$/))) }
   /^[ 	]*demo_report:/ && !skip { print "    demo_report: .latch/EVIDENCE.md"; next }
+  # expected_assertion_classes 是**本项目承诺检查几类断言**,⛔ 不是 latch 的那个数 ——
+  #    新项目没有 amendments/ 也没有 phase 报告,做不出那两类断言。
+  #    ⇒ 整键省略;缺失 ⇒ status-facts 判 2 并指名「没声明该查几类」,⛔ 比抄一个数诚实。
+  /^[ 	]*expected_assertion_classes:/ && !skip {
+      print "    # 请填 expected_assertion_classes: <本项目 STATUS 承诺检查的断言类数>"; next }
   # 用 ENVIRON 取路径,不用 -v:awk 会把 Windows 路径里的反斜杠序列当成转义吃掉
   #    —— Phase 4 同族 bug 复发,已实测
   /^[ 	]+upstream_src:/ { print "  upstream_src: " ENVIRON["UP"]; next }
@@ -139,6 +159,7 @@ for f in "$STAGE"/*; do
   mv "$f" "$DST/.latch/$(basename "$f")" || die_broken "落位失败: $f"
 done
 
-printf '⭐ latch 已装入 %s —— %s 条可分发判据(scope != bootstrap)\n' "$DST" "$N"
+printf '⭐ latch 已装入 %s —— %s 条可分发判据(scope != bootstrap)+ %s 个共享依赖\n' \
+  "$DST" "$N" "${N_DEP:-0}"
 printf '⚠️ 下一步:① 按本项目实际改 latch.yml 的 protected / doc_budgets;② git add 后提交,否则 criteria-guard 会判红\n'
 exit 0

@@ -37,6 +37,25 @@ PLAN="${2:-}"
 [ -n "$PLAN" ] || die_broken "$CONFIG 的 subjects 里没有 plan —— ⛔ 没配就判不了,不得猜"
 [ -f "$CONFIG" ] || die_broken "找不到 $CONFIG —— ⛔ 没有配置不等于没有过期豁免"
 [ -f "$PLAN" ]   || die_broken "找不到 $PLAN —— ⛔ 算不出已排到第几 phase"
+MAXP=$(grep '^### Phase ' "$PLAN" | sed 's/^### Phase \([0-9]\+\).*/\1/;t;d' | sort -n | tail -1) \
+  || die_broken "扫 $PLAN 的 phase 标题失败"
+[ -n "$MAXP" ] || die_broken "$PLAN 里没有 '### Phase <n>' 标题 —— ⛔ 判不了「已排期」"
+
+# 取所有到期字段:`until:` 与 `waiver_until:`,连同它所在的行号
+ENTRIES=$(grep -n '^[ \t]*\(waiver_\)\?until:' "$CONFIG" \
+          | sed 's/^\([0-9]*\):[ \t]*\(waiver_\)\?until:[ \t]*/\1\t/') \
+  || ENTRIES=""
+
+# ⭐⭐ 先数豁免条数 —— ⛔ 零豁免时**不索要进度数据**。
+#    ⚠️ 实测(Phase 8 绿检):新装环境 reports/ 是空的 ⇒ 原实现在这里判 2,
+#    而它本来只需回答「每条豁免都没过期吗」—— 零条时该断言为真,⛔ 与进度无关。
+#    ⇒ ⛔ 求了用不上的数据,再因为拿不到而判 2 ⇒ 在每个新装环境里恒 2 = 常量。
+NENT=$(printf '%s\n' "$ENTRIES" | sed '/^$/d' | wc -l)
+if [ "$NENT" -eq 0 ]; then
+  printf '⭐ waiver-expiry PASS —— %s 里一条豁免都没有\n' "$CONFIG"
+  exit 0
+fi
+
 REPORTS=$(latch_subject "$CONFIG" reports)
 [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
 [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 算不出当前 phase,不得当成「没有过期」"
@@ -51,14 +70,6 @@ DONE=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u) 
 [ -n "$DONE" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 算不出已完成哪些 phase"
 DONE_LIST=$(printf '%s' "$DONE" | tr '\n' ' ')
 
-MAXP=$(grep '^### Phase ' "$PLAN" | sed 's/^### Phase \([0-9]\+\).*/\1/;t;d' | sort -n | tail -1) \
-  || die_broken "扫 $PLAN 的 phase 标题失败"
-[ -n "$MAXP" ] || die_broken "$PLAN 里没有 '### Phase <n>' 标题 —— ⛔ 判不了「已排期」"
-
-# 取所有到期字段:`until:` 与 `waiver_until:`,连同它所在的行号
-ENTRIES=$(grep -n '^[ \t]*\(waiver_\)\?until:' "$CONFIG" \
-          | sed 's/^\([0-9]*\):[ \t]*\(waiver_\)\?until:[ \t]*/\1\t/') \
-  || ENTRIES=""
 
 BAD=""
 N=0
@@ -81,14 +92,6 @@ while IFS=$'\t' read -r lineno val; do
 done <<EOF
 $ENTRIES
 EOF
-
-# ⛔ vacuous 防线:一条豁免都没有 ⇒ 判 0 是**正确**的 ——
-#    本判据断言的是「**每一条**豁免都未过期」,零条时该断言为真。
-#    ⚠️ 与 status-facts 不同:那里零断言 = 未履行职责;⭐ 这里零豁免 = 本来就没欠债。
-if [ "$N" -eq 0 ]; then
-  printf '⭐ waiver-expiry PASS —— %s 里一条豁免都没有(已完成: %s)\n' "$CONFIG" "$DONE_LIST"
-  exit 0
-fi
 
 if [ -n "$(printf '%s' "$BAD" | tr -d '[:space:]')" ]; then
   printf '⛔ waiver-expiry FAIL —— 以下豁免不合格(已完成: %s· 已排到 Phase %s):\n' "$DONE_LIST" "$MAXP" >&2

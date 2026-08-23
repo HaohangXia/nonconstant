@@ -74,13 +74,16 @@ fi
 #    STATUS 一改成「Phase 0~7 + 10 全部完成」它就**匹配不上 ⇒ 静默跳过**,
 #    而判据照样报 PASS。⇒ ⭐ 现在:**取出所有数字,展开 a~b 区间,当集合比**。
 CLAIMLINE=$(grep -o 'Phase [0-9~ +,]*全部完成' "$STATUS" | head -1)
-REPORTS=$(latch_subject "$CONFIG" reports)
-[ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ 没配就判不了"
-[ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 数不出已完成阶段"
-REALSET=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u | tr '\n' ' ')
-[ -n "$REALSET" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ 数不出已完成阶段"
+# ⭐⭐ 只在 STATUS **真的声称了** phase 集合时才索要 reports/ ——
+#    ⛔ 求了用不上的数据、再因为拿不到而判 2,会让本判据在**每个新装环境**恒 2 = 常量。
+#    ⚠️ 实测(Phase 8 绿检):新装环境 reports/ 是空的,而那份 STATUS 根本没做 phase 断言。
 if [ -n "$CLAIMLINE" ]; then
   seen_class phase-set
+  REPORTS=$(latch_subject "$CONFIG" reports)
+  [ -n "$REPORTS" ] || die_broken "$CONFIG 的 subjects 里没有 reports —— ⛔ STATUS 声称了 phase 集合却无从核对"
+  [ -d "$REPORTS" ] || die_broken "报告目录不存在: $REPORTS —— ⛔ 数不出已完成阶段"
+  REALSET=$(ls "$REPORTS"/ | sed 's/^phase\([0-9]\+\)-.*\.md$/\1/;t;d' | sort -n -u | tr '\n' ' ')
+  [ -n "$REALSET" ] || die_broken "$REPORTS 下一份 phase 报告都没有 —— ⛔ STATUS 声称完成了 phase,而磁盘上一份报告都没有"
   CHECKED=$((CHECKED + 1))
   CLAIMSET=$(printf '%s' "$CLAIMLINE" | awk '
     { gsub(/Phase|全部完成/, "")
@@ -200,18 +203,21 @@ case "$EXP_N" in ''|*[!0-9]*) die_broken "expected_assertion_classes 不是数�
 IMPL_N=$(count_words "$CLASS_IDS")
 SEEN_N=$(count_words "$CLASS_SEEN")
 
-# ⛔ I ≠ N ⇒ 2:判据实现的类数与契约声明的不符 ⇒ **它判不了它该判的**。
-#    ⭐ 这一档专治「有人从脚本里删掉一整类」—— 那时 N 还在,I 少了。
-[ "$IMPL_N" -eq "$EXP_N" ] || die_broken \
-  "覆盖面契约不符:$CONFIG 声明须查 $EXP_N 类,⛔ 本脚本只实现了 $IMPL_N 类($CLASS_IDS)⇒ 删类不得静默"
+# ⭐⭐ N = **本项目承诺检查的类数下界**,⛔ 不是「脚本实现了几类」。
+#    ⚠️ 实测(Phase 8):新装项目没有 amendments/ 也没有 phase 报告 ⇒ 做不出那两类断言。
+#    ⛔ 若强求 N == I,等于把 latch 自己的仓结构强加给每个用户。
+# ⛔ N > I ⇒ 2:承诺查的比脚本实现的还多 ⇒ **它判不了它承诺的**。
+#    ⭐ 同时专治「有人从脚本里删掉一整类」—— 那时 N 不变、I 少了 ⇒ N > I ⇒ 判 2。
+[ "$EXP_N" -le "$IMPL_N" ] || die_broken \
+  "覆盖面契约不符:$CONFIG 承诺查 $EXP_N 类,⛔ 本脚本只实现了 $IMPL_N 类($CLASS_IDS)⇒ 删类不得静默"
 
-# ⛔ M < I ⇒ 1:某一整类断言在 STATUS 里匹配不到 ⇒ **被判对象少了一类**。
-if [ "$SEEN_N" -lt "$IMPL_N" ]; then
+# ⛔ M < N ⇒ 1:承诺的类数没凑齐 ⇒ **被判对象少了一整类断言**。
+if [ "$SEEN_N" -lt "$EXP_N" ]; then
   MISSING=""
   for c in $CLASS_IDS; do
     printf '%s\n' $CLASS_SEEN | grep -qx "$c" || MISSING="${MISSING}$c "
   done
-  printf '⛔ status-facts FAIL —— 覆盖面萎缩:应查 %s 类,本次只匹配到 %s 类\n' "$IMPL_N" "$SEEN_N" >&2
+  printf '⛔ status-facts FAIL —— 覆盖面萎缩:承诺查 %s 类,本次只匹配到 %s 类\n' "$EXP_N" "$SEEN_N" >&2
   printf '   · 未匹配到的类:%s\n' "$MISSING" >&2
   printf '⇒ ⛔ 「匹配不到」与「没有该断言」不可区分 ⇒ 若放行,覆盖面会静默萎缩而判据全绿(C12)。\n' >&2
   printf '⇒ ⭐ 要么补回 %s 里那类断言,要么改 %s 的 expected_assertion_classes(⚠️ 后者会被 criteria-guard 判红,⭐ 那是有意的)。\n' "$STATUS" "$CONFIG" >&2
