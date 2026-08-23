@@ -102,6 +102,10 @@ git checkout -- latch.yml
 for g in .latch/*.sh; do bash "$g" >/dev/null 2>&1; echo "$g=$?"; done
 ```
 
+⭐ **想让它在提交时自动跑?**建一个 `.git/hooks/pre-commit`,里面调一个跑全部判据的脚本
+(latch 自己就这么做的,见 `.latch/pre-commit.sh`)。⚠️ ⛔ 安装器**不装它** —— `.git/hooks/`
+不受版本控制,装了也不会跟着仓库走。
+
 ⚠️ ⛔ 别用管道读退出码 —— 你读到的会是管道最后一个命令的。这个坑 latch 自己踩过两次。
 
 ## ⛔ latch 不做什么

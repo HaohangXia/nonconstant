@@ -32,6 +32,7 @@ subjects:
   reports: reports
   upstream_src: vendor/spec-kit/src
   readme: README.md
+  scan_target: .latch          # silent-scan 扫哪里（⛔ 不由调用方硬编码，A006）
 
 # 判据清单。level: hard = 阻断且不可 waiver(01-PLAN §5 P4)
 #
@@ -48,6 +49,15 @@ gates:
   - id: criteria-guard
     scope: project
     level: hard
+    # ⭐⭐ pre-commit 里**只告警不阻断**（⛔ 唯一一条；⭐ 依据 **F5**，⛔ 不是逃逸口）：
+    #    本闸判红的含义是「这次改动碰了判据」——⭐ 而在「改判据」这个提交里，
+    #    那正是**预期动作**。若阻断，装了 hook 的仓将**永远改不了自己的判据**
+    #    ⇒ 与 `LATCH-self-referential-deadlock` / `LATCH-budget-eats-the-fix` 同形。
+    #    ⭐ F5：任何自律型机制，须把「修正自身」排除在自己的执行之外。
+    # ⚠️ ⛔ 代价（⛔ 不掩饰）：pre-commit 挡不住「偷改判据」——
+    #    ⭐ 但 hook 本来就挡不住（`git commit --no-verify` 是 git 自带的）。
+    #    ⭐ 真正拦它的是**任务期跑闸**（被判定者跑 gates.sh 时判红），⛔ 那条未被削弱。
+    pre_commit: advisory
     impl: .latch/gates.sh
     desc: 判据文件不得被被判定者修改
     demo_pass: 只改 docs/audit/README.md 后跑
