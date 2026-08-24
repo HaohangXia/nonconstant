@@ -10,7 +10,7 @@
 |---|---|
 | 日期 | 2026-08-22(⛔ 无判据) |
 | 上游 pin | spec-kit v1.0.0(⛔ 无判据)/ `bca6790`(⭐ 有判据) |
-| §10 阶段 | ⭐ **Phase 0~8 + 10~13 全部完成**(⭐ 编号 = 身份,⛔ 非顺序) |
+| §10 阶段 | ⭐ **Phase 0~8 + 10~14 全部完成**(⭐ 编号 = 身份,⛔ 非顺序) |
 
 ## nonconstant 现在有什么
 
@@ -29,14 +29,14 @@
 | `doc-budget` | `.nonconstant/doc-budget.sh` | soft |
 | `readme-runnable` | `.nonconstant/readme-runnable.sh` | hard |
 
-配置 `nonconstant.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A011` · 报告 `reports/phase0~8,10~13-*.md`
+配置 `nonconstant.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A011` · 报告 `reports/phase0~8,10~14-*.md`
 ⭐ **已接 spec-kit workflow**(`workflows/nonconstant/workflow.yml`)。⚠️ **B6 8/8 全部兑现** ⇒ 后续新文件一律走 **A003 预算外余量**并在报告 `known_gaps` 登记。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理 · ⛔ 无判据,靠人读)
 
 | 项 | 内容 |
 |---|---|
-| ⭐⭐ **发布阻塞已解除** | 已改名 **nonconstant**(A010 / Phase 13)⇒ 下一步是发布本身:LICENSE · 归属 · v1 标签 |
+| ⭐⭐ **可推送** | LICENSE · 归属 · v1 说明齐备(A011 / Phase 14)⇒ ⛔ 推送由用户执行 |
 | **Q19** | ⛔ 判据加固四项已推迟 —— 触发:首个外部用户报告 |
 | **T6 候选** | 「凡让修复成本随时间上升的机制,必然固化错误」升格为定理 |
 
