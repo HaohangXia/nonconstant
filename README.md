@@ -147,13 +147,47 @@ awk -F'|' '/^\| *(R|K|F|C)[0-9]+ *\|/ { n++; if ($3 ~ /已机器化/) m++ } END 
 
 ⛔ **这些不是「以后会修」的场面话** —— 触发条件写死了：**首个外部用户报告相关问题**。⚠️ 在那之前不修，因为无使用者时可靠性的边际收益为零，⭐ 而机会成本是全部。
 
-## 与 spec-kit 的关系
+## 装之前先知道这些
 
-nonconstant 建在 [github/spec-kit](https://github.com/github/spec-kit) **v1.0.0**（`bca6790`）之上，作为 git submodule 固定。
+从 GitHub 拿下来时**带上 submodule**：
 
-- ⛔ **不 fork、不改上游一个字符** —— `upstream-pin` 判据盯着这一点
-- ⭐ nonconstant 依赖上游的**两条行为语义**（`shell` step 的退出码语义、`gate` step 非 TTY 不自动放行）
-- ⭐ `upstream-semantics` **真跑上游代码观察行为**来验证，⛔ 不比对源码文本 —— 否则一次合法重构就会误报
+```bash
+git clone --recurse-submodules https://github.com/<你的用户名>/nonconstant.git
+```
+
+⚠️ 忘了 `--recurse-submodules` 也**不会静默出错**：`vendor/spec-kit` 会是空目录，
+`upstream-pin` 与 `upstream-semantics` 判 **2** 并直说「submodule 未取回；请跑 `git submodule update --init`」。
+⭐ 其余八条照常判 0 —— ⛔ **没有任何一条会因为「没测到」而返回 0**。
+
+⭐ 安装器本身不受影响：它探测的是**你机器上实际装的 spec-kit**，⛔ 不是这个 vendor 副本。
+
+<!-- nonconstant:disclosure:attribution -->
+
+## 归属
+
+**[github/spec-kit](https://github.com/github/spec-kit)** — MIT。`vendor/spec-kit` 是一个 git submodule，
+pin 在 `bca679051abb80d6cf0cd909f2539a28a10eb7eb`（v1.0.0）。
+⛔ **nonconstant 不含 spec-kit 的任何代码** —— 不 fork、不改上游一个字符，`upstream-pin` 判据盯着这一点。
+⭐ 它依赖上游的**两条行为语义**（`shell` step 的退出码语义、`gate` step 非 TTY 不自动放行），
+而 `upstream-semantics` **真跑上游代码观察行为**来验证，⛔ 不比对源码文本 —— 否则一次合法重构就会误报。
+
+**DevLoop（本项目的 v1，已归档）** — nonconstant 的每条原则都**指向 DevLoop 的一次具体事故**作为实证：
+一条判据 08-17 退化成常量、08-20 才被发现，中间那条闸跑了 0 次；临时目录积到 86 GB 撑爆 C 盘。
+⛔ **nonconstant 不 import DevLoop 一行代码** —— 它只引用那些事故。
+
+**[Loop Engineering](https://addyosmani.com/blog/loop-engineering/)（Addy Osmani）** — nonconstant 的定位句
+「**Loop Engineering 是油门的工程学；这是刹车和仪表的工程学**」直接建在他的框架上。
+**Maker / Checker 的拆分来自 LE。**
+⭐ 而 nonconstant 针对的三个缺口 —— 验证责任、comprehension debt、cognitive surrender —— **是他自己列出来的**。
+
+**同域的其他项目** — [ryangu00/axiom](https://github.com/ryangu00/axiom)（Claude Code / Codex CLI / hermes-agent /
+OpenClaw 四个运行时适配、完整 prior-art 文档、`KNOWN-LIMITATIONS.md`）·
+[vnmoorthy/groundtruth](https://github.com/vnmoorthy/groundtruth)（1,272 个真实 turn 的标定）·
+[manuelschipper/nah](https://github.com/manuelschipper/nah)（101,194 次工具调用的**公开**语料）·
+[farhank15/mantiz](https://github.com/farhank15/mantiz)（11 种作弊模式检测）。
+
+⚠️ ⛔ **如果你要的是一个成熟的工具，去看它们。**nonconstant 是一个 shell 安装器、一个运行时、零公开语料。
+⭐ 它留下的是**这些结论怎么被逼出来的过程**（见 [`docs/RETROSPECTIVE.md`](docs/RETROSPECTIVE.md)）。
 
 ## 现状
 
@@ -167,4 +201,4 @@ nonconstant 建在 [github/spec-kit](https://github.com/github/spec-kit) **v1.0.
 
 ## 许可
 
-上游 spec-kit 为 MIT。nonconstant 自身的文件见仓库根目录。
+**MIT** —— 见 [`LICENSE`](LICENSE)。上游 spec-kit 亦为 MIT。

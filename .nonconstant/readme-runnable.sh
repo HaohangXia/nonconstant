@@ -57,11 +57,14 @@ done
 # ── ② 三条必含内容 ────────────────────────────────────────────────
 # ⭐ 查的是**标记**,⛔ 不是措辞 —— 措辞会改,标记是契约(与 C12 第二形态同一教训:
 #    ⛔ 别把判据绑在人类可读文案上)。README 里以 HTML 注释形式落这三个锚。
+# ⭐ 第四个锚点(归属)由 A011 加入 —— ⛔ 外部项目的名字必须留在文中,
+#    ⚠️ 而它们正是「为什么改名」的证据(LATCH-global-replace-cannot-distinguish-ownership)。
 for anchor in nonconstant:disclosure:mechanized-ratio \
               nonconstant:disclosure:checkable-not-correct \
-              nonconstant:disclosure:known-gaps; do
+              nonconstant:disclosure:known-gaps \
+              nonconstant:disclosure:attribution; do
   grep -qF "$anchor" "$DOC" \
-    || note "README 缺少必含内容锚点:$anchor(A008 §4 —— 隐去 = 把 nonconstant 卖成「装上就不会错」)"
+    || note "README 缺少必含内容锚点:$anchor(A008 §4 · A011 —— 隐去 = 把 nonconstant 卖成「装上就不会错」)"
 done
 
 if [ -n "$(printf '%s' "$BAD" | tr -d '[:space:]')" ]; then
@@ -71,5 +74,5 @@ if [ -n "$(printf '%s' "$BAD" | tr -d '[:space:]')" ]; then
   exit 1
 fi
 
-printf '⭐ readme-runnable PASS —— %s:%s 条命令引用均存在,三条必含内容齐全\n' "$DOC" "$NREF"
+printf '⭐ readme-runnable PASS —— %s:%s 条命令引用均存在,四条必含内容齐全\n' "$DOC" "$NREF"
 exit 0
