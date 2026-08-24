@@ -1,14 +1,14 @@
 # 改名候选与查重扫描（2026-08-23）
 
-> ⭐ **起因**：`LATCH-name-collision-blocks-release` —— 名字在**同领域**已被占，发布已停。
+> ⭐ **起因**：`LATCH-name-collision-blocks-release` —— 旧名 `latch` 在**同领域**已被占，发布已停。
 > ⛔ **本文只做「查重与排序」，⛔ 未开始任何替换。**定名之前一个字不改。
 > ⚠️ 上限 60 行（`nonconstant.yml:doc_budgets`）。
 
 ## ⭐ 选名方向：⛔ 离开「闸门/控制」语义场
 
-⚠️ ⛔ 撞车正是发生在那里：`gate` · `nonconstant` · `control layer` · `mission control` 全被占。
+⚠️ ⛔ 撞车正是发生在那里：`gate` · `latch` · `control layer` · `mission control` 全被占。
 
-⇒ ⭐ nonconstant 的独特之处**不是**「有闸门」，⭐ 是 **判定者不能是被判定者**（T1）。
+⇒ ⭐ 本项目的独特之处**不是**「有闸门」，⭐ 是 **判定者不能是被判定者**（T1）。
 ⇒ ⇒ 候选取自**司法回避 / 独立鉴定**语义场。
 
 ## 查重表（⛔ 逐项实测；⚠️ 判别：①同名不同域可共存 · ⛔②同名同域 ⇒ 淘汰）

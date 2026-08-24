@@ -525,7 +525,7 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 **⭐ 收尾必答**:装了 nonconstant 的项目里,用户日常该敲什么?`gates.sh` / `specify workflow run` / `pre-commit` 并存时各用在何时。⛔ 答不出 = nonconstant 还不能被用。
 
-### Phase 13 · 改名 nonconstant → nonconstant(⭐ A010)
+### Phase 13 · 改名 latch → nonconstant(⭐ A010)
 
 ⛔ **发布阻塞项**:`latch` 在**同领域**已被占(`latchagent/latch` ·「Mission Control for AI Coding Agents」· PyPI/npm 全占)⇒ ⛔ 不是排名问题,是**身份问题**。
 ⚠️ ⛔ `recuse` 亦已撤回 —— 全量扫描发现 `mthamil107/Recuse`(AI-access governance,**同一个自反语义**)。见 `LATCH-scan-top-result-only`。
