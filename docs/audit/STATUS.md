@@ -29,7 +29,7 @@
 | `doc-budget` | `.nonconstant/doc-budget.sh` | soft |
 | `readme-runnable` | `.nonconstant/readme-runnable.sh` | hard |
 
-配置 `nonconstant.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A010` · 报告 `reports/phase0~8,10~13-*.md`
+配置 `nonconstant.yml` · 边界 `CLAUDE.md` · 修正 `amendments/A001~A011` · 报告 `reports/phase0~8,10~13-*.md`
 ⭐ **已接 spec-kit workflow**(`workflows/nonconstant/workflow.yml`)。⚠️ **B6 8/8 全部兑现** ⇒ 后续新文件一律走 **A003 预算外余量**并在报告 `known_gaps` 登记。
 
 ## ⭐⭐ 三条未决已解锁(⛔ 本轮未处理 · ⛔ 无判据,靠人读)

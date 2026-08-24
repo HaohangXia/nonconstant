@@ -542,6 +542,24 @@ hard 失败 → 阻断;soft 失败 → 修复或开 waiver;advisory → 记 `kno
 
 ⛔ **11 份完成报告不改历史** —— ⭐ 只加订正注记。⚠️ 任何一条改完仍判红 ⇒ **停下报告**,⛔ 不许放宽判据(R7)。
 
+### Phase 14 · 发布(⭐ A011)
+
+⭐ **唯一的发布阻塞项(撞名)已由 Phase 13 消除。**
+
+**四件**:① `LICENSE`(MIT,与上游一致)· ② **归属章节**(⭐ 用锚点,⛔ 不绑措辞)· ③ v1 标签 + 一段话发布说明(⛔ 非 CHANGELOG)· ④ ⛔ **推送由用户执行**,⭐ 但命令逐条列出。
+
+⚠️ ⛔ **归属四条一条不许少**:**spec-kit**(MIT · submodule pin `bca6790` · ⛔ 不含其代码)· **DevLoop v1**(⭐ 原则指向它的具体事故作实证,⛔ 不 import 一行,D-05)· **Loop Engineering / Addy Osmani**(⭐⭐ 定位句「LE 是油门的工程学,这是刹车和仪表的工程学」建在其框架上;Maker/Checker 来自 LE;⭐ 本项目针对的三个缺口是他自己列的)· **同域项目**(axiom / groundtruth / nah / Mantiz,⚠️ ⛔ 明写「要成熟工具去看它们」)。
+⛔⛔ **这些外部名字任何脚本一个字不许改** —— 本项目刚踩过(`LATCH-global-replace-cannot-distinguish-ownership`)。
+
+**推送前最后一遍(⛔ 缺一不可)**:
+1. 十条判据全绿
+2. demo 在**全新空仓**跑通
+3. `readme-runnable` ⇒ **0**
+4. ⚠️ clone 后 **submodule 未取回**的路径在 README 说清
+5. ⭐ **全仓 grep `latch` 并按指涉分类** —— 保留:条目 ID / 报告注记 / 外部项目名 / 自述改名;⛔ 本项目自称须已全改
+
+⚠️ ⛔ 任一项不过 ⇒ **停下报告**,⛔ 不要带着它推送。
+
 ### Phase 9+ · Q17 编排层
 
 ⛔ **本轮不排。**⚠️ 它的形态取决于 Q13 的答案(装成 spec-kit extension ⇒ `workflow.yml`;独立 ⇒ 另一套)。
