@@ -2,6 +2,58 @@
 
 **给 AI 编码工作流装一道闸：让「我检查过了」变成一条能跑的命令。**
 
+<!--
+  English summary added 2026-09-01. The rest of this README is in Chinese, which
+  is fine for its author and useless to everyone else — including any employer or
+  collaborator who arrives from a résumé or a search. This section exists so the
+  repository can be understood without reading Chinese. It is a summary, not a
+  translation: ⛔ do not let it drift from the Chinese below, and when a fact
+  changes, change both.
+-->
+
+> **In English.** The rest of this README is in Chinese; this section is the short version.
+>
+> **The problem.** You ask an agent to implement something and run the tests. It reports:
+> *all passing*. Three different situations produce that same sentence — the tests really
+> passed, the tests were edited until they passed, or the tests never reached the code.
+> You cannot tell which from the report. That is not a model-quality problem; it is that
+> **the thing being judged and the thing doing the judging are the same party.**
+>
+> **What nonconstant does.** It turns "I checked it" from a sentence into a command and an
+> exit code. Ten non-interactive gates, 1,452 lines of shell, each answering with a status:
+>
+> ```
+> 0  pass        1  fail        2  the gate itself is broken — cannot judge
+> ```
+>
+> **The third code is the point: nonconstant never returns 0 because it could not tell.**
+> Missing target, absent config, unimportable dependency — all of these are 2, never
+> "found no problem, therefore green".
+>
+> Two gates are worth naming. `criteria-guard` keeps the list of protected files *inside a
+> file it protects*, so an agent that edits the criteria to pass trips the gate by doing so.
+> `meta-gate` requires every criterion to have demonstrated both a pass and a failure —
+> **a check that has never failed is a constant, not a check**, and that is where the name
+> comes from.
+>
+> **Built on [github/spec-kit](https://github.com/github/spec-kit)** as a pinned submodule.
+> No fork, no upstream edits. One gate verifies the pin; another *executes* upstream code and
+> observes the two behaviours this depends on, rather than diffing source — so a legitimate
+> refactor upstream does not raise a false alarm.
+>
+> **What it does not do.** The gates check that a claim is *verifiable*, not that the
+> reasoning behind it is *correct*. Of this project's own 33 operating rules, 5 are
+> mechanised; the rest are either unimplemented or undecidable in principle. Four known
+> gaps are documented in `01-PLAN.md` §6 Q19 with an explicit trigger for fixing them
+> (first external user report) rather than a promise.
+>
+> **Predecessor.** DevLoop, archived as v1. nonconstant imports none of its code and cites
+> only its incidents — including a gate that quietly degraded into a constant and went
+> unnoticed for three days, running zero times while still reporting success.
+>
+> **Licence:** MIT. Start with the 30-second demo below (`## 30 秒 demo`) — the commands are
+> language-independent.
+
 ---
 
 ## 问题
