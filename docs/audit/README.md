@@ -1,21 +1,27 @@
-> **若本目录任何文件与 `01-PLAN.md` 冲突,以 `01-PLAN.md` 为准。04~13 是过程记录,不是现行结论。**
+<p align="right">
+  <strong>English</strong> · <a href="./README.zh-CN.md">简体中文</a>
+</p>
 
-# docs/audit 导读
+# Audit record guide
 
-⛔ 往返审计记录里有相当一部分结论**已被推翻**(见 `01-PLAN.md` §8,现 14 条)。
-新 session 直接读它们会照错误计划开工。**先读 `STATUS.md`,再读 `01-PLAN.md`。**
+> If any file in this directory conflicts with [`01-PLAN.md`](01-PLAN.md), the plan wins.
+> Files numbered 04–15 are process records, not automatically current conclusions.
 
-| 文件 | 是什么 | 状态 |
+Some conclusions in the review exchanges were later disproved. Start with
+[`STATUS.md`](STATUS.md), then read [`01-PLAN.md`](01-PLAN.md); opening a historical reply in
+isolation can reconstruct an obsolete plan.
+
+| File | Role | Authority |
 |---|---|---|
-| `01-PLAN.md` | 方案主文档 | ⭐ 当前有效,**唯一真源** |
-| `03-LEDGER.md` | 账本(跨轮记录 / 否决库 / 原意图重建档案) | ⭐ 有效 |
-| `STATUS.md` | 当前进度与阻塞 | ⭐ 有效 |
-| `18-PROTOCOL.md` | **现行操作规则**(会被订正;⛔ 理由在 `03-LEDGER.md`) | ⭐ 有效 |
-| `16-DECISIONS.md` | 决策记录(理由档案) | ⭐ 有效 |
-| `17-DEVLOOP-DECISIONS.md` | DevLoop 侧决策记录 | ⭐ 有效 |
-| `14-` / `15-` | 实测报告(编排层核验 / PreToolUse 靶场) | ⭐ 有效 |
-| `04-DEVLOOP-INTEGRATION.md` | 往返审计记录 | ⚠️ 历史档案,结论以 `01-PLAN.md` 为准 |
-| `06-DEVLOOP-REPLY.md` | 往返审计记录 | ⚠️ 历史档案,结论以 `01-PLAN.md` 为准 |
-| `08-DEVLOOP-REPLY.md` | 往返审计记录 | ⚠️ 历史档案,结论以 `01-PLAN.md` 为准 |
-| 05 · 07 · 09 · 11 · 13 | nonconstant 侧往返回复 | ⛔ **不在本仓库。**有效结论已折进 `01-PLAN.md`;07 / 13 已被 §8 #13 及后续事实作废。⛔ **不要去寻找或恢复它们** |
-| 10 · 12 | DevLoop 侧回复 | ⛔ 不在本仓库,结论已折进 `01-PLAN.md` |
+| [`STATUS.md`](STATUS.md) | Current state, completed phases and unresolved items. | Current index; machine-checked where noted. |
+| [`01-PLAN.md`](01-PLAN.md) | Design, phase plan and accepted reversals. | Primary source for the current plan. |
+| [`03-LEDGER.md`](03-LEDGER.md) | Cross-session observations, rejected ideas and intent reconstruction. | Current evidence ledger. |
+| [`18-PROTOCOL.md`](18-PROTOCOL.md) | Operating rules, corrected as evidence changes. | Current protocol; rationale remains in the ledger. |
+| [`16-DECISIONS.md`](16-DECISIONS.md) | Decision rationale. | Historical but still authoritative for recorded decisions. |
+| [`17-DEVLOOP-DECISIONS.md`](17-DEVLOOP-DECISIONS.md) | Decisions made on the DevLoop side of the review. | Historical decision record. |
+| `14-*` / `15-*` | Orchestration verification and hook-lab observations. | Measurements at their recorded commits. |
+| `04-*`, `06-*`, `08-*` | Back-and-forth audit documents. | Historical process only; re-check against the plan. |
+
+Numbered replies 05, 07, 09, 10, 11, 12 and 13 are intentionally not in this repository.
+Their accepted conclusions were folded into the plan; do not recreate placeholder files for
+missing sequence numbers.
