@@ -91,6 +91,8 @@ Agent 修改仓库
 | `doc-budget` | 受控文档是否仍处于声明的体量预算内？ |
 | `readme-runnable` | README Bash 代码块中的脚本 token 是否指向真实文件，3 个强制边界披露与 1 个归属锚点是否存在？ |
 
+每条检查的通俗解释、例子和适用边界，见[十条检查简明指南](docs/TEN-GATES.zh-CN.md)。
+
 ## 安装到另一个仓库
 
 在 nonconstant 的 clone 中运行：

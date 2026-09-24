@@ -93,6 +93,9 @@ The repository uses the same gates to check itself.
 | `doc-budget` | Are controlled documents within their declared size budgets? |
 | `readme-runnable` | Do shell-script tokens in README Bash blocks resolve to files, and are the three mandatory limitation disclosures plus the attribution anchor present? |
 
+For plain-language explanations and limits of all ten gates, see the
+[bilingual ten-gate guide](docs/TEN-GATES.zh-CN.md).
+
 ## Install it in another repository
 
 Run the installer from a clone of nonconstant:
